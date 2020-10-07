@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -18,7 +19,22 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
-	public:
+
+	/** Attack Animation **/
+	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
+	TArray<class UAnimMontage*> Combo;	
+
+	UPROPERTY(EditAnywhere,Category=Timing,meta=(AllowPrivateAccess="true"))
+	float AttackWaitTime;
+
+	FTimerHandle TimerAttack;
+
+	//States
+	bool bAttack;
+	uint32 AttackCounter;
+	
+public:
+	virtual void Tick(float DeltaSeconds) override;
 	APlayerCharacter();
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
@@ -52,7 +68,21 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	*/
 	void LookUpAtRate(float Rate);
 
-	protected:
+	void Attack();
+	void StopAttack();
+
+	void Dodge();
+	void StopDodge();
+
+	void SelectLeft();
+	void StopSelectLeft();
+	
+	virtual void BeginPlay() override;
+	
+protected:
+	void SelectRight();
+	void StopSelectRight();
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface

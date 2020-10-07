@@ -2,7 +2,11 @@
 
 
 #include "PlayerCharacter.h"
-#include "HeadMountedDisplayFunctionLibrary.h"
+
+
+#include "SkeletalMeshMerge.h"
+#include "Animation/AnimMontage.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
@@ -11,20 +15,9 @@
 #include "GameFramework/SpringArmComponent.h"
 
 
-// Called when the game starts or when spawned
-// void APlayerCharacter::BeginPlay()
-// {
-// 	Super::BeginPlay();
-// }
-
-// Called every frame
-// void APlayerCharacter::Tick(float DeltaTime)
-// {
-// 	Super::Tick(DeltaTime);
-// }
-
 APlayerCharacter::APlayerCharacter()
 {
+	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
@@ -56,7 +49,24 @@ APlayerCharacter::APlayerCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
+
+	
+	AttackCounter = 0;
 }
+
+// Called when the game starts or when spawned
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+}
+
+//Called every frame
+void APlayerCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+}
+
 
 //////////////////////////////////////////////////////////////////////////
 // Input
@@ -68,9 +78,23 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::Attack);
+	PlayerInputComponent->BindAction("Attack", IE_Released, this, &APlayerCharacter::StopAttack);
+
+	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &APlayerCharacter::Dodge);
+	PlayerInputComponent->BindAction("Dodge", IE_Released, this, &APlayerCharacter::StopDodge);
+
+	PlayerInputComponent->BindAction("SelectLeft", IE_Pressed ,this,&APlayerCharacter::SelectLeft);
+	PlayerInputComponent->BindAction("SelectLeft", IE_Released,this, &APlayerCharacter::StopSelectLeft);
+	
+	PlayerInputComponent->BindAction("SelectRight", IE_Pressed,this, &APlayerCharacter::SelectRight);
+	PlayerInputComponent->BindAction("SelectRight", IE_Released,this, &APlayerCharacter::StopSelectRight);
+
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
+
+	
 	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
@@ -78,13 +102,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
-
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &APlayerCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &APlayerCharacter::TouchStopped);
-
-	// VR headset functionality
-	//PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &APlayerCharacter::OnResetVR);
+	
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -97,6 +115,45 @@ void APlayerCharacter::LookUpAtRate(const float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void APlayerCharacter::Attack()
+{
+	bAttack = true;
+	PlayAnimMontage(Combo[AttackCounter]);
+	AttackCounter++;
+	
+	if(AttackCounter==Combo.Num())
+		AttackCounter=0;
+}
+
+void APlayerCharacter::StopAttack()
+{
+	bAttack = false;
+}
+
+void APlayerCharacter::Dodge()
+{
+}
+
+void APlayerCharacter::StopDodge()
+{
+}
+
+void APlayerCharacter::SelectLeft()
+{	
+}
+
+void APlayerCharacter::StopSelectLeft()
+{
+}
+
+void APlayerCharacter::SelectRight()
+{
+}
+
+void APlayerCharacter::StopSelectRight()
+{
 }
 
 void APlayerCharacter::MoveForward(const float Value)

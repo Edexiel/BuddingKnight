@@ -12,6 +12,7 @@
 UCLASS()
 class BUDDINGKNIGHT_API ABuddingKnightGameModeBase : public AGameModeBase
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+public:
+    ABuddingKnightGameModeBase();
 };
