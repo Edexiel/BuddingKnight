@@ -30,7 +30,8 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	FTimerHandle TimerAttack;
 
 	//States
-	bool bAttack;
+	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	bool bCanAttack;
 	uint32 AttackCounter;
 	
 public:
@@ -76,8 +77,15 @@ public:
 
 	void SelectLeft();
 	void StopSelectLeft();
+
+	UFUNCTION(BlueprintCallable)
+	void OnValidateAttack();
 	
+	UFUNCTION(BlueprintCallable)
+	void OnResetCombo();
+
 	virtual void BeginPlay() override;
+
 	
 protected:
 	void SelectRight();

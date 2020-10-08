@@ -52,6 +52,8 @@ APlayerCharacter::APlayerCharacter()
 
 	
 	AttackCounter = 0;
+	bCanAttack = true;
+	
 }
 
 // Called when the game starts or when spawned
@@ -116,20 +118,29 @@ void APlayerCharacter::LookUpAtRate(const float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
+void APlayerCharacter::OnValidateAttack()
+{
+	bCanAttack = true;
+}
+
+void APlayerCharacter::OnResetCombo()
+{
+	AttackCounter=0;
+	bCanAttack = true;
+
+}
 
 void APlayerCharacter::Attack()
 {
-	bAttack = true;
+	if(!bCanAttack)
+		return;
+	bCanAttack=false;
 	PlayAnimMontage(Combo[AttackCounter]);
 	AttackCounter++;
-	
-	if(AttackCounter==Combo.Num())
-		AttackCounter=0;
 }
 
 void APlayerCharacter::StopAttack()
 {
-	bAttack = false;
 }
 
 void APlayerCharacter::Dodge()
@@ -147,6 +158,7 @@ void APlayerCharacter::SelectLeft()
 void APlayerCharacter::StopSelectLeft()
 {
 }
+
 
 void APlayerCharacter::SelectRight()
 {
