@@ -50,7 +50,10 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool AttackCamera {false};
-
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool IsSwitchingTarget {false};
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float CameraAttackDistance {0};
 	

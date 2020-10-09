@@ -221,6 +221,7 @@ void APlayerCharacter::ChangeCameraType()
 {
 	AttackCamera = !AttackCamera;
 	CameraBoom->bUsePawnControlRotation = !AttackCamera;
+	IsSwitchingTarget = !IsSwitchingTarget;
 }
 
 void APlayerCharacter::MoveForward(const float Value)
