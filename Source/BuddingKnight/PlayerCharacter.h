@@ -32,6 +32,9 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	//States
 	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	bool bCanAttack;
+	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	bool bIsRolling;
+
 	uint32 AttackCounter;
 	
 public:

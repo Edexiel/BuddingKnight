@@ -145,6 +145,8 @@ void APlayerCharacter::StopAttack()
 
 void APlayerCharacter::Dodge()
 {
+	bIsRolling=true;
+	
 }
 
 void APlayerCharacter::StopDodge()
