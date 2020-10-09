@@ -60,6 +60,7 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	CameraBoom->TargetArmLength=CameraPlatformDistance;
 
 }
 
@@ -67,6 +68,9 @@ void APlayerCharacter::BeginPlay()
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if(bIsRolling)
+		AddMovementInput(GetActorForwardVector(),1);
 }
 
 
@@ -188,9 +192,10 @@ void APlayerCharacter::StopAttack()
 void APlayerCharacter::Dodge()
 {
 	bIsRolling=true;
+	if(bIsRolling)
+		return;	
 	
 }
-
 void APlayerCharacter::StopDodge()
 {
 }

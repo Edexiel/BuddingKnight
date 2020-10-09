@@ -131,8 +131,6 @@ protected:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-	virtual void BeginPlay() override;
-
 	UFUNCTION(blueprintcallable)
 	void CameraChange();
 
