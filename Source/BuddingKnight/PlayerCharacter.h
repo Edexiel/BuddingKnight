@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -13,11 +12,11 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	GENERATED_BODY()
 
 	/** Camera boom positioning the camera behind the character */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
 
 	/** Follow camera */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
 	/** Attack Animation **/
@@ -48,7 +47,33 @@ public:
 	/** Base look up/down rate, in deg/sec. Other scaling may affect final rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool AttackCamera {false};
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CameraAttackDistance {0};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CameraPlatformDistance {0};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AlphaCameraBoomLength {0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float AlphaCameraBoomRot {0};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CameraPlatformToAttackSpeed {0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float CameraBoomRotSpeed {0};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	APawn * LockEnemy;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TArray<APawn *> Enemies;
 	protected:
 
 	/** Resets HMD orientation in VR. */
@@ -94,6 +119,8 @@ protected:
 	void SelectRight();
 	void StopSelectRight();
 	
+	void ChangeCameraType();
+
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
@@ -104,4 +131,11 @@ protected:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+	virtual void BeginPlay() override;
+
+	UFUNCTION(blueprintcallable)
+	void CameraChange();
+
+	UFUNCTION(blueprintcallable)
+    void CameraLock();
 };
