@@ -9,7 +9,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
-
+#include "Kismet/KismetMathLibrary.h"
 
 // Called when the game starts or when spawned
 // void APlayerCharacter::BeginPlay()
@@ -46,7 +46,7 @@ APlayerCharacter::APlayerCharacter()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 300.0f; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = CameraPlatformDistance; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 
 	// Create a follow camera
@@ -68,6 +68,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+	PlayerInputComponent->BindAction("cameraChange", IE_Pressed, this, &APlayerCharacter::ChangeCameraType);
+	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
 
@@ -78,13 +80,53 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+}
 
-	// handle touch devices
-	PlayerInputComponent->BindTouch(IE_Pressed, this, &APlayerCharacter::TouchStarted);
-	PlayerInputComponent->BindTouch(IE_Released, this, &APlayerCharacter::TouchStopped);
+void APlayerCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+	//CameraBoom->TargetArmLength = CameraPlatformDistance;
+}
 
-	// VR headset functionality
-	//PlayerInputComponent->BindAction("ResetVR", IE_Pressed, this, &APlayerCharacter::OnResetVR);
+void APlayerCharacter::CameraChange()
+{
+	float deltatime = GetWorld()->GetDeltaSeconds();
+	
+	if (AttackCamera && AlphaCameraBoomLength < 1)
+	{
+		AlphaCameraBoomLength += deltatime * CameraPlatformToAttackSpeed;
+		UE_LOG(LogTemp, Warning, TEXT("AttackCamera = true") );
+		CameraBoom->TargetArmLength = FMath::Lerp(CameraPlatformDistance, CameraAttackDistance, AlphaCameraBoomLength);
+	}
+	else if (!AttackCamera && AlphaCameraBoomLength > 0)
+	{
+		AlphaCameraBoomLength -= deltatime * CameraPlatformToAttackSpeed;
+		UE_LOG(LogTemp, Warning, TEXT("AttackCamera = false") );
+		CameraBoom->TargetArmLength = FMath::Lerp(CameraPlatformDistance, CameraAttackDistance, AlphaCameraBoomLength);
+	}
+	//UE_LOG(LogTemp, Warning, TEXT("AlphaCameraBoomLength = %f"), AlphaCameraBoomLength);
+}
+
+void APlayerCharacter::CameraLock()
+{
+	if(!IsValid(LockEnemy))
+		return;
+	
+	const float Deltatime = GetWorld()->GetDeltaSeconds();
+	const FVector CameraBoomLocation = CameraBoom->GetComponentLocation();
+	const FVector EnemyLocation = LockEnemy->GetActorLocation();
+	
+	FRotator CameraBoomRotation = CameraBoom->GetComponentRotation();
+	const FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoomLocation, EnemyLocation);
+	
+	if (AttackCamera && AlphaCameraBoomRot < 1)
+	{
+		AlphaCameraBoomRot += Deltatime * CameraBoomRotSpeed;
+		UE_LOG(LogTemp, Warning, TEXT("AttackCamera = true") );
+		CameraBoom->SetWorldRotation(NewRotation);
+	}
+	else if (!AttackCamera)
+		AlphaCameraBoomRot = 0;
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -97,6 +139,12 @@ void APlayerCharacter::LookUpAtRate(const float Rate)
 {
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
+}
+
+void APlayerCharacter::ChangeCameraType()
+{
+	AttackCamera = !AttackCamera;
+	CameraBoom->bUsePawnControlRotation = !AttackCamera;
 }
 
 void APlayerCharacter::MoveForward(const float Value)
