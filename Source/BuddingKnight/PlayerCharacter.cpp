@@ -58,15 +58,13 @@ APlayerCharacter::APlayerCharacter()
 	SphereDetection = CreateDefaultSubobject<USphereComponent>(TEXT("SphereDetection"));
 	SphereDetection->InitSphereRadius(100.f);
 	SphereDetection->SetupAttachment(RootComponent);
-	SphereDetection->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
-	
+
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
-	
+
 	AttackCounter = 0;
 	bCanAttack = true;
-	
 }
 
 // Called when the game starts or when spawned
@@ -74,7 +72,9 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	CameraBoom->TargetArmLength = CameraBoomLength;
-
+	SphereDetection->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
+	SphereDetection->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
+	
 	if(Enemies.Num() > 0)
 	{
 		DistancePlayerLockEnemy = FMath::Abs ((Enemies[0]->GetActorLocation() - GetActorLocation()).Size());
@@ -148,7 +148,6 @@ void APlayerCharacter::CameraTransition()
 	else if (!AttackCamera && AlphaCameraBoomLength > 0)
 	{
 		AlphaCameraBoomLength -= Deltatime * CameraBoomTransitionSpeed;
-		UE_LOG(LogTemp, Warning, TEXT("AttackCamera = false") );
 		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoomLength, CameraBoomLengthAttack, AlphaCameraBoomLength);
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("AlphaCameraBoomLength = %f"), AlphaCameraBoomLength);
@@ -163,17 +162,21 @@ void APlayerCharacter::CameraLock()
 	const FVector CameraBoomLocation = CameraBoom->GetComponentLocation();
 	const FVector EnemyLocation = LockEnemy->GetActorLocation();
 	
-	//FRotator CameraBoomRotation = CameraBoom->GetComponentRotation();
-	const FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoomLocation, EnemyLocation);
+	FRotator CameraBoomRotation = CameraBoom->GetComponentRotation();
+	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoomLocation, EnemyLocation);
 	
 	if (AttackCamera)
 	{
 		AlphaCameraBoomRot + Deltatime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += Deltatime * CameraBoomRotSpeed;
-		UE_LOG(LogTemp, Warning, TEXT("AttackCamera = true") );
-		CameraBoom->SetWorldRotation(NewRotation);
+		UE_LOG(LogTemp, Warning, TEXT("Alpha = %f"),AlphaCameraBoomRot);
+		NewRotation = FMath::Lerp(CameraBoomRotation, NewRotation, AlphaCameraBoomRot);
+		CameraBoom->SetWorldRotation(NewRotation);		
 	}
 	else if (!AttackCamera)
+	{
+		CameraBoom->SetWorldRotation(GetControlRotation());
 		AlphaCameraBoomRot = 0;
+	}
 }
 
 void APlayerCharacter::SearchClosestEnemy()
@@ -190,6 +193,7 @@ void APlayerCharacter::SearchClosestEnemy()
 		{
 			DistancePlayerLockEnemy = NewDistance;
 			LockEnemy = Enemies[i];
+			IsSwitchingTarget = true;
 		}
 	}
 }
@@ -202,14 +206,23 @@ void APlayerCharacter::SetControllerRotation() const
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 	
 }
-void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,
-									  class AActor* OtherActor,
-									  class UPrimitiveComponent* OtherComp,
-									  int32 OtherBodyIndex,
-									  bool bFromSweep,
-									  const FHitResult& SweepResult)
+void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
+	if(OtherActor->IsA(APawn::StaticClass()))
+	{
+		AttackCamera = true;
+		CameraBoom->bUsePawnControlRotation = false;
+	}
+}
+
+void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if(OtherActor->IsA(APawn::StaticClass()))
+	{
+		AttackCamera = false;
+		CameraBoom->bUsePawnControlRotation = true;
+	}
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -278,9 +291,8 @@ void APlayerCharacter::StopSelectRight()
 
 void APlayerCharacter::ChangeCameraType()
 {
-	AttackCamera = !AttackCamera;
-	CameraBoom->bUsePawnControlRotation = !AttackCamera;
-	IsSwitchingTarget = !IsSwitchingTarget;
+	AttackCamera = false;
+	CameraBoom->bUsePawnControlRotation = true;
 }
 
 void APlayerCharacter::MoveForward(const float Value)
