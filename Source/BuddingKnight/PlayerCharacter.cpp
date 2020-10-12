@@ -22,8 +22,8 @@ APlayerCharacter::APlayerCharacter()
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 
 	// set our turn rates for input
-	BaseTurnRate = 45.f;
-	BaseLookUpRate = 45.f;
+	BaseTurnRate = 65.f;
+	BaseLookUpRate = 65.f;
 
 	// Don't rotate when the controller rotates. Let that just affect the camera.
 	bUseControllerRotationPitch = false;
@@ -50,9 +50,11 @@ APlayerCharacter::APlayerCharacter()
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
 
+	MovementComponent = ACharacter::GetMovementComponent();
 	
 	AttackCounter = 0;
 	bCanAttack = true;
+	bIsRolling = false;
 	
 }
 
@@ -81,7 +83,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 {
 	// Set up gameplay key bindings
 	check(PlayerInputComponent);
-	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
+	PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &APlayerCharacter::Jump);
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::Attack);
@@ -110,6 +112,15 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+}
+
+void APlayerCharacter::Jump()
+{
+	if(bIsRolling || !bCanAttack)
+		return;
+		
+	bPressedJump = true;
+	JumpKeyHoldTime = 0.0f;
 }
 
 void APlayerCharacter::CameraChange()
@@ -173,27 +184,26 @@ void APlayerCharacter::OnResetCombo()
 {
 	AttackCounter=0;
 	bCanAttack = true;
-
 }
 
 void APlayerCharacter::Attack()
 {
-	if(!bCanAttack)
+	if(!bCanAttack || bIsRolling)
 		return;
+	
 	bCanAttack=false;
 	PlayAnimMontage(Combo[AttackCounter]);
 	AttackCounter++;
 }
 
-void APlayerCharacter::StopAttack()
-{
-}
+void APlayerCharacter::StopAttack(){}
 
 void APlayerCharacter::Dodge()
 {
-	bIsRolling=true;
-	if(bIsRolling)
-		return;	
+	if(!bCanAttack || bIsRolling || MovementComponent->IsFalling() )
+		return;
+	
+	bIsRolling=true;	
 	
 }
 void APlayerCharacter::StopDodge()
@@ -251,4 +261,6 @@ void APlayerCharacter::MoveRight(const float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
+
+
 

@@ -28,13 +28,16 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 
 	FTimerHandle TimerAttack;
 
-	//States
-	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
-	bool bCanAttack;
-	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
-	bool bIsRolling;
+	UPawnMovementComponent*  MovementComponent;
 
 	uint32 AttackCounter;
+
+	//BPStates
+	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	bool bCanAttack;
+	
+	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	bool bIsRolling;
 	
 public:
 	virtual void Tick(float DeltaSeconds) override;
@@ -131,6 +134,8 @@ protected:
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
+
+	virtual void Jump() override;
 	UFUNCTION(blueprintcallable)
 	void CameraChange();
 
