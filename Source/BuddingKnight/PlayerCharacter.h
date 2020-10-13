@@ -23,7 +23,7 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 
 	/** A collision sphere in order to detect enemy*/
 	UPROPERTY(EditAnywhere)
-	class USphereComponent* SphereDetection;
+	class USphereComponent* DetectionSphere;
 
 	/** Attack Animation **/
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
@@ -55,10 +55,18 @@ public:
 	float BaseLookUpRate;
 	
 	UPROPERTY()
-	bool AttackCamera {false};
+	bool ChangeCameraRotation {false};
+	UPROPERTY()
+	bool ChangeCameraLength {false};
 	
 	UPROPERTY()
 	bool IsSwitchingTarget {false};
+
+	UPROPERTY()
+	bool DelayIsReset {false};
+
+	UPROPERTY()
+	bool DetectionSphereIsColliding {false};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Camera)
 	float CameraBoomLengthAttack {0};
@@ -131,12 +139,33 @@ protected:
 	void SelectRight();
 	void StopSelectRight();
 	
-	void ChangeCameraType();
-
+	void ChangeCameraTypePressed();
+	void ChangeCameraTypeReleased();
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+
+
+	UPROPERTY()
+	FTimerHandle TimeHandleSoftLock;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float DelaySoftLockCooldown {0};
+
+	UFUNCTION()
+	void DelaySoftLock();
+
+	UFUNCTION()
+	void ResetSoftLock();
+	
+	UPROPERTY()
+	FRotator OldCameraBoomRotation;
+
+	UPROPERTY()
+	bool OldCameraBoomRotationIsSet{false};
+	
 	public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
