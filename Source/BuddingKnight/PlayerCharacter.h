@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
+class UTimelineComponent;
+
 UCLASS()
 class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 {
@@ -18,6 +20,10 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	/** Follow camera */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
+
+	/** A collision sphere in order to detect enemy*/
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* DetectionSphere;
 
 	/** Attack Animation **/
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
@@ -51,33 +57,48 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseLookUpRate;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool AttackCamera {false};
+	UPROPERTY()
+	bool ChangeCameraRotation {false};
+	UPROPERTY()
+	bool ChangeCameraLength {false};
+	
+	UPROPERTY()
+	bool IsSwitchingTarget {false};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float CameraAttackDistance {0};
+	UPROPERTY()
+	bool DelayIsReset {false};
+
+	UPROPERTY()
+	bool DetectionSphereIsColliding {false};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float CameraPlatformDistance {0};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Camera)
+	float CameraBoomLengthAttack {0};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Camera)
+	float CameraBoomLength {0};
+	
+	UPROPERTY()
 	float AlphaCameraBoomLength {0};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY()
 	float AlphaCameraBoomRot {0};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float CameraPlatformToAttackSpeed {0};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraBoomTransitionSpeed {0};
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	float CameraBoomRotSpeed {0};
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	APawn * LockEnemy;
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
     TArray<APawn *> Enemies;
-	protected:
+
+	UPROPERTY()
+	float DistancePlayerLockEnemy;
+	
+protected:
 
 	/** Resets HMD orientation in VR. */
 	// Void OnResetVR();
@@ -117,17 +138,37 @@ public:
 
 	virtual void BeginPlay() override;
 
-	
-protected:
+
 	void SelectRight();
 	void StopSelectRight();
 	
-	void ChangeCameraType();
-
+	void ChangeCameraTypePressed();
+	void ChangeCameraTypeReleased();
+	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	// End of APawn interface
 
+
+
+	UPROPERTY()
+	FTimerHandle TimeHandleSoftLock;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float DelaySoftLockCooldown {0};
+
+	UFUNCTION()
+	void DelaySoftLock();
+
+	UFUNCTION()
+	void ResetSoftLock();
+	
+	UPROPERTY()
+	FRotator OldCameraBoomRotation;
+
+	UPROPERTY()
+	bool OldCameraBoomRotationIsSet{false};
+	
 	public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -136,9 +177,33 @@ protected:
 
 
 	virtual void Jump() override;
-	UFUNCTION(blueprintcallable)
-	void CameraChange();
+	
+	/** Make a transition between CameraBoomLength and CameraBoomLengthAttack. */
+	UFUNCTION()
+	void CameraTransition();
 
-	UFUNCTION(blueprintcallable)
+	/** Rotate the CameraBoom in the direction of LockEnemy.*/
+	UFUNCTION()
     void CameraLock();
+
+	/** Search the closest enemy in enemies.*/
+	UFUNCTION()
+    void SearchClosestEnemy();
+
+	/** When the camera is in attack mode, the controller rotation look at LockEnemy.*/
+	UFUNCTION()
+    void SetControllerRotation() const;
+
+	UFUNCTION()
+	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,
+						class AActor* OtherActor,
+						class UPrimitiveComponent* OtherComp,
+						int32 OtherBodyIndex, bool bFromSweep,
+						const FHitResult& SweepResult);
+
+	UFUNCTION()
+     void OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
+     				   AActor* OtherActor,
+     				   UPrimitiveComponent* OtherComp,
+     				   int32 OtherBodyIndex);
 };
