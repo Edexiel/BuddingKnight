@@ -58,9 +58,18 @@ public:
 	float BaseLookUpRate;
 	
 	UPROPERTY()
-	bool ChangeCameraRotation {false};
+	bool ChangeCameraBoomRotation {false};
+	
 	UPROPERTY()
-	bool ChangeCameraLength {false};
+	bool ChangeCameraBoomLength {false};
+
+	UPROPERTY()
+	bool ChangeCameraBoomOffSet{false};
+
+	UPROPERTY()
+	bool ChangeCameraFOV{false};
+
+	bool ChangeCameraPitch{false};
 	
 	UPROPERTY()
 	bool IsSwitchingTarget {false};
@@ -73,25 +82,62 @@ public:
 
 	UPROPERTY()
 	bool ResetDelay {false};
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
+	float CameraBoomLengthPlatform {0};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Attack")
-	float CameraBoomLengthAttack {0};
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Walk")
-	float CameraBoomLength {0};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
+	float CameraBoomLengthFight {0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
+	FVector CameraBoomOffSetPlatform{FVector{0,0,0}};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
+	FVector CameraBoomOffSetFight{FVector{0,0,0}};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
+	float CameraFOVPlatform{0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
+	float CameraFOVFight{0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
+	float CameraPitchPlatform{0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
+	float CameraPitchFight{0};
 	
 	UPROPERTY()
 	float AlphaCameraBoomLength {0};
 
 	UPROPERTY()
 	float AlphaCameraBoomRot {0};
+
+	UPROPERTY()
+	float AlphaCameraBoomOffSet {0};
+	
+	UPROPERTY()
+	float AlphaCameraFOV {0};
+
+	UPROPERTY()
+	float AlphaCameraPitch {0};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraBoomTransitionSpeed {0};
-
+	float CameraBoomLengthTransitionSpeed {0};
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	float CameraBoomRotSpeed {0};
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraBoomOffSetTransitionSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraFOVSpeed {0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraPitchSpeed {0};
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	APawn * LockEnemy;
 	
@@ -102,10 +148,7 @@ public:
 	float DistancePlayerLockEnemy;
 	
 protected:
-
-	/** Resets HMD orientation in VR. */
-	// Void OnResetVR();
-
+	
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
 
@@ -182,8 +225,20 @@ protected:
 	
 	/** Make a transition between CameraBoomLength and CameraBoomLengthAttack. */
 	UFUNCTION()
-	void CameraTransition();
+	void CameraBoomLengthTransition();
 
+	UFUNCTION()
+    void CameraBoomOffSetTransition();
+
+	UFUNCTION()
+    void CameraFOVTransition();
+
+	UFUNCTION()
+    void CameraPitchTransition();
+	
+	UFUNCTION()
+	void UpdateCamera();
+	
 	/** Rotate the CameraBoom in the direction of LockEnemy.*/
 	UFUNCTION()
     void CameraLock();

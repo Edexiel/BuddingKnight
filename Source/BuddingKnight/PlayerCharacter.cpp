@@ -40,7 +40,7 @@ APlayerCharacter::APlayerCharacter()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = CameraBoomLength; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = ChangeCameraBoomLength; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->bEnableCameraRotationLag = true;
 	CameraBoom->CameraRotationLagSpeed = 25/100;
@@ -72,7 +72,11 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	CameraBoom->TargetArmLength = CameraBoomLength;
+	CameraBoom->TargetArmLength = CameraBoomLengthPlatform;
+	CameraBoom->SocketOffset = CameraBoomOffSetPlatform;
+
+	FollowCamera->FieldOfView = CameraFOVPlatform;
+	
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
 	
@@ -84,18 +88,14 @@ void APlayerCharacter::BeginPlay()
 }
 
 //Called every frame
-void APlayerCharacter::Tick(float DeltaTime)
+void APlayerCharacter::Tick(float DeltaSeconds)
 {
-	Super::Tick(DeltaTime);
+	Super::Tick(DeltaSeconds);
 
 	if(bIsRolling)
 		AddMovementInput(GetActorForwardVector(),1);
 
-	SearchClosestEnemy();
-	CameraTransition();
-	CameraLock();
-	SetControllerRotation();
-	
+	UpdateCamera();
 }
 
 
@@ -159,23 +159,82 @@ void APlayerCharacter::DelaySoftLock()
 
 void APlayerCharacter::ResetSoftLock()
 {
-	ChangeCameraRotation = true;	
+	if(DetectionSphereIsColliding)
+		ChangeCameraBoomRotation = true;	
 }
 
-void APlayerCharacter::CameraTransition()
+void APlayerCharacter::CameraBoomLengthTransition()
 {
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
-	if (ChangeCameraLength && AlphaCameraBoomLength < 1)
+	if (ChangeCameraBoomLength && AlphaCameraBoomLength < 1)
 	{
-		AlphaCameraBoomLength += DeltaTime * CameraBoomTransitionSpeed;
-		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoomLength, CameraBoomLengthAttack, AlphaCameraBoomLength);
+		AlphaCameraBoomLength += DeltaTime * CameraBoomLengthTransitionSpeed;
+		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoomLengthPlatform, CameraBoomLengthFight, AlphaCameraBoomLength);
 	}
-	else if (!ChangeCameraLength && AlphaCameraBoomLength > 0)
+	else if (!ChangeCameraBoomLength && AlphaCameraBoomLength > 0)
 	{
-		AlphaCameraBoomLength -= DeltaTime * CameraBoomTransitionSpeed;
-		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoomLength, CameraBoomLengthAttack, AlphaCameraBoomLength);
+		AlphaCameraBoomLength -= DeltaTime * CameraBoomLengthTransitionSpeed;
+		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoomLengthPlatform, CameraBoomLengthFight, AlphaCameraBoomLength);
 	}
+}
+
+void APlayerCharacter::CameraBoomOffSetTransition()
+{
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+	if (ChangeCameraBoomLength && AlphaCameraBoomOffSet < 1)
+	{
+		AlphaCameraBoomOffSet += DeltaTime * CameraBoomOffSetTransitionSpeed;
+		CameraBoom->SocketOffset = FMath::Lerp(CameraBoomOffSetPlatform, CameraBoomOffSetFight, AlphaCameraBoomLength);
+	}
+	else if (!ChangeCameraBoomLength && AlphaCameraBoomOffSet > 0)
+	{
+		AlphaCameraBoomOffSet -= DeltaTime * CameraBoomOffSetTransitionSpeed;
+		CameraBoom->SocketOffset = FMath::Lerp(CameraBoomOffSetPlatform, CameraBoomOffSetFight, AlphaCameraBoomLength);
+	}
+}
+
+void APlayerCharacter::CameraFOVTransition()
+{
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+	
+	if (CameraFOVPlatform && AlphaCameraFOV < 1)
+	{
+		AlphaCameraFOV += DeltaTime * CameraFOVSpeed;
+		FollowCamera->FieldOfView = FMath::Lerp(CameraFOVPlatform, CameraFOVFight, AlphaCameraFOV);
+	}
+	else if (!CameraFOVPlatform && AlphaCameraFOV > 0)
+	{
+		AlphaCameraFOV -= DeltaTime * CameraFOVSpeed;
+		FollowCamera->FieldOfView = FMath::Lerp(CameraFOVPlatform, CameraFOVFight, AlphaCameraFOV);
+	}
+}
+
+void APlayerCharacter::CameraPitchTransition()
+{
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
+	
+	if (CameraPitchPlatform && AlphaCameraPitch < 1)
+	{
+		AlphaCameraPitch += DeltaTime * CameraPitchSpeed;
+		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
+	}
+	else if (!CameraFOVPlatform && AlphaCameraPitch > 0)
+	{
+		AlphaCameraPitch -= DeltaTime * CameraPitchSpeed;
+		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);		
+	}
+}
+
+void APlayerCharacter::UpdateCamera()
+{
+	SearchClosestEnemy();
+	CameraBoomLengthTransition();
+	CameraLock();
+	CameraBoomOffSetTransition();
+	CameraFOVTransition();
+	CameraPitchTransition();
+	SetControllerRotation();
 }
 
 void APlayerCharacter::CameraLock()
@@ -193,13 +252,13 @@ void APlayerCharacter::CameraLock()
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
 	
-	if (ChangeCameraRotation)
+	if (ChangeCameraBoomRotation)
 	{
 		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
 		NewRotation = FMath::Lerp(OldCameraBoomRotation, NewRotation, AlphaCameraBoomRot);
 		CameraBoom->SetWorldRotation(NewRotation);
 	}
-	else if (!ChangeCameraRotation)
+	else if (!ChangeCameraBoomRotation)
 	{
 		CameraBoom->SetWorldRotation(GetControlRotation());
 		AlphaCameraBoomRot = 0;
@@ -227,7 +286,7 @@ void APlayerCharacter::SearchClosestEnemy()
 
 void APlayerCharacter::SetControllerRotation() const
 {
-	if(!ChangeCameraRotation)
+	if(!ChangeCameraBoomRotation)
 		return;
 	
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
@@ -236,16 +295,22 @@ void APlayerCharacter::SetControllerRotation() const
 void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	DetectionSphereIsColliding = true;
-	ChangeCameraLength = true;
-	ChangeCameraRotation = true;
+	ChangeCameraBoomLength = true;
+	ChangeCameraBoomOffSet = true;
+	ChangeCameraFOV = true;
+	ChangeCameraPitch = true;
+	ChangeCameraBoomRotation = true;
 }
 
 void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	DetectionSphereIsColliding = false;
-	ChangeCameraLength = false;
-	ChangeCameraRotation = false;
+	ChangeCameraBoomLength = false;
+	ChangeCameraBoomOffSet = false;
+	ChangeCameraFOV = false;
+	ChangeCameraPitch = false;
+	ChangeCameraBoomRotation = false;
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -321,7 +386,7 @@ void APlayerCharacter::ResetCameraLock(const float Value)
 	
 	else if(FMath::Abs(Value) > 0.25)
 	{
-		ChangeCameraRotation = false;
+		ChangeCameraBoomRotation = false;
 		ResetDelay = true;
 	}
 }
