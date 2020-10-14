@@ -29,15 +29,30 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	TArray<class UAnimMontage*> Combo;	
 
+	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
+	class UAnimMontage* StunAnimation;
+	
+	/**Attack Wait Time**/
 	UPROPERTY(EditAnywhere,Category=Timing,meta=(AllowPrivateAccess="true"))
 	float AttackWaitTime;
 
 	FTimerHandle TimerAttack;
 
-	UPawnMovementComponent*  MovementComponent;
+	class UPawnMovementComponent*  MovementComponent;
 
-	uint32 AttackCounter;
+	/**	Attack counter for combo **/
+	uint32 AttackCounter{0};
 
+	/** Max hit before being totally KO **/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	int MaxHitReceived;
+
+	/** Duration of knock out **/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	float KnockOutTime;
+
+	int HitReceivedCounter{0};
+	
 	//BPStates
 	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	bool bCanAttack;
@@ -102,9 +117,6 @@ public:
 	float DistancePlayerLockEnemy;
 	
 protected:
-
-	/** Resets HMD orientation in VR. */
-	// Void OnResetVR();
 
 	/** Called for forwards/backward input */
 	void MoveForward(float Value);
@@ -204,8 +216,19 @@ protected:
 						const FHitResult& SweepResult);
 
 	UFUNCTION()
-     void OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
      				   AActor* OtherActor,
      				   UPrimitiveComponent* OtherComp,
      				   int32 OtherBodyIndex);
+
+	void OnCapsuleBeginOverlap(class UPrimitiveComponent* OverlappedComp,
+                        class AActor* OtherActor,
+                        class UPrimitiveComponent* OtherComp,
+                        int32 OtherBodyIndex, bool bFromSweep,
+                        const FHitResult& SweepResult);
+
+	void OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp,
+                   AActor* OtherActor,
+                   UPrimitiveComponent* OtherComp,
+                   int32 OtherBodyIndex);
 };

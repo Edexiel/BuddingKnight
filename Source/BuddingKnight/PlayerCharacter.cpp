@@ -13,6 +13,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
+#include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -21,6 +22,8 @@ APlayerCharacter::APlayerCharacter()
 	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this,&APlayerCharacter::OnCapsuleEndOverlap);
 
 	// set our turn rates for input
 	BaseTurnRate = 65.f;
@@ -246,6 +249,18 @@ void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor*
 	DetectionSphereIsColliding = false;
 	ChangeCameraLength = false;
 	ChangeCameraRotation = false;
+}
+
+void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	/* why you no work */
+	GEngine->AddOnScreenDebugMessage(0,2,FColor::Magenta,TEXT("COLLISION"));
+}
+
+void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
