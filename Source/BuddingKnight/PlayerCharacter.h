@@ -142,8 +142,8 @@ protected:
 	void SelectRight();
 	void StopSelectRight();
 	
-	void ChangeCameraTypePressed();
-	void ChangeCameraTypeReleased();
+	void ChangeCameraTypePressed(const float);
+	void ChangeCameraTypeReleased(const float);
 	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

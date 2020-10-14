@@ -3,16 +3,11 @@
 
 #include "PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
-#include <mutex>
 
-
-#include "SkeletalMeshMerge.h"
-#include "Animation/AnimMontage.h"
-
+#include "TimerManager.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
-#include "EnvironmentQuery/EnvQueryTypes.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
@@ -125,9 +120,6 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	
 	PlayerInputComponent->BindAction("SelectRight", IE_Pressed,this, &APlayerCharacter::SelectRight);
 	PlayerInputComponent->BindAction("SelectRight", IE_Released,this, &APlayerCharacter::StopSelectRight);
-
-	PlayerInputComponent->BindAction("CameraChange", IE_Pressed, this, &APlayerCharacter::ChangeCameraTypePressed);
-	PlayerInputComponent->BindAction("CameraChange", IE_Released, this, &APlayerCharacter::ChangeCameraTypeReleased);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -141,6 +133,9 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
+	
+	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::ChangeCameraTypePressed);
+	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::ChangeCameraTypePressed);
 }
 
 void APlayerCharacter::Jump()
@@ -168,16 +163,16 @@ void APlayerCharacter::ResetSoftLock()
 
 void APlayerCharacter::CameraTransition()
 {
-	const float Deltatime = GetWorld()->GetDeltaSeconds();
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
 	if (ChangeCameraLength && AlphaCameraBoomLength < 1)
 	{
-		AlphaCameraBoomLength += Deltatime * CameraBoomTransitionSpeed;
+		AlphaCameraBoomLength += DeltaTime * CameraBoomTransitionSpeed;
 		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoomLength, CameraBoomLengthAttack, AlphaCameraBoomLength);
 	}
 	else if (!ChangeCameraLength && AlphaCameraBoomLength > 0)
 	{
-		AlphaCameraBoomLength -= Deltatime * CameraBoomTransitionSpeed;
+		AlphaCameraBoomLength -= DeltaTime * CameraBoomTransitionSpeed;
 		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoomLength, CameraBoomLengthAttack, AlphaCameraBoomLength);
 	}
 	//UE_LOG(LogTemp, Warning, TEXT("AlphaCameraBoomLength = %f"), AlphaCameraBoomLength);
@@ -188,7 +183,7 @@ void APlayerCharacter::CameraLock()
 	if(!IsValid(LockEnemy))
 		return;
 	
-	const float Deltatime = GetWorld()->GetDeltaSeconds();
+	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
 	if(!OldCameraBoomRotationIsSet)
 	{
@@ -197,13 +192,13 @@ void APlayerCharacter::CameraLock()
 	}
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
-
+	
 	// UE_LOG(LogTemp, Warning, TEXT(" DetectionSphereIsColliding = %d"), DetectionSphereIsColliding);
 	// UE_LOG(LogTemp, Warning, TEXT(" ChangeCameraRotation = %d"), ChangeCameraRotation);
 	
 	if (ChangeCameraRotation)
 	{
-		AlphaCameraBoomRot + Deltatime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += Deltatime * CameraBoomRotSpeed;
+		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
 		NewRotation = FMath::Lerp(OldCameraBoomRotation, NewRotation, AlphaCameraBoomRot);
 		CameraBoom->SetWorldRotation(NewRotation);
 	}
@@ -218,18 +213,16 @@ void APlayerCharacter::CameraLock()
 
 void APlayerCharacter::SearchClosestEnemy()
 {
-	if(Enemies.Num() <= 0)
+	if(Enemies.Num() == 0)
 		return;
 
-	FVector PlayerPos = GetActorLocation(); 
-	
-	for(int i = 0; i < Enemies.Num(); i++)
+	for (APawn* Pawn : Enemies)
 	{
-		const float NewDistance =FMath::Abs((Enemies[i]->GetActorLocation() - PlayerPos).Size());
+		const float NewDistance = GetDistanceTo(Pawn);
 		if(NewDistance < DistancePlayerLockEnemy)
 		{
 			DistancePlayerLockEnemy = NewDistance;
-			LockEnemy = Enemies[i];
+			LockEnemy = Pawn;
 			IsSwitchingTarget = true;
 		}
 	}
@@ -245,23 +238,17 @@ void APlayerCharacter::SetControllerRotation() const
 
 void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(OtherActor->IsA(APawn::StaticClass()))
-	{
-		DetectionSphereIsColliding = true;
-		ChangeCameraLength = true;
-		ChangeCameraRotation = true;
-	}
+	DetectionSphereIsColliding = true;
+	ChangeCameraLength = true;
+	ChangeCameraRotation = true;
 }
 
 void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if(OtherActor->IsA(APawn::StaticClass()))
-	{
-		DetectionSphereIsColliding = false;
-		ChangeCameraLength = false;
-		ChangeCameraRotation = false;
-	}
+	DetectionSphereIsColliding = false;
+	ChangeCameraLength = false;
+	ChangeCameraRotation = false;
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -327,17 +314,24 @@ void APlayerCharacter::StopSelectRight()
 {
 }
 
-void APlayerCharacter::ChangeCameraTypePressed()
+void APlayerCharacter::ChangeCameraTypePressed(const float Value)
 {
-	if(DetectionSphereIsColliding)
-		ChangeCameraRotation = false;
 	
+	if(!DetectionSphereIsColliding)
+		return;
+
+	if(Value <= 0.25)
+	{
+		DelaySoftLock();
+		return;
+	}
+	
+	ChangeCameraRotation = false;
 }
 
-void APlayerCharacter::ChangeCameraTypeReleased()
+void APlayerCharacter::ChangeCameraTypeReleased(const float Value)
 {
-	if(DetectionSphereIsColliding)
-		DelaySoftLock();
+
 }
 
 void APlayerCharacter::MoveForward(const float Value)
