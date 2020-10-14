@@ -70,11 +70,14 @@ public:
 
 	UPROPERTY()
 	bool DetectionSphereIsColliding {false};
+
+	UPROPERTY()
+	bool ResetDelay {false};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Attack")
 	float CameraBoomLengthAttack {0};
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Camera)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Walk")
 	float CameraBoomLength {0};
 	
 	UPROPERTY()
@@ -142,8 +145,7 @@ protected:
 	void SelectRight();
 	void StopSelectRight();
 	
-	void ChangeCameraTypePressed(const float);
-	void ChangeCameraTypeReleased(const float);
+	void ResetCameraLock(const float);
 	
 	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

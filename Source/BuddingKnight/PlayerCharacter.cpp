@@ -134,8 +134,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
 	
-	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::ChangeCameraTypePressed);
-	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::ChangeCameraTypePressed);
+	PlayerInputComponent->BindAxis("ResetCameraLock", this, &APlayerCharacter::ResetCameraLock);
 }
 
 void APlayerCharacter::Jump()
@@ -149,16 +148,18 @@ void APlayerCharacter::Jump()
 
 void APlayerCharacter::DelaySoftLock()
 {
-	GetWorldTimerManager().ClearTimer(TimeHandleSoftLock);
-	GetWorldTimerManager().SetTimer(TimeHandleSoftLock, this, &APlayerCharacter::ResetSoftLock, DelaySoftLockCooldown, false);
+	if(ResetDelay)
+	{
+		GetWorldTimerManager().ClearTimer(TimeHandleSoftLock);
+		GetWorldTimerManager().SetTimer(TimeHandleSoftLock, this, &APlayerCharacter::ResetSoftLock, DelaySoftLockCooldown, false);
+		ResetDelay = false;
+	}
 }
 
 
 void APlayerCharacter::ResetSoftLock()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("In ResetSoftLock: %d"), test);
-	ChangeCameraRotation = true;
-	// GetWorldTimerManager().ClearTimer(TimeHandleSoftLock);	
+	ChangeCameraRotation = true;	
 }
 
 void APlayerCharacter::CameraTransition()
@@ -175,7 +176,6 @@ void APlayerCharacter::CameraTransition()
 		AlphaCameraBoomLength -= DeltaTime * CameraBoomTransitionSpeed;
 		CameraBoom->TargetArmLength = FMath::Lerp(CameraBoomLength, CameraBoomLengthAttack, AlphaCameraBoomLength);
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("AlphaCameraBoomLength = %f"), AlphaCameraBoomLength);
 }
 
 void APlayerCharacter::CameraLock()
@@ -192,9 +192,6 @@ void APlayerCharacter::CameraLock()
 	}
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
-	
-	// UE_LOG(LogTemp, Warning, TEXT(" DetectionSphereIsColliding = %d"), DetectionSphereIsColliding);
-	// UE_LOG(LogTemp, Warning, TEXT(" ChangeCameraRotation = %d"), ChangeCameraRotation);
 	
 	if (ChangeCameraRotation)
 	{
@@ -314,24 +311,19 @@ void APlayerCharacter::StopSelectRight()
 {
 }
 
-void APlayerCharacter::ChangeCameraTypePressed(const float Value)
+void APlayerCharacter::ResetCameraLock(const float Value)
 {
-	
 	if(!DetectionSphereIsColliding)
 		return;
-
-	if(Value <= 0.25)
-	{
-		DelaySoftLock();
-		return;
-	}
 	
-	ChangeCameraRotation = false;
-}
-
-void APlayerCharacter::ChangeCameraTypeReleased(const float Value)
-{
-
+	if(FMath::Abs(Value) <= 0.25)
+		DelaySoftLock();
+	
+	else if(FMath::Abs(Value) > 0.25)
+	{
+		ChangeCameraRotation = false;
+		ResetDelay = true;
+	}
 }
 
 void APlayerCharacter::MoveForward(const float Value)
@@ -362,6 +354,3 @@ void APlayerCharacter::MoveRight(const float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
-
-
-
