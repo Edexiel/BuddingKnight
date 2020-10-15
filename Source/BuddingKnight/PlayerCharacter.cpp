@@ -16,6 +16,8 @@
 #include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
 
+#include "Seed.h"
+
 APlayerCharacter::APlayerCharacter()
 {
 	// PrimaryActorTick.bCanEverTick = true;
@@ -84,6 +86,8 @@ void APlayerCharacter::BeginPlay()
 	
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 	
 	if(Enemies.Num() > 0)
 	{
@@ -299,12 +303,23 @@ void APlayerCharacter::SetControllerRotation() const
 
 void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	DetectionSphereIsColliding = true;
-	ChangeCameraBoomLength = true;
-	ChangeCameraBoomOffSet = true;
-	ChangeCameraFOV = true;
-	ChangeCameraPitch = true;
-	ChangeCameraBoomRotation = true;
+	if(OtherActor->IsA(APawn::StaticClass()))
+	{
+		DetectionSphereIsColliding = true;
+		ChangeCameraBoomLength = true;
+		ChangeCameraBoomOffSet = true;
+		ChangeCameraFOV = true;
+		ChangeCameraPitch = true;
+		ChangeCameraBoomRotation = true;
+	}
+	
+	if(OtherActor->IsA(ASeed::StaticClass()))
+		if(GetDistanceTo(OtherActor) < 50.f)
+		{
+			NbSeed++;
+			UE_LOG(LogTemp, Warning, TEXT("NbSeed = %d"), NbSeed);
+			UE_LOG(LogTemp, Warning, TEXT("NbSeed = %d"), NbSeed);
+		}
 }
 
 void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
