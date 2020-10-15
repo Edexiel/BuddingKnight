@@ -29,15 +29,39 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	TArray<class UAnimMontage*> Combo;	
 
+	/** Stun Animation **/
+	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
+	class UAnimMontage* StunAnimation;
+
+	/** Stun Animation **/
+	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
+	class UAnimMontage* GetHitAnimation;
+
+	
+	/**Attack Wait Time**/
 	UPROPERTY(EditAnywhere,Category=Timing,meta=(AllowPrivateAccess="true"))
 	float AttackWaitTime;
 
-	FTimerHandle TimerAttack;
+	/** Reference to MovementComponent **/
+	class UPawnMovementComponent*  MovementComponent;
 
-	UPawnMovementComponent*  MovementComponent;
+	/**	Attack counter for combo **/
+	uint32 AttackCounter{0};
 
-	uint32 AttackCounter;
+	/** Max hit before being totally KO **/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	int MaxHitReceived;
 
+	/** Duration of knock out **/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	float KnockOutTime;
+
+	/** Duration of knock out **/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	float KnockOutForce;
+	
+	int HitReceivedCounter{0};
+	
 	//BPStates
 	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	bool bCanAttack;
@@ -268,8 +292,22 @@ protected:
 						const FHitResult& SweepResult);
 
 	UFUNCTION()
-     void OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
+    void OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
      				   AActor* OtherActor,
      				   UPrimitiveComponent* OtherComp,
      				   int32 OtherBodyIndex);
+
+	UFUNCTION()
+    void OnCapsuleBeginOverlap(class UPrimitiveComponent* OverlappedComp,
+    					class AActor* OtherActor,
+    					class UPrimitiveComponent* OtherComp,
+    					int32 OtherBodyIndex,
+    					bool bFromSweep,
+    					const FHitResult& SweepResult);
+
+	UFUNCTION()
+    void OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp,
+         			   AActor* OtherActor,
+         			   UPrimitiveComponent* OtherComp,
+         			   int32 OtherBodyIndex);
 };

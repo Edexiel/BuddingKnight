@@ -13,6 +13,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Actor.h"
 #include "Components/SphereComponent.h"
+#include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
 
 #include "Seed.h"
@@ -85,8 +86,8 @@ void APlayerCharacter::BeginPlay()
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
 
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
 	
 	if(Enemies.Num() > 0)
 	{
@@ -356,6 +357,33 @@ void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor*
 	{
 		ClosestPot = nullptr;
 	}
+}
+
+void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,OtherActor->GetActorLabel());
+
+	LaunchCharacter(GetActorForwardVector()*KnockOutForce*-1,true,true);
+
+	if(MaxHitReceived==HitReceivedCounter)
+	{
+		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET STUN"));
+
+		PlayAnimMontage(StunAnimation);
+		HitReceivedCounter=0;
+		return;
+	}
+	
+	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET HIT"));
+
+	PlayAnimMontage(GetHitAnimation);
+	HitReceivedCounter++;
+}
+
+void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
