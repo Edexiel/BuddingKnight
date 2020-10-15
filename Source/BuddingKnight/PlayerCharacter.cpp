@@ -17,6 +17,7 @@
 #include "Kismet/KismetMathLibrary.h"
 
 #include "Seed.h"
+#include "Pot.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -88,6 +89,7 @@ void APlayerCharacter::BeginPlay()
 	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
 	
 	if(Enemies.Num() > 0)
 	{
@@ -129,6 +131,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	
 	PlayerInputComponent->BindAction("SelectRight", IE_Pressed,this, &APlayerCharacter::SelectRight);
 	PlayerInputComponent->BindAction("SelectRight", IE_Released,this, &APlayerCharacter::StopSelectRight);
+
+	PlayerInputComponent->BindAction("SetPlant", IE_Pressed,this, &APlayerCharacter::UseSeed);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -302,6 +306,18 @@ void APlayerCharacter::SetControllerRotation() const
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 }
 
+void APlayerCharacter::UseSeed()
+{
+	if(ClosestPot == nullptr)
+		return;
+	
+	if(NbSeed > 0 && !ClosestPot->GetHaveASeed())
+	{
+		ClosestPot->SetHaveASeed(true);
+		NbSeed--;
+	}
+}
+
 void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if(OtherActor->IsA(APawn::StaticClass()))
@@ -312,6 +328,17 @@ void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,
 		ChangeCameraFOV = true;
 		ChangeCameraPitch = true;
 		ChangeCameraBoomRotation = true;
+	}
+
+	if (OtherActor->IsA(ASeed::StaticClass()))
+	{
+		NbSeed++;
+		OtherActor->Destroy();
+	}
+
+	if (OtherActor->IsA(APot::StaticClass()))
+	{
+		ClosestPot = Cast<APot>(OtherActor);
 	}
 }
 
@@ -326,6 +353,11 @@ void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor*
 		ChangeCameraFOV = false;
 		ChangeCameraPitch = false;
 		ChangeCameraBoomRotation = false;
+	}
+
+	if (OtherActor->IsA(APot::StaticClass()))
+	{
+		ClosestPot = nullptr;
 	}
 }
 

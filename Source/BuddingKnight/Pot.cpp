@@ -1,12 +1,12 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Seed.h"
+#include "Pot.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 
 // Sets default values
-ASeed::ASeed()
+APot::APot()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -18,18 +18,29 @@ ASeed::ASeed()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
-	
 }
 
 // Called when the game starts or when spawned
-void ASeed::BeginPlay()
+void APot::BeginPlay()
 {
 	Super::BeginPlay();
+	
 }
 
 // Called every frame
-void ASeed::Tick(float DeltaTime)
+void APot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
 }
+
+void APot::SetHaveASeed(const bool& Boolean)
+{
+	HaveASeed = Boolean;
+}
+
+bool APot::GetHaveASeed() const
+{
+	return HaveASeed;
+}
+
