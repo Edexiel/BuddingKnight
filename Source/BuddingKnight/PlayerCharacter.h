@@ -85,22 +85,22 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraBoomLengthPlatform {0};
+	float CameraBoomLengthPlatform {450};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraBoomLengthFight {0};
+	float CameraBoomLengthFight {600};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	FVector CameraBoomOffSetPlatform{FVector{0,0,0}};
+	FVector CameraBoomOffSetPlatform{FVector{0,70,80}};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	FVector CameraBoomOffSetFight{FVector{0,0,0}};
+	FVector CameraBoomOffSetFight{FVector{0,70,80}};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraFOVPlatform{0};
+	float CameraFOVPlatform{90};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraFOVFight{0};
+	float CameraFOVFight{110};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
 	float CameraPitchPlatform{0};
@@ -124,19 +124,19 @@ public:
 	float AlphaCameraPitch {0};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraBoomLengthTransitionSpeed {0};
+	float CameraBoomLengthTransitionSpeed {1};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraBoomRotSpeed {0};
+	float CameraBoomRotSpeed {0.5f};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	float CameraBoomOffSetTransitionSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraFOVSpeed {0};
+	float CameraFOVSpeed {1};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraPitchSpeed {0};
+	float CameraPitchSpeed {1};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	APawn * LockEnemy;
@@ -149,6 +149,9 @@ public:
 	
 	UPROPERTY()
 	float DistancePlayerLockEnemy;
+
+	UPROPERTY()
+	class APot * ClosestPot{nullptr};
 	
 protected:
 	
@@ -203,7 +206,7 @@ protected:
 	FTimerHandle TimeHandleSoftLock;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float DelaySoftLockCooldown {0};
+	float DelaySoftLockCooldown {0.5};
 
 	UFUNCTION()
 	void DelaySoftLock();
@@ -254,6 +257,9 @@ protected:
 	UFUNCTION()
     void SetControllerRotation() const;
 
+	UFUNCTION()
+    void UseSeed();
+	
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,
 						class AActor* OtherActor,
