@@ -144,6 +144,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
     TArray<APawn *> Enemies;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
+	int NbSeed{0};
+	
 	UPROPERTY()
 	float DistancePlayerLockEnemy;
 	
