@@ -204,12 +204,12 @@ void APlayerCharacter::CameraFOVTransition()
 {
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
-	if (CameraFOVPlatform && AlphaCameraFOV < 1)
+	if (ChangeCameraFOV && AlphaCameraFOV < 1)
 	{
 		AlphaCameraFOV += DeltaTime * CameraFOVSpeed;
 		FollowCamera->FieldOfView = FMath::Lerp(CameraFOVPlatform, CameraFOVFight, AlphaCameraFOV);
 	}
-	else if (!CameraFOVPlatform && AlphaCameraFOV > 0)
+	else if (!ChangeCameraFOV && AlphaCameraFOV > 0)
 	{
 		AlphaCameraFOV -= DeltaTime * CameraFOVSpeed;
 		FollowCamera->FieldOfView = FMath::Lerp(CameraFOVPlatform, CameraFOVFight, AlphaCameraFOV);
@@ -218,18 +218,19 @@ void APlayerCharacter::CameraFOVTransition()
 
 void APlayerCharacter::CameraPitchTransition()
 {
+	/*
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
-	if (CameraPitchPlatform && AlphaCameraPitch < 1)
+	if (ChangeCameraPitch && AlphaCameraPitch < 1)
 	{
 		AlphaCameraPitch += DeltaTime * CameraPitchSpeed;
 		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
 	}
-	else if (!CameraFOVPlatform && AlphaCameraPitch > 0)
+	else if (!ChangeCameraPitch && AlphaCameraPitch > 0)
 	{
 		AlphaCameraPitch -= DeltaTime * CameraPitchSpeed;
 		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);		
-	}
+	}*/
 }
 
 void APlayerCharacter::UpdateCamera()
