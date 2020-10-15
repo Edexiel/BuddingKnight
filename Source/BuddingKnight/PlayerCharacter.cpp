@@ -309,25 +309,20 @@ void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,
 		ChangeCameraPitch = true;
 		ChangeCameraBoomRotation = true;
 	}
-	
-	if(OtherActor->IsA(ASeed::StaticClass()))
-		if(GetDistanceTo(OtherActor) < 50.f)
-		{
-			NbSeed++;
-			UE_LOG(LogTemp, Warning, TEXT("NbSeed = %d"), NbSeed);
-			UE_LOG(LogTemp, Warning, TEXT("NbSeed = %d"), NbSeed);
-		}
 }
 
 void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	DetectionSphereIsColliding = false;
-	ChangeCameraBoomLength = false;
-	ChangeCameraBoomOffSet = false;
-	ChangeCameraFOV = false;
-	ChangeCameraPitch = false;
-	ChangeCameraBoomRotation = false;
+	if(OtherActor->IsA(APawn::StaticClass()))
+	{
+		DetectionSphereIsColliding = false;
+		ChangeCameraBoomLength = false;
+		ChangeCameraBoomOffSet = false;
+		ChangeCameraFOV = false;
+		ChangeCameraPitch = false;
+		ChangeCameraBoomRotation = false;
+	}
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
