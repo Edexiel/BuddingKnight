@@ -16,4 +16,5 @@ ABuddingKnightGameModeBase::ABuddingKnightGameModeBase()
     {
         DefaultPawnClass = PlayerPawnBPClass.Class;
     }
+    
 }

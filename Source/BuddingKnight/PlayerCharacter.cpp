@@ -2,6 +2,9 @@
 
 
 #include "PlayerCharacter.h"
+
+#include <string>
+
 #include "Kismet/GameplayStatics.h"
 
 #include "TimerManager.h"
@@ -130,7 +133,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("SelectRight", IE_Pressed,this, &APlayerCharacter::SelectRight);
 	PlayerInputComponent->BindAction("SelectRight", IE_Released,this, &APlayerCharacter::StopSelectRight);
 
-	PlayerInputComponent->BindAction("SetPlant", IE_Pressed,this, &APlayerCharacter::UseSeed);
+	PlayerInputComponent->BindAction("Special", IE_Pressed,this, &APlayerCharacter::UseSeed);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -311,6 +314,8 @@ void APlayerCharacter::UseSeed()
 	
 	if(NbSeed > 0 && !ClosestPot->GetHaveASeed())
 	{
+		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Seed planted");
+
 		ClosestPot->SetHaveASeed(true);
 		NbSeed--;
 	}
@@ -327,17 +332,6 @@ void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,
 		ChangeCameraPitch = true;
 		ChangeCameraBoomRotation = true;
 	}
-
-	if (OtherActor->IsA(ASeed::StaticClass()))
-	{
-		NbSeed++;
-		OtherActor->Destroy();
-	}
-
-	if (OtherActor->IsA(APot::StaticClass()))
-	{
-		ClosestPot = Cast<APot>(OtherActor);
-	}
 }
 
 void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -352,17 +346,25 @@ void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor*
 		ChangeCameraPitch = false;
 		ChangeCameraBoomRotation = false;
 	}
-
-	if (OtherActor->IsA(APot::StaticClass()))
-	{
-		ClosestPot = nullptr;
-	}
 }
 
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,OtherActor->GetActorLabel());
+	if (OtherActor->IsA(ASeed::StaticClass()))
+	{
+		NbSeed++;
+		OtherActor->Destroy();
+		return;
+	}
+
+	if (OtherActor->IsA(APot::StaticClass()))
+	{
+		ClosestPot = Cast<APot>(OtherActor);
+		return;
+	}
+	
+	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,OtherActor->GetActorLabel());
 
 	LaunchCharacter(GetActorForwardVector()*KnockOutForce*-1,true,true);
 
@@ -377,6 +379,7 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 	
 	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET HIT"));
 
+	OnResetCombo();
 	PlayAnimMontage(GetHitAnimation);
 	HitReceivedCounter++;
 }
@@ -384,6 +387,11 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
+	if (OtherActor->IsA(APot::StaticClass()))
+	{
+		ClosestPot = nullptr;
+		return;
+	}
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -412,10 +420,14 @@ void APlayerCharacter::Attack()
 {
 	if(!bCanAttack || bIsRolling)
 		return;
+
+	// if(AttackCounter>Combo.Num())
+	// 	OnResetCombo();
 	
 	bCanAttack=false;
 	PlayAnimMontage(Combo[AttackCounter]);
 	AttackCounter++;
+	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,FString::FromInt(AttackCounter));
 }
 
 void APlayerCharacter::StopAttack(){}

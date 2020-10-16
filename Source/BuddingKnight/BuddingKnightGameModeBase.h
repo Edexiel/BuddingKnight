@@ -15,4 +15,5 @@ class BUDDINGKNIGHT_API ABuddingKnightGameModeBase : public AGameModeBase
     GENERATED_BODY()
 public:
     ABuddingKnightGameModeBase();
+    
 };
