@@ -4,6 +4,8 @@
 #include "PlayerCharacter.h"
 
 #include <string>
+#include <xutility>
+
 
 #include "Kismet/GameplayStatics.h"
 
@@ -97,6 +99,8 @@ void APlayerCharacter::BeginPlay()
 		DistancePlayerLockEnemy = FMath::Abs ((Enemies[0]->GetActorLocation() - GetActorLocation()).Size());
 		LockEnemy = Enemies[0];
 	}
+
+	// Set variable of the camera with DataAssetCamera
 }
 
 //Called every frame

@@ -37,6 +37,8 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	class UAnimMontage* GetHitAnimation;
 
+	UPROPERTY(EditAnywhere, Category=Camera,meta=(AllowPrivateAccess="true"))
+	class UCameraDataAsset* DataAssetCamera;
 	
 	/**Attack Wait Time**/
 	UPROPERTY(EditAnywhere,Category=Timing,meta=(AllowPrivateAccess="true"))
@@ -109,22 +111,22 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraBoomLengthPlatform {450};
+	float CameraBoomLengthPlatform {0};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraBoomLengthFight {600};
+	float CameraBoomLengthFight {0};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	FVector CameraBoomOffSetPlatform{FVector{0,70,80}};
+	FVector CameraBoomOffSetPlatform{FVector{0,0,0}};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	FVector CameraBoomOffSetFight{FVector{0,70,80}};
+	FVector CameraBoomOffSetFight{FVector{0,0,0}};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraFOVPlatform{90};
+	float CameraFOVPlatform{0};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraFOVFight{110};
+	float CameraFOVFight{0};
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
 	float CameraPitchPlatform{0};
