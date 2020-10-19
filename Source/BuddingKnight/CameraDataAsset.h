@@ -41,5 +41,15 @@ protected:
 	
 public:
 	UFUNCTION()
-	float GetCameraBoomLengthPlatform();
+	float GetCameraBoomLengthPlatform() const;
+	float GetCameraBoomLengthFight() const;
+	
+	FVector GetCameraBoomOffSetPlatform() const;
+	FVector GetCameraBoomOffSetFight() const;
+
+	float GetCameraFOVPlatform() const;
+	float GetCameraFOVFight() const;
+
+	float GetCameraPitchPlatform() const;
+	float GetCameraPitchFight() const;
 };

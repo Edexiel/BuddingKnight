@@ -23,6 +23,7 @@
 
 #include "Seed.h"
 #include "Pot.h"
+#include "CameraDataAsset.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -67,6 +68,8 @@ APlayerCharacter::APlayerCharacter()
 	DetectionSphere->InitSphereRadius(100.f);
 	DetectionSphere->SetupAttachment(RootComponent);
 	DetectionSphere->SetCanEverAffectNavigation(false);
+	
+	
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
@@ -83,6 +86,22 @@ APlayerCharacter::APlayerCharacter()
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if(DataAssetCamera != nullptr)
+	{
+		CameraBoomLengthPlatform = DataAssetCamera->GetCameraBoomLengthPlatform();
+		CameraBoomLengthFight = DataAssetCamera->GetCameraBoomLengthFight();
+
+		CameraBoomOffSetPlatform = DataAssetCamera->GetCameraBoomOffSetPlatform();
+		CameraBoomOffSetFight = DataAssetCamera->GetCameraBoomOffSetFight();
+
+		CameraFOVPlatform = DataAssetCamera->GetCameraFOVPlatform();
+		CameraFOVFight = DataAssetCamera->GetCameraFOVFight();
+		
+		CameraPitchPlatform = DataAssetCamera->GetCameraPitchPlatform();
+		CameraPitchFight = DataAssetCamera->GetCameraPitchFight();
+	}
+	
 	CameraBoom->TargetArmLength = CameraBoomLengthPlatform;
 	CameraBoom->SocketOffset = CameraBoomOffSetPlatform;
 
@@ -242,7 +261,8 @@ void APlayerCharacter::CameraPitchTransition()
 	{
 		AlphaCameraPitch -= DeltaTime * CameraPitchSpeed;
 		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);		
-	}*/
+	}
+	*/
 }
 
 void APlayerCharacter::UpdateCamera()

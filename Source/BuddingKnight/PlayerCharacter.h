@@ -38,7 +38,7 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	class UAnimMontage* GetHitAnimation;
 
 	UPROPERTY(EditAnywhere, Category=Camera,meta=(AllowPrivateAccess="true"))
-	class UCameraDataAsset* DataAssetCamera;
+	class UCameraDataAsset* DataAssetCamera {nullptr};
 	
 	/**Attack Wait Time**/
 	UPROPERTY(EditAnywhere,Category=Timing,meta=(AllowPrivateAccess="true"))
