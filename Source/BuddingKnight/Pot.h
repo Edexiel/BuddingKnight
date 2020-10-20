@@ -21,6 +21,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* Mesh;
 
+	UPROPERTY(EditAnywhere, Category="Base Component", meta=(AllowPrivateAccess="true"))
+	class UBaseComponent * BaseComponent; 
+
 	
 protected:
 	// Called when the game starts or when spawned

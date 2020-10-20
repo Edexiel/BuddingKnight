@@ -13,7 +13,7 @@ UCLASS()
 class BUDDINGKNIGHT_API UBaseComponentDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
-	protected:
+protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
 	float Health;
@@ -21,11 +21,12 @@ class BUDDINGKNIGHT_API UBaseComponentDataAsset : public UDataAsset
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
 	float MaxHealth;
 
-	public:		
+	
+	
+public:		
 	UFUNCTION(BlueprintCallable)
         float GetHealth() const;
 	
 	UFUNCTION(BlueprintCallable)
         float GetMaxHealth() const;
-	
 };

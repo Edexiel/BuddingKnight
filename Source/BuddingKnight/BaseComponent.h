@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/ActorComponent.h"
 #include "BaseComponent.generated.h"
 
@@ -16,6 +17,12 @@ public:
 	// Sets default values for this component's properties
 	UBaseComponent();
 
+	UPROPERTY(EditAnywhere, Category="BaseComponent", meta=(AllowPrivateAccess="true"))
+    class UBaseComponentDataAsset* BaseComponentDataAsset{nullptr};
+	
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="BaseComponent", meta=(BindWidget))
+	class UUserWidget * Widget{nullptr};*/
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -25,6 +32,7 @@ protected:
 	
 	UPROPERTY(Category = "Stats", VisibleAnywhere, BlueprintReadWrite)
 		float MaxHealth;
+
 
 public:	
 	// Called every frame
@@ -38,4 +46,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
         void TakeDamage(const float Damage);
+
+	/*UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Display")
+	UUserWidget* Widget;*/
 };
