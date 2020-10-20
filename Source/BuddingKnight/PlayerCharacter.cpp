@@ -107,6 +107,10 @@ void APlayerCharacter::BeginPlay()
 
 	FollowCamera->FieldOfView = CameraFOVPlatform;
 	
+	FRotator NewRotator = FollowCamera->GetRelativeRotation();
+	NewRotator.SetComponentForAxis(EAxis::Y, CameraPitchPlatform);	
+	FollowCamera->SetRelativeRotation(NewRotator);
+	
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
 
@@ -249,20 +253,26 @@ void APlayerCharacter::CameraFOVTransition()
 
 void APlayerCharacter::CameraPitchTransition()
 {
-	/*
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
-	
+	FRotator NewRotator = FollowCamera->GetRelativeRotation();
 	if (ChangeCameraPitch && AlphaCameraPitch < 1)
 	{
 		AlphaCameraPitch += DeltaTime * CameraPitchSpeed;
-		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
+		const float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
+		
+		NewRotator.SetComponentForAxis(EAxis::Y, Res);	
+		FollowCamera->SetRelativeRotation(NewRotator);
+		
 	}
 	else if (!ChangeCameraPitch && AlphaCameraPitch > 0)
 	{
 		AlphaCameraPitch -= DeltaTime * CameraPitchSpeed;
-		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);		
+		const float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
+		
+		NewRotator.SetComponentForAxis(EAxis::Y, Res);	
+		FollowCamera->SetRelativeRotation(NewRotator);		
 	}
-	*/
+	
 }
 
 void APlayerCharacter::UpdateCamera()
