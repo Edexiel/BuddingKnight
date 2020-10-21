@@ -20,7 +20,7 @@ void UBaseComponent::BeginPlay()
 {
 	Super::BeginPlay();
     
-    if(BaseComponentDataAsset != nullptr)
+    if(IsValid(BaseComponentDataAsset))
     {
     	Health = BaseComponentDataAsset->GetHealth();
     	MaxHealth = BaseComponentDataAsset->GetMaxHealth();

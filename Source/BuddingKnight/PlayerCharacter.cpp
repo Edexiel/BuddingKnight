@@ -87,7 +87,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(DataAssetCamera != nullptr)
+	if(IsValid(DataAssetCamera))
 	{
 		CameraBoomLengthPlatform = DataAssetCamera->GetCameraBoomLengthPlatform();
 		CameraBoomLengthFight = DataAssetCamera->GetCameraBoomLengthFight();

@@ -6,9 +6,6 @@
 #include "Engine/DataAsset.h"
 #include "BaseComponentDataAsset.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class BUDDINGKNIGHT_API UBaseComponentDataAsset : public UDataAsset
 {

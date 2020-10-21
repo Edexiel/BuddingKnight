@@ -18,10 +18,10 @@ public:
 	UBaseComponent();
 
 	UPROPERTY(EditAnywhere, Category="BaseComponent", meta=(AllowPrivateAccess="true"))
-    class UBaseComponentDataAsset* BaseComponentDataAsset{nullptr};
+		class UBaseComponentDataAsset* BaseComponentDataAsset{nullptr};
 	
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="BaseComponent", meta=(BindWidget))
-	class UUserWidget * Widget{nullptr};*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="BaseComponent", meta=(BindWidget))
+		UUserWidget * Widget;
 
 protected:
 	// Called when the game starts
@@ -46,7 +46,4 @@ public:
 
 	UFUNCTION(BlueprintCallable)
         void TakeDamage(const float Damage);
-
-	/*UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category="Display")
-	UUserWidget* Widget;*/
 };
