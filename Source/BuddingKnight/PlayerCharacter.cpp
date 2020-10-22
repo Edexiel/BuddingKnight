@@ -100,12 +100,23 @@ void APlayerCharacter::BeginPlay()
 		
 		CameraPitchPlatform = DataAssetCamera->GetCameraPitchPlatform();
 		CameraPitchFight = DataAssetCamera->GetCameraPitchFight();
+
+		CameraBoomLengthTransitionSpeed = DataAssetCamera->GetCameraBoomLengthTransitionSpeed();
+		CameraBoomOffSetTransitionSpeed = DataAssetCamera->GetCameraBoomOffSetTransitionSpeed();
+		CameraFOVSpeed = DataAssetCamera->GetCameraFOVSpeed();
+		CameraPitchSpeed = DataAssetCamera->GetCameraPitchSpeed();
+
+		DelaySoftLockCooldown = DataAssetCamera->GetDelaySoftLockCooldown();
 	}
 	
 	CameraBoom->TargetArmLength = CameraBoomLengthPlatform;
 	CameraBoom->SocketOffset = CameraBoomOffSetPlatform;
 
 	FollowCamera->FieldOfView = CameraFOVPlatform;
+
+	FRotator NewRotation = FollowCamera->GetRelativeRotation();
+	NewRotation.SetComponentForAxis(EAxis::Y, CameraPitchPlatform);
+	FollowCamera->SetRelativeRotation(NewRotation);
 	
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
@@ -249,20 +260,24 @@ void APlayerCharacter::CameraFOVTransition()
 
 void APlayerCharacter::CameraPitchTransition()
 {
-	/*
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
 	if (ChangeCameraPitch && AlphaCameraPitch < 1)
 	{
-		AlphaCameraPitch += DeltaTime * CameraPitchSpeed;
-		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
+		AlphaCameraPitch + DeltaTime * CameraPitchSpeed > 1? AlphaCameraPitch = 1 : AlphaCameraPitch += DeltaTime * CameraPitchSpeed;
+		const float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
+		FRotator NewRotation = FollowCamera->GetRelativeRotation();
+		NewRotation.SetComponentForAxis(EAxis::Y, Res);
+		FollowCamera->SetRelativeRotation(NewRotation);
 	}
 	else if (!ChangeCameraPitch && AlphaCameraPitch > 0)
 	{
-		AlphaCameraPitch -= DeltaTime * CameraPitchSpeed;
-		float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);		
+		AlphaCameraPitch - DeltaTime * CameraPitchSpeed < 0? AlphaCameraPitch = 0 : AlphaCameraPitch -= DeltaTime * CameraPitchSpeed;
+		const float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
+		FRotator NewRotation = FollowCamera->GetRelativeRotation();
+		NewRotation.SetComponentForAxis(EAxis::Y, Res);
+		FollowCamera->SetRelativeRotation(NewRotation);
 	}
-	*/
 }
 
 void APlayerCharacter::UpdateCamera()
@@ -281,6 +296,8 @@ void APlayerCharacter::CameraLock()
 	if(!IsValid(LockEnemy))
 		return;
 	
+	
+	
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
 	if(!OldCameraBoomRotationIsSet)
@@ -290,8 +307,8 @@ void APlayerCharacter::CameraLock()
 	}
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
-	
-	if (ChangeCameraBoomRotation)
+	float AngleZAxis = CameraBoom->GetComponentRotation().Yaw;
+	if (ChangeCameraBoomRotation && FMath::Abs(AngleZAxis) < 25.f)
 	{
 		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
 		NewRotation = FMath::Lerp(OldCameraBoomRotation, NewRotation, AlphaCameraBoomRot);
