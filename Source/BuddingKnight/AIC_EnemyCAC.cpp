@@ -11,14 +11,28 @@ void AAIC_EnemyCAC::BeginPlay()
     if(BTAsset)
     {
         RunBehaviorTree(BTAsset);
-        BB = GetBlackboardComponent();
-    }   
-    if (!BB->GetValueAsObject("Player"))
-        BB->SetValueAsObject("Player",Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this,0)));
+        Blackboard = GetBlackboardComponent();
+    }
+    PlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this,0));
+    if (!Blackboard->GetValueAsObject("Player"))
+        Blackboard->SetValueAsObject("Player",PlayerCharacter);
 
-    if(!BB->GetValueAsFloat("AcceptanceRadius"))
-        BB->SetValueAsFloat("AcceptanceRadius",DetectionRadius);
+    if(!Blackboard->GetValueAsFloat("DetectionRadius"))
+        Blackboard->SetValueAsFloat("DetectionRadius",DetectionRadius);
 
-    if(!BB->GetValueAsFloat("MarginRadius"))
-        BB->SetValueAsFloat("MarginRadius",MarginRadius);
+    if(!Blackboard->GetValueAsFloat("MarginRadius"))
+        Blackboard->SetValueAsFloat("MarginRadius",MarginRadius);
+
+    if(!Blackboard->GetValueAsFloat("DepopTime"))
+        Blackboard->SetValueAsFloat("DepopTime",DepopTime);
+
+    if(!Blackboard->GetValueAsFloat("DistanceFromPlayer"))
+        Blackboard->SetValueAsFloat("DistanceFromPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
+ 
+}
+
+void AAIC_EnemyCAC::Tick(float DeltaTime)
+{
+    Blackboard->SetValueAsFloat("DistanceFromPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
+
 }

@@ -12,12 +12,10 @@
 EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
 {
     UBlackboardComponent* MyBlackBoard = OwnerComp.GetBlackboardComponent();
-
+    
     AActor* SelfActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("SelfActor"));
     AActor* PlayerActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("EnemyActor"));
 
-    if(!PlayerActor || !SelfActor)
-        return EBTNodeResult::Failed;
     
     AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController());
     MyController->GetCharacter()->GetCharacterMovement()->SetUpdateNavAgentWithOwnersCollisions(true);
@@ -30,13 +28,13 @@ EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
     const float distance = PlayerActor->GetDistanceTo(SelfActor);
     MyBlackBoard->SetValueAsFloat("DistanceToPlayer",distance);
 
-    if(Cast<ABaseCharacter>(SelfActor)->IsDead())
-    {
-        MyController->ClearFocus(EAIFocusPriority::Gameplay);
-        MyController->ClearFocus(EAIFocusPriority::Default);
-        MyController->SetFocus(SelfActor,EAIFocusPriority::Default);
-        return EBTNodeResult::Succeeded;
-    }
+    // if(Cast<ABaseCharacter>(SelfActor)->IsDead())
+    // {
+    //     MyController->ClearFocus(EAIFocusPriority::Gameplay);
+    //     MyController->ClearFocus(EAIFocusPriority::Default);
+    //     MyController->SetFocus(SelfActor,EAIFocusPriority::Default);
+    //     return EBTNodeResult::Succeeded;
+    // }
     
     if(distance < MyBlackBoard->GetValueAsFloat("AcceptanceRadius"))
     {

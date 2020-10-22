@@ -14,7 +14,7 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	class UBehaviorTree* BTAsset;
 
 	UPROPERTY()
-	class UBlackboardComponent* BB;
+	class APlayerCharacter* PlayerCharacter;
 	
 	UPROPERTY(EditAnywhere)
 	float DetectionRadius;
@@ -27,4 +27,7 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	
 protected:
 	virtual void BeginPlay() override;
+
+public:
+	virtual void Tick(float DeltaTime) override;
 };
