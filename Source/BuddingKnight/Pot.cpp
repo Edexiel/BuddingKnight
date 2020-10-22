@@ -28,7 +28,7 @@ APot::APot()
 	SpawnPlantPoint = CreateDefaultSubobject<UBillboardComponent>(TEXT("SpawnPlantPoint"));
 	SpawnPlantPoint->SetupAttachment(RootComponent);
 
-	PlantA = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlantA"));
+	//PlantA = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlantA"));
 }
 
 // Called when the game starts or when spawned
@@ -41,10 +41,11 @@ void APot::BeginPlay()
 void APot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(HaveASeed)
+	if(CanPlant)
 	{
-		Plant = GetWorld()->SpawnActor<APlant>(PlantA->GetClass(),SpawnPlantPoint->GetComponentTransform());
-		HaveASeed = false;
+		Plant = GetWorld()->SpawnActor<APlant>(PlantA,SpawnPlantPoint->GetComponentTransform());
+		CanPlant = false;
+		HaveASeed = true;
 	}
 }
 
@@ -56,5 +57,15 @@ void APot::SetHaveASeed(const bool& Boolean)
 bool APot::GetHaveASeed() const
 {
 	return HaveASeed;
+}
+
+void APot::SetCanPlant(const bool& Boolean)
+{
+	CanPlant = Boolean;
+}
+
+bool APot::GetCanPlant() const
+{
+	return CanPlant;
 }
 

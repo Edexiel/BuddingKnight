@@ -39,7 +39,7 @@ public:
 	UBillboardComponent * SpawnPlantPoint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	UChildActorComponent* PlantA;
+	TSubclassOf<class APlant> PlantA;
 		
 protected:
 	// Called when the game starts or when spawned
@@ -48,8 +48,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool HaveASeed;
 
-	// the actual plant
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool CanPlant;
+
+	// the actual plant
+	UPROPERTY(VisibleAnywhere,Category="Plant", BlueprintReadWrite)
 	class APlant* Plant;
 
 	
@@ -60,5 +63,11 @@ public:
 
 	UFUNCTION()
 	void SetHaveASeed(const bool& Boolean);
+	UFUNCTION()
 	bool GetHaveASeed() const;
+	
+	UFUNCTION()
+	void SetCanPlant(const bool& Boolean);
+	UFUNCTION()
+	bool GetCanPlant() const;
 };

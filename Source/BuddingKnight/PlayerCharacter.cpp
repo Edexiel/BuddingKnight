@@ -336,11 +336,11 @@ void APlayerCharacter::UseSeed()
 	if(ClosestPot == nullptr)
 		return;
 	
-	if(NbSeed > 0 && !ClosestPot->GetHaveASeed())
+	if(NbSeed > 0)
 	{
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Seed planted");
 
-		ClosestPot->SetHaveASeed(true);
+		ClosestPot->SetCanPlant(true);
 		NbSeed--;
 	}
 }
