@@ -118,6 +118,7 @@ void APlayerCharacter::BeginPlay()
 	NewRotation.SetComponentForAxis(EAxis::Y, CameraPitchPlatform);
 	FollowCamera->SetRelativeRotation(NewRotation);
 	
+	
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
 
@@ -261,7 +262,7 @@ void APlayerCharacter::CameraFOVTransition()
 void APlayerCharacter::CameraPitchTransition()
 {
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
-	
+	FRotator NewRotator = FollowCamera->GetRelativeRotation();
 	if (ChangeCameraPitch && AlphaCameraPitch < 1)
 	{
 		AlphaCameraPitch + DeltaTime * CameraPitchSpeed > 1? AlphaCameraPitch = 1 : AlphaCameraPitch += DeltaTime * CameraPitchSpeed;
