@@ -33,11 +33,19 @@ void AAIC_EnemyCAC::BeginPlay()
     if(!Blackboard->GetValueAsFloat("DistanceFromPlayer"))
         Blackboard->SetValueAsFloat("DistanceFromPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
 
-    UCharacterMovementComponent* MovementComponent= GetPawn()->GetController()->GetCharacter()->GetCharacterMovement();
+    UCharacterMovementComponent* MovementComponent = GetPawn()->GetController()->GetCharacter()->GetCharacterMovement();
+
     MovementComponent->SetUpdateNavAgentWithOwnersCollisions(true);
     MovementComponent->SetAvoidanceEnabled(true);
 
- 
+    SetFocus(PlayerCharacter,EAIFocusPriority::Default);
+
+}
+
+void AAIC_EnemyCAC::SetTarget(AActor* Target)
+{
+    this->Target = Target;
+    Blackboard->SetValueAsObject("Target",Target);
 }
 
 void AAIC_EnemyCAC::Tick(float DeltaTime)

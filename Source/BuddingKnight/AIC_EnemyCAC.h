@@ -18,16 +18,21 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	
 	UPROPERTY(EditAnywhere)
 	float DetectionRadius;
+
 	UPROPERTY(EditAnywhere)
 	float MarginRadius;
 
 	UPROPERTY(EditAnywhere)
 	float DepopTime;
+
+	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	class AActor* Target{nullptr};
 	
 	
 protected:
 	virtual void BeginPlay() override;
 
 public:
+	void SetTarget(class AActor* Target);
 	virtual void Tick(float DeltaTime) override;
 };

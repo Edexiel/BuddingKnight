@@ -14,19 +14,10 @@ EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
     UBlackboardComponent* MyBlackBoard = OwnerComp.GetBlackboardComponent();
     
     AActor* SelfActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("SelfActor"));
-    AActor* PlayerActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("EnemyActor"));
+    AActor* PlayerActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("Player"));
+    AActor* Target = Cast<AActor>(MyBlackBoard->GetValueAsObject("Target"));
 
-    
     AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController());
-    MyController->GetCharacter()->GetCharacterMovement()->SetUpdateNavAgentWithOwnersCollisions(true);
-    MyController->GetCharacter()->GetCharacterMovement()->SetAvoidanceEnabled(true);
-    
-
-    if(!MyController)
-        UE_LOG(LogTemp,Error,TEXT("MYCONTROLLER NON INIT"));
-
-    const float distance = PlayerActor->GetDistanceTo(SelfActor);
-    MyBlackBoard->SetValueAsFloat("DistanceToPlayer",distance);
 
     // if(Cast<ABaseCharacter>(SelfActor)->IsDead())
     // {
@@ -36,19 +27,19 @@ EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
     //     return EBTNodeResult::Succeeded;
     // }
     
-    if(distance < MyBlackBoard->GetValueAsFloat("AcceptanceRadius"))
-    {
-        MyBlackBoard->SetValueAsBool("Retreating",true);
-        
-        FVector direction = SelfActor->GetActorLocation()-PlayerActor->GetActorLocation();
-        direction.Normalize();
-        direction*=MyBlackBoard->GetValueAsFloat("AcceptanceRadius");
-        
-        MyController->MoveTo({SelfActor->GetActorLocation()+direction});
-        return EBTNodeResult::InProgress;
-    }
+    // if(distance < MyBlackBoard->GetValueAsFloat("AcceptanceRadius"))
+    // {
+    //     MyBlackBoard->SetValueAsBool("Retreating",true);
+    //     
+    //     FVector direction = SelfActor->GetActorLocation()-PlayerActor->GetActorLocation();
+    //     direction.Normalize();
+    //     direction*=MyBlackBoard->GetValueAsFloat("AcceptanceRadius");
+    //     
+    //     MyController->MoveTo({SelfActor->GetActorLocation()+direction});
+    //     return EBTNodeResult::InProgress;
+    // }
 
-    if(MyController->MoveToActor(PlayerActor, MyBlackBoard->GetValueAsFloat("AcceptanceRadius")))
+    if(MyController->MoveToActor(Target, MyBlackBoard->GetValueAsFloat("PlayerMarginRadius")))
         return EBTNodeResult::InProgress;
 
     return EBTNodeResult::Failed;
@@ -59,14 +50,15 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
     Super::TickTask(OwnerComp, NodeMemory, DeltaSeconds);
 
     UBlackboardComponent* MyBlackBoard = OwnerComp.GetBlackboardComponent();
+    
     AActor* SelfActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("SelfActor")); 
     AActor* PlayerActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("Player"));
-    AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController()); // Nain controller
+    AActor* Target = Cast<AActor>(MyBlackBoard->GetValueAsObject("Player"));
     
+    AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController()); // Nain controller
     const float distance = PlayerActor->GetDistanceTo(SelfActor);
-    MyBlackBoard->SetValueAsFloat("DistanceToPlayer",distance);
 
-    MyController->SetFocus(PlayerActor,EAIFocusPriority::Default);
+    MyController->SetFocus(Target,EAIFocusPriority::Default);
 
     switch (MyController->GetMoveStatus()) {
     case EPathFollowingStatus::Idle:
