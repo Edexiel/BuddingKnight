@@ -88,15 +88,7 @@ public:
 	bool ChangeCameraBoomRotation {false};
 	
 	UPROPERTY()
-	bool ChangeCameraBoomLength {false};
-
-	UPROPERTY()
-	bool ChangeCameraBoomOffSet{false};
-
-	UPROPERTY()
-	bool ChangeCameraFOV{false};
-
-	bool ChangeCameraPitch{false};
+	bool IsInFightingMod {false};
 	
 	UPROPERTY()
 	bool IsSwitchingTarget {false};
@@ -110,30 +102,6 @@ public:
 	UPROPERTY()
 	bool ResetDelay {false};
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraBoomLengthPlatform {0};
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraBoomLengthFight {0};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	FVector CameraBoomOffSetPlatform{FVector{0,0,0}};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	FVector CameraBoomOffSetFight{FVector{0,0,0}};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraFOVPlatform{0};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraFOVFight{0};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraPitchPlatform{0};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraPitchFight{0};
 	
 	UPROPERTY()
 	float AlphaCameraBoomLength {0};
@@ -149,21 +117,6 @@ public:
 
 	UPROPERTY()
 	float AlphaCameraPitch {0};
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraBoomLengthTransitionSpeed {1};
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraBoomRotSpeed {0.5f};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraBoomOffSetTransitionSpeed;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraFOVSpeed {1};
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float CameraPitchSpeed {1};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	APawn * LockEnemy;
