@@ -308,8 +308,13 @@ void APlayerCharacter::CameraLock()
 	}
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
-	float AngleZAxis = CameraBoom->GetComponentRotation().Yaw;
-	if (ChangeCameraBoomRotation && FMath::Abs(AngleZAxis) < 25.f)
+	const float AngleZAxis = FMath::Abs(NewRotation.Yaw) - FMath::Abs(CameraBoom->GetComponentRotation().Yaw);
+	UE_LOG(LogTemp, Warning, TEXT("AngleZAxis = %f"), FMath::Abs(AngleZAxis * 0.5));
+
+	//if(FMath::Abs(AngleZAxis * 0.5) >= 45.f)
+	//	return;
+	
+	if (ChangeCameraBoomRotation)
 	{
 		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
 		NewRotation = FMath::Lerp(OldCameraBoomRotation, NewRotation, AlphaCameraBoomRot);
@@ -320,6 +325,8 @@ void APlayerCharacter::CameraLock()
 		CameraBoom->SetWorldRotation(GetControlRotation());
 		AlphaCameraBoomRot = 0;
 
+		// UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
+		
 		OldCameraBoomRotationIsSet = false;
 	}
 }
