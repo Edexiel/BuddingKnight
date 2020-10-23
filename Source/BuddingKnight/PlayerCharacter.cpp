@@ -54,7 +54,6 @@ APlayerCharacter::APlayerCharacter()
 	CameraBoom->TargetArmLength = ChangeCameraBoomLength; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->bEnableCameraRotationLag = true;
-	CameraBoom->CameraRotationLagSpeed = 25/100;
 	
 
 	// Create a follow camera
@@ -308,12 +307,13 @@ void APlayerCharacter::CameraLock()
 	}
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
+	
 	const float AngleZAxis = FMath::Abs(NewRotation.Yaw) - FMath::Abs(CameraBoom->GetComponentRotation().Yaw);
 	UE_LOG(LogTemp, Warning, TEXT("AngleZAxis = %f"), FMath::Abs(AngleZAxis * 0.5));
 
 	//if(FMath::Abs(AngleZAxis * 0.5) >= 45.f)
 	//	return;
-	
+
 	if (ChangeCameraBoomRotation)
 	{
 		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
