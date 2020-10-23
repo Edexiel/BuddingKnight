@@ -10,7 +10,7 @@ ABuddingKnightGameModeBase::ABuddingKnightGameModeBase()
 {
     
     // set default pawn class to our Blueprinted characterBlueprint'/Game/BuddingKnight/MyPlayerCharacter2.MyPlayerCharacter2'
-    static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/BuddingKnight/BP_PlayerCharacter"));
+    static ConstructorHelpers::FClassFinder<APawn> PlayerPawnBPClass(TEXT("/Game/BuddingKnight/Player/BP_PlayerCharacter"));
 
     if (PlayerPawnBPClass.Class != nullptr)
     {
