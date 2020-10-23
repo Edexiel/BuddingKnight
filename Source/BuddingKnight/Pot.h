@@ -3,8 +3,19 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Components/BillboardComponent.h"
+#include "Components/ChildActorComponent.h"
 #include "GameFramework/Actor.h"
 #include "Pot.generated.h"
+
+UENUM(BlueprintType)
+enum EPlantType
+{
+	Tree,
+	Liana,
+	Spore,
+	NbPlantType
+};
 
 UCLASS()
 class BUDDINGKNIGHT_API APot : public AActor
@@ -21,7 +32,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* Mesh;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UBaseComponent* BaseComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UBillboardComponent * SpawnPlantPoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TSubclassOf<class APlant> PlantA;
+		
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -29,11 +48,26 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool HaveASeed;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool CanPlant;
+
+	// the actual plant
+	UPROPERTY(VisibleAnywhere,Category="Plant", BlueprintReadWrite)
+	class APlant* Plant;
+
+	
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
 	void SetHaveASeed(const bool& Boolean);
+	UFUNCTION()
 	bool GetHaveASeed() const;
+	
+	UFUNCTION()
+	void SetCanPlant(const bool& Boolean);
+	UFUNCTION()
+	bool GetCanPlant() const;
 };

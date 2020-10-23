@@ -2,6 +2,7 @@
 
 
 #include "BaseComponent.h"
+#include "BaseComponentDataAsset.h"
 
 // Sets default values for this component's properties
 UBaseComponent::UBaseComponent()
@@ -18,9 +19,12 @@ UBaseComponent::UBaseComponent()
 void UBaseComponent::BeginPlay()
 {
 	Super::BeginPlay();
-
-	// ...
-	
+    
+    if(IsValid(BaseComponentDataAsset))
+    {
+    	Health = BaseComponentDataAsset->GetHealth();
+    	MaxHealth = BaseComponentDataAsset->GetMaxHealth();
+    }
 }
 
 
@@ -29,7 +33,6 @@ void UBaseComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
 }
 
 float UBaseComponent::GetHealth() const

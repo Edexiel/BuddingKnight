@@ -2,8 +2,12 @@
 
 
 #include "Pot.h"
+#include "BaseComponent.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/World.h"
+#include "Plant.h"
+
 
 // Sets default values
 APot::APot()
@@ -18,20 +22,31 @@ APot::APot()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
+
+	BaseComponent = CreateDefaultSubobject<UBaseComponent>(TEXT("BaseComponent"));
+	
+	SpawnPlantPoint = CreateDefaultSubobject<UBillboardComponent>(TEXT("SpawnPlantPoint"));
+	SpawnPlantPoint->SetupAttachment(RootComponent);
+
+	//PlantA = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlantA"));
 }
 
 // Called when the game starts or when spawned
 void APot::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void APot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	if(CanPlant)
+	{
+		Plant = GetWorld()->SpawnActor<APlant>(PlantA,SpawnPlantPoint->GetComponentTransform());
+		CanPlant = false;
+		HaveASeed = true;
+	}
 }
 
 void APot::SetHaveASeed(const bool& Boolean)
@@ -42,5 +57,15 @@ void APot::SetHaveASeed(const bool& Boolean)
 bool APot::GetHaveASeed() const
 {
 	return HaveASeed;
+}
+
+void APot::SetCanPlant(const bool& Boolean)
+{
+	CanPlant = Boolean;
+}
+
+bool APot::GetCanPlant() const
+{
+	return CanPlant;
 }
 

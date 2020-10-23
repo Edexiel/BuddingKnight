@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -38,7 +39,7 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	class UAnimMontage* GetHitAnimation;
 
 	UPROPERTY(EditAnywhere, Category=Camera,meta=(AllowPrivateAccess="true"))
-	class UCameraDataAsset* DataAssetCamera {nullptr};
+	class UCameraDataAsset* DataAssetCamera;
 	
 	/**Attack Wait Time**/
 	UPROPERTY(EditAnywhere,Category=Timing,meta=(AllowPrivateAccess="true"))
@@ -74,7 +75,7 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 public:
 	virtual void Tick(float DeltaSeconds) override;
 	APlayerCharacter();
-
+	
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;

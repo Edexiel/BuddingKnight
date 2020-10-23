@@ -54,7 +54,6 @@ APlayerCharacter::APlayerCharacter()
 	CameraBoom->TargetArmLength = ChangeCameraBoomLength; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->bEnableCameraRotationLag = true;
-	CameraBoom->CameraRotationLagSpeed = 25/100;
 	
 
 	// Create a follow camera
@@ -87,7 +86,7 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if(DataAssetCamera != nullptr)
+	if(IsValid(DataAssetCamera))
 	{
 		CameraBoomLengthPlatform = DataAssetCamera->GetCameraBoomLengthPlatform();
 		CameraBoomLengthFight = DataAssetCamera->GetCameraBoomLengthFight();
@@ -100,16 +99,24 @@ void APlayerCharacter::BeginPlay()
 		
 		CameraPitchPlatform = DataAssetCamera->GetCameraPitchPlatform();
 		CameraPitchFight = DataAssetCamera->GetCameraPitchFight();
+
+		CameraBoomLengthTransitionSpeed = DataAssetCamera->GetCameraBoomLengthTransitionSpeed();
+		CameraBoomOffSetTransitionSpeed = DataAssetCamera->GetCameraBoomOffSetTransitionSpeed();
+		CameraFOVSpeed = DataAssetCamera->GetCameraFOVSpeed();
+		CameraPitchSpeed = DataAssetCamera->GetCameraPitchSpeed();
+
+		DelaySoftLockCooldown = DataAssetCamera->GetDelaySoftLockCooldown();
 	}
 	
 	CameraBoom->TargetArmLength = CameraBoomLengthPlatform;
 	CameraBoom->SocketOffset = CameraBoomOffSetPlatform;
 
 	FollowCamera->FieldOfView = CameraFOVPlatform;
+
+	FRotator NewRotation = FollowCamera->GetRelativeRotation();
+	NewRotation.SetComponentForAxis(EAxis::Y, CameraPitchPlatform);
+	FollowCamera->SetRelativeRotation(NewRotation);
 	
-	FRotator NewRotator = FollowCamera->GetRelativeRotation();
-	NewRotator.SetComponentForAxis(EAxis::Y, CameraPitchPlatform);	
-	FollowCamera->SetRelativeRotation(NewRotator);
 	
 	DetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
 	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
@@ -257,22 +264,20 @@ void APlayerCharacter::CameraPitchTransition()
 	FRotator NewRotator = FollowCamera->GetRelativeRotation();
 	if (ChangeCameraPitch && AlphaCameraPitch < 1)
 	{
-		AlphaCameraPitch += DeltaTime * CameraPitchSpeed;
+		AlphaCameraPitch + DeltaTime * CameraPitchSpeed > 1? AlphaCameraPitch = 1 : AlphaCameraPitch += DeltaTime * CameraPitchSpeed;
 		const float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
-		
-		NewRotator.SetComponentForAxis(EAxis::Y, Res);	
-		FollowCamera->SetRelativeRotation(NewRotator);
-		
+		FRotator NewRotation = FollowCamera->GetRelativeRotation();
+		NewRotation.SetComponentForAxis(EAxis::Y, Res);
+		FollowCamera->SetRelativeRotation(NewRotation);
 	}
 	else if (!ChangeCameraPitch && AlphaCameraPitch > 0)
 	{
-		AlphaCameraPitch -= DeltaTime * CameraPitchSpeed;
+		AlphaCameraPitch - DeltaTime * CameraPitchSpeed < 0? AlphaCameraPitch = 0 : AlphaCameraPitch -= DeltaTime * CameraPitchSpeed;
 		const float Res = FMath::Lerp(CameraPitchPlatform, CameraPitchFight, AlphaCameraPitch);
-		
-		NewRotator.SetComponentForAxis(EAxis::Y, Res);	
-		FollowCamera->SetRelativeRotation(NewRotator);		
+		FRotator NewRotation = FollowCamera->GetRelativeRotation();
+		NewRotation.SetComponentForAxis(EAxis::Y, Res);
+		FollowCamera->SetRelativeRotation(NewRotation);
 	}
-	
 }
 
 void APlayerCharacter::UpdateCamera()
@@ -291,6 +296,8 @@ void APlayerCharacter::CameraLock()
 	if(!IsValid(LockEnemy))
 		return;
 	
+	
+	
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
 	if(!OldCameraBoomRotationIsSet)
@@ -300,7 +307,6 @@ void APlayerCharacter::CameraLock()
 	}
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
-	
 	if (ChangeCameraBoomRotation)
 	{
 		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
@@ -346,11 +352,11 @@ void APlayerCharacter::UseSeed()
 	if(ClosestPot == nullptr)
 		return;
 	
-	if(NbSeed > 0 && !ClosestPot->GetHaveASeed())
+	if(NbSeed > 0)
 	{
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Seed planted");
 
-		ClosestPot->SetHaveASeed(true);
+		ClosestPot->SetCanPlant(true);
 		NbSeed--;
 	}
 }

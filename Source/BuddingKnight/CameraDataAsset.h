@@ -13,43 +13,92 @@ UCLASS()
 class BUDDINGKNIGHT_API UCameraDataAsset : public UDataAsset
 {
 	GENERATED_BODY()
-	
+
+public:
+	UCameraDataAsset();
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraBoomLengthPlatform {450};
+	float CameraBoomLengthPlatform;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraBoomLengthFight {600};
+	float CameraBoomLengthFight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	FVector CameraBoomOffSetPlatform{FVector{0,70,80}};
+	FVector CameraBoomOffSetPlatform;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	FVector CameraBoomOffSetFight{FVector{0,70,80}};
+	FVector CameraBoomOffSetFight;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
+	float CameraFOVPlatform;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
+	float CameraFOVFight;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraFOVPlatform{90};
+	float CameraPitchPlatform;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraFOVFight{110};
+	float CameraPitchFight;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Platform")
-	float CameraPitchPlatform{0};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraBoomLengthTransitionSpeed;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraBoomRotSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Camera - Fight")
-	float CameraPitchFight{0};
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraBoomOffSetTransitionSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraFOVSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float CameraPitchSpeed;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float DelaySoftLockCooldown;
 	
 public:
 	UFUNCTION()
 	float GetCameraBoomLengthPlatform() const;
-	float GetCameraBoomLengthFight() const;
 	
+	UFUNCTION()
+	float GetCameraBoomLengthFight() const;
+
+	UFUNCTION()
 	FVector GetCameraBoomOffSetPlatform() const;
+	
+	UFUNCTION()
 	FVector GetCameraBoomOffSetFight() const;
 
+	UFUNCTION()
 	float GetCameraFOVPlatform() const;
+
+	UFUNCTION()
 	float GetCameraFOVFight() const;
 
+	UFUNCTION()
 	float GetCameraPitchPlatform() const;
+	
+	UFUNCTION()
 	float GetCameraPitchFight() const;
+
+	UFUNCTION()
+	float GetCameraBoomLengthTransitionSpeed() const;
+
+	UFUNCTION()
+	float GetCameraBoomRotSpeed() const;
+
+	UFUNCTION()
+	float GetCameraBoomOffSetTransitionSpeed() const;
+
+	UFUNCTION()
+	float GetCameraFOVSpeed() const;
+
+	UFUNCTION()
+	float GetCameraPitchSpeed() const;
+
+	UFUNCTION()
+	float GetDelaySoftLockCooldown() const;
 };
