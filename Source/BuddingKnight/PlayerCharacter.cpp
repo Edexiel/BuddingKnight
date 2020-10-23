@@ -300,7 +300,6 @@ void APlayerCharacter::UpdateCamera()
 	CameraBoomOffSetTransition();
 	CameraFOVTransition();
 	CameraPitchTransition();
-	SetControllerRotation();
 }
 
 void APlayerCharacter::CameraLock()
@@ -319,13 +318,17 @@ void APlayerCharacter::CameraLock()
 	}
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
+
+	// const float AngleZAxis = FMath::Abs(NewRotation.Yaw) - FMath::Abs(CameraBoom->GetComponentRotation().Yaw);
+	const FVector DistanceCameraEnemy = (LockEnemy->GetActorLocation() - FollowCamera->GetComponentLocation()).GetSafeNormal();
+	const float AngleCameraEnemy = FVector::DotProduct(FollowCamera->GetForwardVector(), DistanceCameraEnemy);
+	//UE_LOG(LogTemp, Warning, TEXT("Rotation camera = %s"), *FollowCamera->GetComponentRotation().ToString());
+	UE_LOG(LogTemp, Warning, TEXT("AngleCameraEnemy = %f"), AngleCameraEnemy * 180 / PI);
+	UE_LOG(LogTemp, Warning, TEXT("DistanceCameraEnemy = %s"), DistanceCameraEnemy.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("ForwardCamera = %s"), *FollowCamera->GetForwardVector().ToString());
 	
-	const float AngleZAxis = FMath::Abs(NewRotation.Yaw) - FMath::Abs(CameraBoom->GetComponentRotation().Yaw);
-	UE_LOG(LogTemp, Warning, TEXT("AngleZAxis = %f"), FMath::Abs(AngleZAxis * 0.5));
-
-	//if(FMath::Abs(AngleZAxis * 0.5) >= 45.f)
-	//	return;
-
+	
+	
 	const float CameraBoomRotSpeed = DataAssetCamera->GetCameraBoomRotSpeed();
 	
 	if (ChangeCameraBoomRotation)
@@ -333,13 +336,13 @@ void APlayerCharacter::CameraLock()
 		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
 		NewRotation = FMath::Lerp(OldCameraBoomRotation, NewRotation, AlphaCameraBoomRot);
 		CameraBoom->SetWorldRotation(NewRotation);
+		
+		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 	}
 	else if (!ChangeCameraBoomRotation)
 	{
 		CameraBoom->SetWorldRotation(GetControlRotation());
 		AlphaCameraBoomRot = 0;
-
-		// UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 		
 		OldCameraBoomRotationIsSet = false;
 	}
@@ -360,14 +363,6 @@ void APlayerCharacter::SearchClosestEnemy()
 			IsSwitchingTarget = true;
 		}
 	}
-}
-
-void APlayerCharacter::SetControllerRotation() const
-{
-	if(!ChangeCameraBoomRotation)
-		return;
-	
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 }
 
 void APlayerCharacter::UseSeed()
