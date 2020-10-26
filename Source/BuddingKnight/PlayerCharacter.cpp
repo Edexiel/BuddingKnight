@@ -324,9 +324,8 @@ void APlayerCharacter::CameraLock()
 	const FVector DistanceCameraEnemy = (LockEnemy->GetActorLocation() - CameraBoom->GetComponentLocation()).GetSafeNormal();
 	const float AngleCameraEnemy = FMath::Acos(FVector::DotProduct(DistanceCameraEnemy, CameraBoom->GetForwardVector())) * 180 / PI;
 	
-	UE_LOG(LogTemp, Warning, TEXT("AngleCameraEnemy = %f"), AngleCameraEnemy);
+	//UE_LOG(LogTemp, Warning, TEXT("AngleCameraEnemy = %f"), AngleCameraEnemy);
 
-	const FVector Test = FollowCamera->GetComponentLocation() + FollowCamera->GetForwardVector() * 100;
 	//DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(),Test, FColor::Purple, false, 5, 0, 25);
 	//DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(), LockEnemy->GetActorLocation(), FColor::Red, false, 0, 0, 25);
 	
@@ -359,12 +358,28 @@ void APlayerCharacter::SearchClosestEnemy()
 	for (APawn* Pawn : Enemies)
 	{
 		const float NewDistance = GetDistanceTo(Pawn);
+		
+		UE_LOG(LogTemp, Warning, TEXT("DistancePlayerLockEnemy = %f"), DistancePlayerLockEnemy);
+		UE_LOG(LogTemp, Warning, TEXT("NewDistance = %f"), NewDistance);
+
+		if (LockEnemy == Pawn)
+			DistancePlayerLockEnemy = NewDistance;
+		
 		if(NewDistance < DistancePlayerLockEnemy)
 		{
-			DistancePlayerLockEnemy = NewDistance;
-			LockEnemy = Pawn;
-			IsSwitchingTarget = true;
+			const FVector DistanceCameraEnemy = (Pawn->GetActorLocation() - CameraBoom->GetComponentLocation()).GetSafeNormal();
+			const float AngleCameraEnemy = FMath::Acos(FVector::DotProduct(DistanceCameraEnemy, CameraBoom->GetForwardVector())) * 180 / PI;
+			if(LockEnemy != Pawn && AngleCameraEnemy <= DataAssetCamera->GetLockAngle())
+			{
+				LockEnemy = Pawn;
+				OldCameraBoomRotationIsSet = false;
+				IsSwitchingTarget = true;
+				AlphaCameraBoomRot = 0;
+			}
+			
+			DistancePlayerLockEnemy = NewDistance;	
 		}
+		
 	}
 }
 
