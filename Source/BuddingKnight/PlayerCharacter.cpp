@@ -20,6 +20,7 @@
 #include "Components/SphereComponent.h"
 #include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "DrawDebugHelpers.h"
 
 #include "Seed.h"
 #include "Pot.h"
@@ -300,7 +301,6 @@ void APlayerCharacter::UpdateCamera()
 	CameraBoomOffSetTransition();
 	CameraFOVTransition();
 	CameraPitchTransition();
-	SetControllerRotation();
 }
 
 void APlayerCharacter::CameraLock()
@@ -319,29 +319,34 @@ void APlayerCharacter::CameraLock()
 	}
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
+
+	// const float AngleZAxis = FMath::Abs(NewRotation.Yaw) - FMath::Abs(CameraBoom->GetComponentRotation().Yaw);
+	const FVector DistanceCameraEnemy = (LockEnemy->GetActorLocation() - CameraBoom->GetComponentLocation()).GetSafeNormal();
+	const float AngleCameraEnemy = FMath::Acos(FVector::DotProduct(DistanceCameraEnemy, CameraBoom->GetForwardVector())) * 180 / PI;
 	
-	const float AngleZAxis = FMath::Abs(NewRotation.Yaw) - FMath::Abs(CameraBoom->GetComponentRotation().Yaw);
-	UE_LOG(LogTemp, Warning, TEXT("AngleZAxis = %f"), FMath::Abs(AngleZAxis * 0.5));
+	//UE_LOG(LogTemp, Warning, TEXT("AngleCameraEnemy = %f"), AngleCameraEnemy);
 
-	//if(FMath::Abs(AngleZAxis * 0.5) >= 45.f)
-	//	return;
-
+	//DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(),Test, FColor::Purple, false, 5, 0, 25);
+	//DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(), LockEnemy->GetActorLocation(), FColor::Red, false, 0, 0, 25);
+	
 	const float CameraBoomRotSpeed = DataAssetCamera->GetCameraBoomRotSpeed();
 	
-	if (ChangeCameraBoomRotation)
+	if (ChangeCameraBoomRotation && AngleCameraEnemy <= DataAssetCamera->GetLockAngle())
 	{
 		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
 		NewRotation = FMath::Lerp(OldCameraBoomRotation, NewRotation, AlphaCameraBoomRot);
 		CameraBoom->SetWorldRotation(NewRotation);
+		
+			
+		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 	}
 	else if (!ChangeCameraBoomRotation)
 	{
 		CameraBoom->SetWorldRotation(GetControlRotation());
-		AlphaCameraBoomRot = 0;
-
-		// UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 		
+		AlphaCameraBoomRot = 0;
 		OldCameraBoomRotationIsSet = false;
+		
 	}
 }
 
@@ -353,21 +358,29 @@ void APlayerCharacter::SearchClosestEnemy()
 	for (APawn* Pawn : Enemies)
 	{
 		const float NewDistance = GetDistanceTo(Pawn);
+		
+		UE_LOG(LogTemp, Warning, TEXT("DistancePlayerLockEnemy = %f"), DistancePlayerLockEnemy);
+		UE_LOG(LogTemp, Warning, TEXT("NewDistance = %f"), NewDistance);
+
+		if (LockEnemy == Pawn)
+			DistancePlayerLockEnemy = NewDistance;
+		
 		if(NewDistance < DistancePlayerLockEnemy)
 		{
-			DistancePlayerLockEnemy = NewDistance;
-			LockEnemy = Pawn;
-			IsSwitchingTarget = true;
+			const FVector DistanceCameraEnemy = (Pawn->GetActorLocation() - CameraBoom->GetComponentLocation()).GetSafeNormal();
+			const float AngleCameraEnemy = FMath::Acos(FVector::DotProduct(DistanceCameraEnemy, CameraBoom->GetForwardVector())) * 180 / PI;
+			if(LockEnemy != Pawn && AngleCameraEnemy <= DataAssetCamera->GetLockAngle())
+			{
+				LockEnemy = Pawn;
+				OldCameraBoomRotationIsSet = false;
+				IsSwitchingTarget = true;
+				AlphaCameraBoomRot = 0;
+			}
+			
+			DistancePlayerLockEnemy = NewDistance;	
 		}
+		
 	}
-}
-
-void APlayerCharacter::SetControllerRotation() const
-{
-	if(!ChangeCameraBoomRotation)
-		return;
-	
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 }
 
 void APlayerCharacter::UseSeed()

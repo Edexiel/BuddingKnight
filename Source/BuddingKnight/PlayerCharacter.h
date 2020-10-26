@@ -232,10 +232,7 @@ protected:
 	/** Search the closest enemy in enemies.*/
 	UFUNCTION()
     void SearchClosestEnemy();
-
-	/** When the camera is in attack mode, the controller rotation look at LockEnemy.*/
-	UFUNCTION()
-    void SetControllerRotation() const;
+    
 
 	UFUNCTION()
     void UseSeed();
