@@ -15,7 +15,9 @@ class BUDDINGKNIGHT_API APlant : public ACharacter
 public:
 	// Sets default values for this character's properties
 	APlant();
-
+	
+	UPROPERTY(EditAnywhere)
+	class USphereComponent* SphereDetection;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
