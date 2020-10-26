@@ -94,5 +94,10 @@ float UCameraDataAsset::GetDelaySoftLockCooldown() const
     return DelaySoftLockCooldown;
 }
 
+float UCameraDataAsset::GetLockAngle() const
+{
+    return LockAngle;
+}
+
 
 

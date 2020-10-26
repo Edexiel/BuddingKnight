@@ -20,6 +20,7 @@
 #include "Components/SphereComponent.h"
 #include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "DrawDebugHelpers.h"
 
 #include "Seed.h"
 #include "Pot.h"
@@ -320,31 +321,33 @@ void APlayerCharacter::CameraLock()
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
 
 	// const float AngleZAxis = FMath::Abs(NewRotation.Yaw) - FMath::Abs(CameraBoom->GetComponentRotation().Yaw);
-	const FVector DistanceCameraEnemy = (LockEnemy->GetActorLocation() - FollowCamera->GetComponentLocation()).GetSafeNormal();
-	const float AngleCameraEnemy = FVector::DotProduct(FollowCamera->GetForwardVector(), DistanceCameraEnemy);
-	//UE_LOG(LogTemp, Warning, TEXT("Rotation camera = %s"), *FollowCamera->GetComponentRotation().ToString());
-	UE_LOG(LogTemp, Warning, TEXT("AngleCameraEnemy = %f"), AngleCameraEnemy * 180 / PI);
-	UE_LOG(LogTemp, Warning, TEXT("DistanceCameraEnemy = %s"), DistanceCameraEnemy.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("ForwardCamera = %s"), *FollowCamera->GetForwardVector().ToString());
+	const FVector DistanceCameraEnemy = (LockEnemy->GetActorLocation() - CameraBoom->GetComponentLocation()).GetSafeNormal();
+	const float AngleCameraEnemy = FMath::Acos(FVector::DotProduct(DistanceCameraEnemy, CameraBoom->GetForwardVector())) * 180 / PI;
 	
-	
+	UE_LOG(LogTemp, Warning, TEXT("AngleCameraEnemy = %f"), AngleCameraEnemy);
+
+	const FVector Test = FollowCamera->GetComponentLocation() + FollowCamera->GetForwardVector() * 100;
+	//DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(),Test, FColor::Purple, false, 5, 0, 25);
+	//DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(), LockEnemy->GetActorLocation(), FColor::Red, false, 0, 0, 25);
 	
 	const float CameraBoomRotSpeed = DataAssetCamera->GetCameraBoomRotSpeed();
 	
-	if (ChangeCameraBoomRotation)
+	if (ChangeCameraBoomRotation && AngleCameraEnemy <= DataAssetCamera->GetLockAngle())
 	{
 		AlphaCameraBoomRot + DeltaTime * CameraBoomRotSpeed > 1? AlphaCameraBoomRot = 1 : AlphaCameraBoomRot += DeltaTime * CameraBoomRotSpeed;
 		NewRotation = FMath::Lerp(OldCameraBoomRotation, NewRotation, AlphaCameraBoomRot);
 		CameraBoom->SetWorldRotation(NewRotation);
 		
+			
 		UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(CameraBoom->GetComponentRotation());
 	}
 	else if (!ChangeCameraBoomRotation)
 	{
 		CameraBoom->SetWorldRotation(GetControlRotation());
-		AlphaCameraBoomRot = 0;
 		
+		AlphaCameraBoomRot = 0;
 		OldCameraBoomRotationIsSet = false;
+		
 	}
 }
 

@@ -58,6 +58,8 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
 	float DelaySoftLockCooldown;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
+	float LockAngle;
 	
 public:
 	UFUNCTION()
@@ -101,4 +103,7 @@ public:
 
 	UFUNCTION()
 	float GetDelaySoftLockCooldown() const;
+	
+	UFUNCTION()
+	float GetLockAngle() const;
 };
