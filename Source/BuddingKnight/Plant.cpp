@@ -26,20 +26,20 @@ void APlant::BeginPlay()
 	Super::BeginPlay();
 	SphereDetection->OnComponentBeginOverlap.AddDynamic(this, &APlant::OnSphereDetectionOverlapBegin);
 	SphereDetection->OnComponentEndOverlap.AddDynamic(this, &APlant::OnSphereDetectionOverlapEnd);
-	
-	
+
+	CanUseSpecial = true;
 }
 
 void APlant::UseSpecial()
 {
+	if(DetectPlayer)
+	{
+		
+	}
 	if(DetectPlayer && CanUseSpecial)
 	{
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Cyan,"Use special");
 	}
-	
-	UE_LOG(LogTemp, Warning, TEXT("DetectPlayer = %d"), DetectPlayer);
-	UE_LOG(LogTemp, Warning, TEXT("CanUseSpecial = %d"), CanUseSpecial);
-	
 }
 
 // Called every frame
