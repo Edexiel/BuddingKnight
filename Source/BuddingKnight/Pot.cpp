@@ -41,7 +41,7 @@ void APot::BeginPlay()
 void APot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	if(CanPlant)
+	if(CanPlant && !HaveASeed)
 	{
 		Plant = GetWorld()->SpawnActor<APlant>(PlantA,SpawnPlantPoint->GetComponentTransform());
 		CanPlant = false;

@@ -133,6 +133,7 @@ public:
 	UPROPERTY()
 	class APot * ClosestPot{nullptr};
 	
+	
 protected:
 	
 	/** Called for forwards/backward input */
