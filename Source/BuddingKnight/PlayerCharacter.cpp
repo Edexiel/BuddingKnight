@@ -180,7 +180,7 @@ void APlayerCharacter::DelaySoftLock()
 	if(ResetDelay)
 	{
 		GetWorldTimerManager().ClearTimer(TimeHandleSoftLock);
-		GetWorldTimerManager().SetTimer(TimeHandleSoftLock, this, &APlayerCharacter::ResetSoftLock, DelaySoftLockCooldown, false);
+		GetWorldTimerManager().SetTimer(TimeHandleSoftLock, this, &APlayerCharacter::ResetSoftLock, DataAssetCamera->GetDelaySoftLockCooldown(), false);
 		ResetDelay = false;
 	}
 }

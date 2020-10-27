@@ -185,9 +185,6 @@ protected:
 	UPROPERTY()
 	FTimerHandle TimeHandleSoftLock;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera)
-	float DelaySoftLockCooldown {0.5};
-
 	UFUNCTION()
 	void DelaySoftLock();
 
