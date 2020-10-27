@@ -24,6 +24,7 @@
 
 #include "Seed.h"
 #include "Pot.h"
+#include "Plant.h"
 #include "CameraDataAsset.h"
 
 APlayerCharacter::APlayerCharacter()
@@ -388,7 +389,7 @@ void APlayerCharacter::UseSeed()
 	if(ClosestPot == nullptr)
 		return;
 	
-	if(NbSeed > 0)
+	if(NbSeed > 0 && !ClosestPot->GetHaveASeed())
 	{
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Seed planted");
 
@@ -433,7 +434,12 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 		ClosestPot = Cast<APot>(OtherActor);
 		return;
 	}
-	
+
+	if(OtherActor->IsA(APlant::StaticClass()))
+	{
+		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("This is a plant"));
+		return;
+	}
 	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,OtherActor->GetActorLabel());
 
 	LaunchCharacter(GetActorForwardVector()*KnockOutForce*-1,true,true);

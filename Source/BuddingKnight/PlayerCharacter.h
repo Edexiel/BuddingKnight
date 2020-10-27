@@ -136,6 +136,7 @@ public:
 	UFUNCTION(BlueprintGetter)
 	int GetEnemyNumber() const;
 	
+	
 protected:
 	
 	/** Called for forwards/backward input */
