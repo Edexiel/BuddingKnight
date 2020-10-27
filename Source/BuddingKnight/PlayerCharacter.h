@@ -132,6 +132,9 @@ public:
 
 	UPROPERTY()
 	class APot * ClosestPot{nullptr};
+
+	UFUNCTION(BlueprintGetter)
+	int GetEnemyNumber() const;
 	
 protected:
 	

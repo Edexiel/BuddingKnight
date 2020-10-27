@@ -17,7 +17,7 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	class APlayerCharacter* PlayerCharacter;
 	
 	UPROPERTY(EditAnywhere)
-	float DetectionRadius;
+	float AttackRange;
 
 	UPROPERTY(EditAnywhere)
 	float MarginRadius;
@@ -25,10 +25,21 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	UPROPERTY(EditAnywhere)
 	float DepopTime;
 
+	UPROPERTY(EditAnywhere)
+	float MaxEnemiesOnPlayer;
+
+	UPROPERTY(EditAnywhere)
+	float MaxWalkSpeed;
+
+	UPROPERTY(EditAnywhere)
+	float WaitTimeBetweenAttacks;
+
+	
 	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	class AActor* Target{nullptr};
+
 	
-	
+
 protected:
 	virtual void BeginPlay() override;
 

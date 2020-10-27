@@ -21,8 +21,8 @@ void AAIC_EnemyCAC::BeginPlay()
     if (!Blackboard->GetValueAsObject("Player"))
         Blackboard->SetValueAsObject("Player",PlayerCharacter);
 
-    if(!Blackboard->GetValueAsFloat("DetectionRadius"))
-        Blackboard->SetValueAsFloat("DetectionRadius",DetectionRadius);
+    if(!Blackboard->GetValueAsFloat("AttackRange"))
+        Blackboard->SetValueAsFloat("AttackRange",AttackRange);
 
     if(!Blackboard->GetValueAsFloat("MarginRadius"))
         Blackboard->SetValueAsFloat("MarginRadius",MarginRadius);
@@ -30,25 +30,35 @@ void AAIC_EnemyCAC::BeginPlay()
     if(!Blackboard->GetValueAsFloat("DepopTime"))
         Blackboard->SetValueAsFloat("DepopTime",DepopTime);
 
-    if(!Blackboard->GetValueAsFloat("DistanceFromPlayer"))
-        Blackboard->SetValueAsFloat("DistanceFromPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
+    if(!Blackboard->GetValueAsFloat("MaxEnemiesOnPlayer"))
+        Blackboard->SetValueAsFloat("MaxEnemiesOnPlayer",MaxEnemiesOnPlayer);
 
-    UCharacterMovementComponent* MovementComponent = GetPawn()->GetController()->GetCharacter()->GetCharacterMovement();
+    Blackboard->SetValueAsBool("Walking",true);
+    Blackboard->SetValueAsBool("Attacking",false);
+    Blackboard->SetValueAsBool("isAlive",true);
+    
+    Blackboard->SetValueAsFloat("WaitTimeBetweenAttacks",WaitTimeBetweenAttacks);
+    if(!Blackboard->GetValueAsFloat("DistanceToPlayer"))
+        Blackboard->SetValueAsFloat("DistanceToPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
 
+    
+    UCharacterMovementComponent* MovementComponent = GetPawn()->GetController()->GetCharacter()->GetCharacterMovement();  
+    MovementComponent->MaxWalkSpeed = MaxWalkSpeed;
     MovementComponent->SetUpdateNavAgentWithOwnersCollisions(true);
     MovementComponent->SetAvoidanceEnabled(true);
-
-    SetFocus(PlayerCharacter,EAIFocusPriority::Default);
-
+    
 }
 
-void AAIC_EnemyCAC::SetTarget(AActor* Target)
+void AAIC_EnemyCAC::SetTarget(AActor* Actor)
 {
-    this->Target = Target;
+    Target = Actor;
+    
     Blackboard->SetValueAsObject("Target",Target);
+    Blackboard->SetValueAsObject("FocusActor",Target);
+    SetFocus(Target,EAIFocusPriority::Default);
 }
 
 void AAIC_EnemyCAC::Tick(float DeltaTime)
 {
-    Blackboard->SetValueAsFloat("DistanceFromPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
+    Blackboard->SetValueAsFloat("DistanceToPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
 }

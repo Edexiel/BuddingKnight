@@ -546,6 +546,11 @@ void APlayerCharacter::ResetCameraLock(const float Value)
 	}
 }
 
+int APlayerCharacter::GetEnemyNumber() const
+{
+	return Enemies.Num();
+}
+
 void APlayerCharacter::MoveForward(const float Value)
 {
 	if ((Controller != nullptr) && (Value != 0.0f))
