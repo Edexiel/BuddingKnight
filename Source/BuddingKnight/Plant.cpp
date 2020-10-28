@@ -32,7 +32,7 @@ void APlant::BeginPlay()
 
 	CanUseSpecial = true;
 	IsResettingDelay = true;
-	DelayCooldown = 5.f;
+	DelayCooldown = 20.f;
 }
 
 void APlant::Delay()
@@ -58,23 +58,18 @@ void APlant::UseSpecial()
 	
 	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this,0));
 
-	if(CanUseSpecial && Player->IsUsingSpecial)
+	if(CanUseSpecial && DetectPlayer)
 	{
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Cyan,"Use special");
 		CanUseSpecial = false;
-		Player->IsUsingSpecial = false;
 		Delay();
 	}
-	else if (!CanUseSpecial && Player->IsUsingSpecial)
-		Player->IsUsingSpecial = false;
-	
 }
 
 // Called every frame
 void APlant::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	UseSpecial();
 }
 
 void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

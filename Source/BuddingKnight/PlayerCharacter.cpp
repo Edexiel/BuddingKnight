@@ -139,9 +139,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("SelectRight", IE_Pressed,this, &APlayerCharacter::SelectRight);
 	PlayerInputComponent->BindAction("SelectRight", IE_Released,this, &APlayerCharacter::StopSelectRight);
 
-	PlayerInputComponent->BindAction("Special", IE_Pressed,this, &APlayerCharacter::UseSeed);
-	PlayerInputComponent->BindAction("Special", IE_Pressed,this, &APlayerCharacter::UseSpecialPressed);
-	PlayerInputComponent->BindAction("Special", IE_Released,this, &APlayerCharacter::UseSpecialReleased);
+	//PlayerInputComponent->BindAction("Special", IE_Pressed,this, &APlayerCharacter::UseSeed);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -372,16 +370,6 @@ void APlayerCharacter::UseSeed()
 		ClosestPot->SetCanPlant(true);
 		NbSeed--;
 	}
-}
-
-void APlayerCharacter::UseSpecialPressed()
-{
-	IsUsingSpecial = true;
-}
-
-void APlayerCharacter::UseSpecialReleased()
-{
-	IsUsingSpecial = false;
 }
 
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

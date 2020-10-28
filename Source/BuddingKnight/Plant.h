@@ -46,7 +46,7 @@ protected:
 	UFUNCTION()
     void ResetDelay();
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable, meta=(AllowPrivateAccess = "true"))
 	virtual void UseSpecial();
 	
 public:	
