@@ -150,6 +150,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("SelectRight", IE_Released,this, &APlayerCharacter::StopSelectRight);
 
 	PlayerInputComponent->BindAction("Special", IE_Pressed,this, &APlayerCharacter::UseSeed);
+	PlayerInputComponent->BindAction("Special", IE_Pressed,this, &APlayerCharacter::UseSpecialPressed);
+	PlayerInputComponent->BindAction("Special", IE_Released,this, &APlayerCharacter::UseSpecialReleased);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
@@ -190,7 +192,7 @@ void APlayerCharacter::DelaySoftLock()
 void APlayerCharacter::ResetSoftLock()
 {
 	if(DetectionSphereIsColliding)
-		ChangeCameraBoomRotation = true;	
+		ChangeCameraBoomRotation = true;
 }
 
 void APlayerCharacter::CameraBoomLengthTransition()
@@ -396,6 +398,16 @@ void APlayerCharacter::UseSeed()
 		ClosestPot->SetCanPlant(true);
 		NbSeed--;
 	}
+}
+
+void APlayerCharacter::UseSpecialPressed()
+{
+	IsUsingSpecial = true;
+}
+
+void APlayerCharacter::UseSpecialReleased()
+{
+	IsUsingSpecial = false;
 }
 
 void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

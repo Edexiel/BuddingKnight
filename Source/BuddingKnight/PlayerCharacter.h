@@ -71,6 +71,7 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	
 	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	bool bIsRolling;
+
 	
 public:
 	virtual void Tick(float DeltaSeconds) override;
@@ -126,6 +127,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
 	int NbSeed{0};
+
+	UPROPERTY()
+	bool IsUsingSpecial;
 	
 	UPROPERTY()
 	float DistancePlayerLockEnemy;
@@ -237,6 +241,12 @@ protected:
 
 	UFUNCTION()
     void UseSeed();
+
+	UFUNCTION()
+    void UseSpecialPressed();
+
+	UFUNCTION()
+    void UseSpecialReleased();
 	
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,

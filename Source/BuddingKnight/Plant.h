@@ -31,6 +31,21 @@ protected:
 	UPROPERTY()
 	bool DetectPlayer{false};
 
+	UPROPERTY()
+	bool IsResettingDelay{true};
+	
+	UPROPERTY()
+	float DelayCooldown{5.f};
+
+	UPROPERTY()
+	FTimerHandle TimeHandleDelay;
+	
+	UFUNCTION()
+	void Delay();
+
+	UFUNCTION()
+    void ResetDelay();
+	
 	UFUNCTION()
 	virtual void UseSpecial();
 	

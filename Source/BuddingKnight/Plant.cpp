@@ -5,8 +5,11 @@
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
+#include "TimerManager.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "PlayerCharacter.h"
+#include "Kismet/KismetSystemLibrary.h"
 
 // Sets default values
 APlant::APlant()
@@ -28,18 +31,43 @@ void APlant::BeginPlay()
 	SphereDetection->OnComponentEndOverlap.AddDynamic(this, &APlant::OnSphereDetectionOverlapEnd);
 
 	CanUseSpecial = true;
+	IsResettingDelay = true;
+	DelayCooldown = 5.f;
+}
+
+void APlant::Delay()
+{
+	if(IsResettingDelay)
+	{
+		GetWorldTimerManager().ClearTimer(TimeHandleDelay);
+		GetWorldTimerManager().SetTimer(TimeHandleDelay, this, &APlant::ResetDelay, DelayCooldown, false);
+		IsResettingDelay = false;
+	}
+}
+
+void APlant::ResetDelay()
+{
+	CanUseSpecial = true;
+	IsResettingDelay = true;
 }
 
 void APlant::UseSpecial()
 {
-	if(DetectPlayer)
-	{
-		
-	}
-	if(DetectPlayer && CanUseSpecial)
+	if(!DetectPlayer)
+		return;
+	
+	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this,0));
+
+	if(CanUseSpecial && Player->IsUsingSpecial)
 	{
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Cyan,"Use special");
+		CanUseSpecial = false;
+		Player->IsUsingSpecial = false;
+		Delay();
 	}
+	else if (!CanUseSpecial && Player->IsUsingSpecial)
+		Player->IsUsingSpecial = false;
+	
 }
 
 // Called every frame
