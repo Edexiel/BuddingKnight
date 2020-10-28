@@ -60,5 +60,12 @@ void AAIC_EnemyCAC::SetTarget(AActor* Actor)
 
 void AAIC_EnemyCAC::Tick(float DeltaTime)
 {
-    Blackboard->SetValueAsFloat("DistanceToPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
+    Super::Tick(DeltaTime);
+    const float Distance = GetPawn()->GetDistanceTo(PlayerCharacter);
+    Blackboard->SetValueAsFloat("DistanceToPlayer",Distance);
+
+    if(Distance < AttackRange)
+        PlayerCharacter->RegisterEnemy(GetPawn());
+    else
+        PlayerCharacter->UnregisterEnemy(GetPawn());
 }
