@@ -41,7 +41,7 @@ EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
         return EBTNodeResult::Succeeded;
     }
     // Set the focus towards new/old focus actor
-    MyController->SetFocus(FocusActor);
+    MyController->SetFocus(FocusActor,EAIFocusPriority::Default);
     
     if(MyController->MoveToActor(FocusActor, MyBlackBoard->GetValueAsFloat("MarginRadius")))
         return EBTNodeResult::InProgress;
@@ -63,10 +63,7 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
     
     AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController());
 
-    MyController->SetFocus(FocusActor);
-
-
-
+    MyController->SetFocus(Player,EAIFocusPriority::Default);
     
     switch (MyController->GetMoveStatus()) {
     case EPathFollowingStatus::Idle:
@@ -96,7 +93,7 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
                 MyBlackBoard->SetValueAsObject("FocusActor",Target?Target:Cast<AActor>(Player));
 
             // Set the focus towards new/old focus actor
-            MyController->SetFocus(FocusActor);
+            MyController->SetFocus(FocusActor,EAIFocusPriority::Default);
 
             //If the focus has changed, move towards new focus
             if(OldID != FocusActor->GetUniqueID())

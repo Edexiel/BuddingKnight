@@ -22,10 +22,6 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
-	/** A collision sphere in order to detect enemy*/
-	UPROPERTY(EditAnywhere)
-	class USphereComponent* DetectionSphere;
-
 	/** Attack Animation **/
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	TArray<class UAnimMontage*> Combo;	
@@ -121,9 +117,9 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	APawn * LockEnemy;
-	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
-    TArray<APawn *> Enemies;
+	TArray<APawn *> Enemies;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
 	int NbSeed{0};
@@ -139,7 +135,12 @@ public:
 
 	UFUNCTION(BlueprintGetter)
 	int GetEnemyNumber() const;
-	
+
+	UFUNCTION()
+	void RegisterEnemy(APawn* Pawn);
+
+	UFUNCTION()
+	void UnregisterEnemy(APawn* Pawn);
 	
 protected:
 	
@@ -216,23 +217,23 @@ protected:
 	
 	/** Make a transition between CameraBoomLength and CameraBoomLengthAttack. */
 	UFUNCTION()
-	void CameraBoomLengthTransition();
+	void CameraBoomLengthTransition(const float DeltaTime);
 
 	UFUNCTION()
-    void CameraBoomOffSetTransition();
+    void CameraBoomOffSetTransition(const float DeltaTime);
 
 	UFUNCTION()
-    void CameraFOVTransition();
+    void CameraFOVTransition(const float DeltaTime);
 
 	UFUNCTION()
-    void CameraPitchTransition();
+	void CameraPitchTransition(float DeltaTime);
 	
 	UFUNCTION()
-	void UpdateCamera();
+	void UpdateCamera(const float DeltaTime);
 	
 	/** Rotate the CameraBoom in the direction of LockEnemy.*/
 	UFUNCTION()
-    void CameraLock();
+    void CameraLock(const float DeltaTime);
 
 	/** Search the closest enemy in enemies.*/
 	UFUNCTION()
@@ -248,18 +249,18 @@ protected:
 	UFUNCTION()
     void UseSpecialReleased();
 	
-	UFUNCTION()
-	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,
-						class AActor* OtherActor,
-						class UPrimitiveComponent* OtherComp,
-						int32 OtherBodyIndex, bool bFromSweep,
-						const FHitResult& SweepResult);
-
-	UFUNCTION()
-    void OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
-     				   AActor* OtherActor,
-     				   UPrimitiveComponent* OtherComp,
-     				   int32 OtherBodyIndex);
+	// UFUNCTION()
+	// void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp,
+	// 					class AActor* OtherActor,
+	// 					class UPrimitiveComponent* OtherComp,
+	// 					int32 OtherBodyIndex, bool bFromSweep,
+	// 					const FHitResult& SweepResult);
+ //
+	// UFUNCTION()
+ //    void OnOverlapEnd(UPrimitiveComponent* OverlappedComp,
+ //     				   AActor* OtherActor,
+ //     				   UPrimitiveComponent* OtherComp,
+ //     				   int32 OtherBodyIndex);
 
 	UFUNCTION()
     void OnCapsuleBeginOverlap(class UPrimitiveComponent* OverlappedComp,

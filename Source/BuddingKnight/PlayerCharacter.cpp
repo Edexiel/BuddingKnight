@@ -17,7 +17,6 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/Actor.h"
-#include "Components/SphereComponent.h"
 #include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
@@ -26,6 +25,7 @@
 #include "Pot.h"
 #include "Plant.h"
 #include "CameraDataAsset.h"
+#include "Serialization/JsonTypes.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -56,31 +56,17 @@ APlayerCharacter::APlayerCharacter()
 	CameraBoom->TargetArmLength = IsInFightingMod; // The camera follows at this distance behind the character	
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->bEnableCameraRotationLag = true;
-	
 
 	// Create a follow camera
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-
-	// Create a sphere detection
-	DetectionSphere = CreateDefaultSubobject<USphereComponent>(TEXT("SphereDetection"));
-	DetectionSphere->InitSphereRadius(100.f);
-	DetectionSphere->SetupAttachment(RootComponent);
-	DetectionSphere->SetCanEverAffectNavigation(false);
-	
-	
-
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named MyCharacter (to avoid direct content references in C++)
-
 	MovementComponent = ACharacter::GetMovementComponent();
 	
 	AttackCounter = 0;
 	bCanAttack = true;
-	bIsRolling = false;
-	
+	bIsRolling = false;	
 }
 
 // Called when the game starts or when spawned
@@ -88,8 +74,6 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
-	
 	CameraBoom->TargetArmLength = DataAssetCamera->GetCameraBoomLengthPlatform();
 	CameraBoom->SocketOffset = DataAssetCamera->GetCameraBoomOffSetPlatform();
 
@@ -98,21 +82,18 @@ void APlayerCharacter::BeginPlay()
 	FRotator NewRotation = FollowCamera->GetRelativeRotation();
 	NewRotation.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform());
 	FollowCamera->SetRelativeRotation(NewRotation);
-	
-	
-	DetectionSphere->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapBegin);
-	DetectionSphere->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnOverlapEnd);
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
-	
-	if(Enemies.Num() > 0)
-	{
-		DistancePlayerLockEnemy = FMath::Abs ((Enemies[0]->GetActorLocation() - GetActorLocation()).Size());
-		LockEnemy = Enemies[0];
-	}
 
-	// Set variable of the camera with DataAssetCamera
+	//todo refactor
+	// if(Enemies.Num() > 0)
+	// {
+	// 	DistancePlayerLockEnemy = FMath::Abs ((Enemies[0]->GetActorLocation() - GetActorLocation()).Size());
+	// 	LockEnemy = Enemies[0];
+	// }
+
+	LockEnemy = nullptr;
 }
 
 //Called every frame
@@ -123,12 +104,8 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 	if(bIsRolling)
 		AddMovementInput(GetActorForwardVector(),1);
 
-	UpdateCamera();
+	UpdateCamera(DeltaSeconds);
 }
-
-
-//////////////////////////////////////////////////////////////////////////
-// Input
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -165,7 +142,6 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
 	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
-	
 	PlayerInputComponent->BindAxis("ResetCameraLock", this, &APlayerCharacter::ResetCameraLock);
 }
 
@@ -188,20 +164,17 @@ void APlayerCharacter::DelaySoftLock()
 	}
 }
 
-
 void APlayerCharacter::ResetSoftLock()
 {
 	if(DetectionSphereIsColliding)
 		ChangeCameraBoomRotation = true;
 }
 
-void APlayerCharacter::CameraBoomLengthTransition()
+void APlayerCharacter::CameraBoomLengthTransition(const float DeltaTime)
 {
 	if(!IsValid(DataAssetCamera))
 		return;
-	
-	const float DeltaTime = GetWorld()->GetDeltaSeconds();
-	
+		
 	const float CameraBoomLengthPlatform = DataAssetCamera->GetCameraBoomLengthPlatform();
 	const float CameraBoomLengthFight = DataAssetCamera->GetCameraBoomLengthFight();
 	const float CameraBoomLengthTransitionSpeed = DataAssetCamera->GetCameraBoomLengthTransitionSpeed();
@@ -218,13 +191,11 @@ void APlayerCharacter::CameraBoomLengthTransition()
 	}
 }
 
-void APlayerCharacter::CameraBoomOffSetTransition()
+void APlayerCharacter::CameraBoomOffSetTransition(const float DeltaTime)
 {
 	if(!IsValid(DataAssetCamera))
 		return;
-	
-	const float DeltaTime = GetWorld()->GetDeltaSeconds();
-	
+		
 	const FVector CameraBoomOffSetPlatform = DataAssetCamera->GetCameraBoomOffSetPlatform();
 	const FVector CameraBoomOffSetFight = DataAssetCamera->GetCameraBoomOffSetFight();
 	const float CameraBoomOffSetTransitionSpeed = DataAssetCamera->GetCameraBoomOffSetTransitionSpeed();
@@ -241,16 +212,13 @@ void APlayerCharacter::CameraBoomOffSetTransition()
 	}
 }
 
-void APlayerCharacter::CameraFOVTransition()
+void APlayerCharacter::CameraFOVTransition(const float DeltaTime)
 {
 	if(!IsValid(DataAssetCamera))
 		return;
-	
-	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 
 	const float CameraFOVPlatform = DataAssetCamera->GetCameraFOVPlatform();
 	const float CameraFOVFight = DataAssetCamera->GetCameraFOVPlatform();
-
 	const float CameraFOVSpeed = DataAssetCamera->GetCameraFOVSpeed();
 	
 	if (IsInFightingMod && AlphaCameraFOV < 1)
@@ -265,14 +233,11 @@ void APlayerCharacter::CameraFOVTransition()
 	}
 }
 
-void APlayerCharacter::CameraPitchTransition()
+void APlayerCharacter::CameraPitchTransition(const float DeltaTime)
 {
 	if(!IsValid(DataAssetCamera))
 		return;
 	
-	const float DeltaTime = GetWorld()->GetDeltaSeconds();
-	FRotator NewRotator = FollowCamera->GetRelativeRotation();
-
 	const float CameraPitchPlatform = DataAssetCamera->GetCameraPitchPlatform();
 	const float CameraPitchFight = DataAssetCamera->GetCameraPitchFight();
 
@@ -296,25 +261,21 @@ void APlayerCharacter::CameraPitchTransition()
 	}
 }
 
-void APlayerCharacter::UpdateCamera()
+void APlayerCharacter::UpdateCamera(const float DeltaTime)
 {
 	SearchClosestEnemy();
-	CameraBoomLengthTransition();
-	CameraLock();
-	CameraBoomOffSetTransition();
-	CameraFOVTransition();
-	CameraPitchTransition();
+	CameraBoomLengthTransition(DeltaTime);
+	CameraLock(DeltaTime);
+	CameraBoomOffSetTransition(DeltaTime);
+	CameraFOVTransition(DeltaTime);
+	CameraPitchTransition(DeltaTime);
 }
 
-void APlayerCharacter::CameraLock()
+void APlayerCharacter::CameraLock(const float DeltaTime)
 {
 	if(!IsValid(LockEnemy))
 		return;
-	
-	
-	
-	const float DeltaTime = GetWorld()->GetDeltaSeconds();
-	
+		
 	if(!OldCameraBoomRotationIsSet)
 	{
 		OldCameraBoomRotation = CameraBoom->GetComponentRotation();
@@ -355,7 +316,7 @@ void APlayerCharacter::CameraLock()
 
 void APlayerCharacter::SearchClosestEnemy()
 {
-	if(Enemies.Num() == 0)
+	if(Enemies.Num() == 0 || LockEnemy == nullptr)
 		return;
 
 	for (APawn* Pawn : Enemies)
@@ -364,7 +325,8 @@ void APlayerCharacter::SearchClosestEnemy()
 		
 		UE_LOG(LogTemp, Warning, TEXT("DistancePlayerLockEnemy = %f"), DistancePlayerLockEnemy);
 		UE_LOG(LogTemp, Warning, TEXT("NewDistance = %f"), NewDistance);
-
+		
+		
 		if (LockEnemy == Pawn)
 			DistancePlayerLockEnemy = NewDistance;
 		
@@ -380,9 +342,8 @@ void APlayerCharacter::SearchClosestEnemy()
 				AlphaCameraBoomRot = 0;
 			}
 			
-			DistancePlayerLockEnemy = NewDistance;	
+			DistancePlayerLockEnemy = NewDistance;
 		}
-		
 	}
 }
 
@@ -408,27 +369,6 @@ void APlayerCharacter::UseSpecialPressed()
 void APlayerCharacter::UseSpecialReleased()
 {
 	IsUsingSpecial = false;
-}
-
-void APlayerCharacter::OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if(OtherActor->IsA(APawn::StaticClass()))
-	{
-		DetectionSphereIsColliding = true;
-		IsInFightingMod = true;
-		ChangeCameraBoomRotation = true;
-	}
-}
-
-void APlayerCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	if(OtherActor->IsA(APawn::StaticClass()))
-	{
-		DetectionSphereIsColliding = false;
-		IsInFightingMod = false;
-		ChangeCameraBoomRotation = false;
-	}
 }
 
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -493,6 +433,7 @@ void APlayerCharacter::LookUpAtRate(const float Rate)
 	// calculate delta for this frame from the rate information
 	AddControllerPitchInput(Rate * BaseLookUpRate * GetWorld()->GetDeltaSeconds());
 }
+
 void APlayerCharacter::OnValidateAttack()
 {
 	bCanAttack = true;
@@ -528,6 +469,7 @@ void APlayerCharacter::Dodge()
 	bIsRolling=true;	
 	
 }
+
 void APlayerCharacter::StopDodge()
 {
 }
@@ -539,7 +481,6 @@ void APlayerCharacter::SelectLeft()
 void APlayerCharacter::StopSelectLeft()
 {
 }
-
 
 void APlayerCharacter::SelectRight()
 {
@@ -569,9 +510,45 @@ int APlayerCharacter::GetEnemyNumber() const
 	return Enemies.Num();
 }
 
+void APlayerCharacter::RegisterEnemy(APawn* Pawn)
+{
+	if(!Enemies.Contains(Pawn))
+	{
+		Enemies.Add(Pawn);
+		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
+		
+		if(Enemies.Num() == 1)
+			LockEnemy = Enemies[0];
+		
+		DetectionSphereIsColliding = true;
+		IsInFightingMod = true;
+		ChangeCameraBoomRotation = true;
+	}
+}
+
+void APlayerCharacter::UnregisterEnemy(APawn* Pawn)
+{
+	if(Enemies.Contains(Pawn))
+	{
+		IsInFightingMod = false;
+		ChangeCameraBoomRotation = false;
+		
+		if (Pawn == LockEnemy && Enemies.Num() > 1)
+			SearchClosestEnemy();
+		else
+		{
+			LockEnemy = nullptr;
+			DetectionSphereIsColliding = false;
+		}	
+			
+		Enemies.Remove(Pawn);
+		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Enemy unregistered "+ FString::FromInt(Enemies.Num()));
+	}
+}
+
 void APlayerCharacter::MoveForward(const float Value)
 {
-	if ((Controller != nullptr) && (Value != 0.0f))
+	if (Controller && Value != 0.0f)
 	{
 		// find out which way is forward
 		const FRotator Rotation = Controller->GetControlRotation();
@@ -585,7 +562,7 @@ void APlayerCharacter::MoveForward(const float Value)
 
 void APlayerCharacter::MoveRight(const float Value)
 {
-	if ( (Controller != nullptr) && (Value != 0.0f) )
+	if ( Controller && Value != 0.0f )
 	{
 		// find out which way is right
 		const FRotator Rotation = Controller->GetControlRotation();
