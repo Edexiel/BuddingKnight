@@ -86,9 +86,6 @@ public:
 	
 	UPROPERTY()
 	bool IsInFightingMod {false};
-	
-	UPROPERTY()
-	bool IsSwitchingTarget {false};
 
 	UPROPERTY()
 	bool DelayIsReset {false};

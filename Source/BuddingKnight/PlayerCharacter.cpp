@@ -3,6 +3,8 @@
 
 #include "PlayerCharacter.h"
 
+
+#include <mutex>
 #include <string>
 #include <xutility>
 
@@ -105,6 +107,17 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 		AddMovementInput(GetActorForwardVector(),1);
 
 	UpdateCamera(DeltaSeconds);
+	/*
+	UE_LOG(LogTemp, Warning, TEXT("DetectionSphereIsColliding = %d"), DetectionSphereIsColliding);
+	UE_LOG(LogTemp, Warning, TEXT("Enemies.Num() = %d"), Enemies.Num());
+
+	if(LockEnemy == nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("LockEnemy = nullptr"));
+	}
+	else
+		UE_LOG(LogTemp, Warning, TEXT("LockEnemy != nullptr"));*/
+	
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -273,7 +286,7 @@ void APlayerCharacter::UpdateCamera(const float DeltaTime)
 
 void APlayerCharacter::CameraLock(const float DeltaTime)
 {
-	if(!IsValid(LockEnemy))
+	if(LockEnemy == nullptr)
 		return;
 		
 	if(!OldCameraBoomRotationIsSet)
@@ -284,14 +297,8 @@ void APlayerCharacter::CameraLock(const float DeltaTime)
 	
 	FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(CameraBoom->GetComponentLocation(), LockEnemy->GetActorLocation());
 
-	// const float AngleZAxis = FMath::Abs(NewRotation.Yaw) - FMath::Abs(CameraBoom->GetComponentRotation().Yaw);
 	const FVector DistanceCameraEnemy = (LockEnemy->GetActorLocation() - CameraBoom->GetComponentLocation()).GetSafeNormal();
 	const float AngleCameraEnemy = FMath::Acos(FVector::DotProduct(DistanceCameraEnemy, CameraBoom->GetForwardVector())) * 180 / PI;
-	
-	//UE_LOG(LogTemp, Warning, TEXT("AngleCameraEnemy = %f"), AngleCameraEnemy);
-
-	//DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(),Test, FColor::Purple, false, 5, 0, 25);
-	//DrawDebugLine(GetWorld(), FollowCamera->GetComponentLocation(), LockEnemy->GetActorLocation(), FColor::Red, false, 0, 0, 25);
 	
 	const float CameraBoomRotSpeed = DataAssetCamera->GetCameraBoomRotSpeed();
 	
@@ -310,14 +317,21 @@ void APlayerCharacter::CameraLock(const float DeltaTime)
 		
 		AlphaCameraBoomRot = 0;
 		OldCameraBoomRotationIsSet = false;
-		
 	}
 }
 
 void APlayerCharacter::SearchClosestEnemy()
 {
-	if(Enemies.Num() == 0 || LockEnemy == nullptr)
+	if(Enemies.Num() == 0)
 		return;
+	
+	else if (Enemies.Num() > 1 && LockEnemy == nullptr)
+	{
+		LockEnemy = Enemies[0];
+		CameraBoom->SetWorldRotation(GetControlRotation());
+		AlphaCameraBoomRot = 0;
+		OldCameraBoomRotationIsSet = false;
+	}
 
 	for (APawn* Pawn : Enemies)
 	{
@@ -338,7 +352,6 @@ void APlayerCharacter::SearchClosestEnemy()
 			{
 				LockEnemy = Pawn;
 				OldCameraBoomRotationIsSet = false;
-				IsSwitchingTarget = true;
 				AlphaCameraBoomRot = 0;
 			}
 			
@@ -518,7 +531,12 @@ void APlayerCharacter::RegisterEnemy(APawn* Pawn)
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
 		
 		if(Enemies.Num() == 1)
+		{
 			LockEnemy = Enemies[0];
+			CameraBoom->SetWorldRotation(GetControlRotation());
+			AlphaCameraBoomRot = 0;
+			OldCameraBoomRotationIsSet = false;
+		}
 		
 		DetectionSphereIsColliding = true;
 		IsInFightingMod = true;
@@ -530,19 +548,18 @@ void APlayerCharacter::UnregisterEnemy(APawn* Pawn)
 {
 	if(Enemies.Contains(Pawn))
 	{
-		IsInFightingMod = false;
-		ChangeCameraBoomRotation = false;
-		
-		if (Pawn == LockEnemy && Enemies.Num() > 1)
-			SearchClosestEnemy();
-		else
-		{
-			LockEnemy = nullptr;
-			DetectionSphereIsColliding = false;
-		}	
-			
 		Enemies.Remove(Pawn);
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Enemy unregistered "+ FString::FromInt(Enemies.Num()));
+		
+		if(Pawn == LockEnemy)
+			LockEnemy = nullptr;
+		
+		if (Enemies.Num() == 0)
+		{
+			DetectionSphereIsColliding = false;
+			IsInFightingMod = false;
+			ChangeCameraBoomRotation = false;
+		}
 	}
 }
 
