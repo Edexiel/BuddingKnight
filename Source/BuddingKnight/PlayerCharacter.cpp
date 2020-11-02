@@ -335,8 +335,8 @@ void APlayerCharacter::SearchClosestEnemy()
 	{
 		const float NewDistance = GetDistanceTo(Pawn);
 		
-		UE_LOG(LogTemp, Warning, TEXT("DistancePlayerLockEnemy = %f"), DistancePlayerLockEnemy);
-		UE_LOG(LogTemp, Warning, TEXT("NewDistance = %f"), NewDistance);
+		//UE_LOG(LogTemp, Warning, TEXT("DistancePlayerLockEnemy = %f"), DistancePlayerLockEnemy);
+		//UE_LOG(LogTemp, Warning, TEXT("NewDistance = %f"), NewDistance);
 		
 		
 		if (LockEnemy == Pawn)

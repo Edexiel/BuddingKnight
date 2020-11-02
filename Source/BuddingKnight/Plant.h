@@ -38,6 +38,15 @@ protected:
 	float DelayCooldown{5.f};
 
 	UPROPERTY()
+	TArray<APawn*> Enemies;
+
+	UPROPERTY()
+	APawn* ClosestEnemy;
+
+	UPROPERTY()
+	float DistanceToClosestEnemy{0.f};
+	
+	UPROPERTY()
 	FTimerHandle TimeHandleDelay;
 	
 	UFUNCTION()
@@ -48,6 +57,10 @@ protected:
 	
 	UFUNCTION(BlueprintCallable, meta=(AllowPrivateAccess = "true"))
 	virtual void UseSpecial();
+
+	UFUNCTION()
+    void SearchClosestEnemy();
+
 	
 public:	
 	// Called every frame

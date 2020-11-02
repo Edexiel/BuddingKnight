@@ -2,6 +2,9 @@
 
 
 #include "Plant.h"
+
+#include <activation.h>
+
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
@@ -33,6 +36,8 @@ void APlant::BeginPlay()
 	CanUseSpecial = true;
 	IsResettingDelay = true;
 	DelayCooldown = 20.f;
+	
+	ClosestEnemy = nullptr;
 }
 
 void APlant::Delay()
@@ -66,26 +71,71 @@ void APlant::UseSpecial()
 	}
 }
 
+void APlant::SearchClosestEnemy()
+{
+	if(Enemies.Num() == 0)
+		return;
+	
+	else if (Enemies.Num() > 1 && ClosestEnemy == nullptr)
+		ClosestEnemy = Enemies[0];
+	
+	for (APawn* Pawn : Enemies)
+	{
+		const float NewDistance = GetDistanceTo(Pawn);
+		
+		//UE_LOG(LogTemp, Warning, TEXT("DistanceToClosestEnemy = %f"), DistanceToClosestEnemy);
+		//UE_LOG(LogTemp, Warning, TEXT("NewDistance = %f"), NewDistance);
+		
+		if (ClosestEnemy == Pawn)
+		{
+			DistanceToClosestEnemy = NewDistance;
+		}
+		
+		if(NewDistance < DistanceToClosestEnemy)
+		{
+			ClosestEnemy = Pawn;
+			DistanceToClosestEnemy = NewDistance;
+			UE_LOG(LogTemp, Warning, TEXT("Change closest enemy"));
+		}
+	}
+	SetFocus(ClosestEnemy);
+}
+
 // Called every frame
 void APlant::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	SearchClosestEnemy();
 }
 
 void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
 		DetectPlayer = true;
-
-	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,"DetectPlayer is true");
+		return;
+	}
+	
+	if(OtherActor->IsA(APawn::StaticClass()))
+	{
+	    Enemies.Add(Cast<APawn>(OtherActor));
+		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,"Add enemy!");
+	}
 }
 
 void APlant::OnSphereDetectionOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
 		DetectPlayer = false;
+		return;
+	}
 
-	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"DetectPlayer is false");
+	if(OtherActor->IsA(APawn::StaticClass()))
+	{
+		Enemies.Remove(Cast<APawn>(OtherActor));
+		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Remove enemy!");
+	}
 }
