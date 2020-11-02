@@ -2,9 +2,6 @@
 
 
 #include "Plant.h"
-
-#include <activation.h>
-
 #include "Components/SphereComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
@@ -98,7 +95,7 @@ void APlant::SearchClosestEnemy()
 			UE_LOG(LogTemp, Warning, TEXT("Change closest enemy"));
 		}
 	}
-	SetFocus(ClosestEnemy);
+	//SetFocus(ClosestEnemy);
 }
 
 // Called every frame

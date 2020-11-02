@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
+
 #include "AIC_EnemyCAC.generated.h"
 
 UCLASS()
@@ -13,6 +14,9 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	UPROPERTY(EditAnywhere)
 	class UBehaviorTree* BTAsset;
 
+	UPROPERTY()
+	bool Init{false};
+	
 	UPROPERTY()
 	class APlayerCharacter* PlayerCharacter;
 	
@@ -35,7 +39,7 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	float WaitTimeBetweenAttacks;
 
 	
-	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere)
 	class AActor* Target{nullptr};
 
 	
@@ -43,7 +47,11 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void OnPossess(APawn* InPawn) override;
 public:
-	void SetTarget(class AActor* Target);
+	
+	UFUNCTION(BlueprintCallable)
+	void SetTarget(AActor* Actor);
+	
 	virtual void Tick(float DeltaTime) override;
 };
