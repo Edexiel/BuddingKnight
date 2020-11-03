@@ -7,9 +7,12 @@
 #include "Engine/Engine.h"
 #include "TimerManager.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
 
 #include "PlayerCharacter.h"
+#include "Enemy.h"
 #include "Kismet/KismetSystemLibrary.h"
+
 
 // Sets default values
 APlant::APlant()
@@ -76,7 +79,7 @@ void APlant::SearchClosestEnemy()
 	else if (Enemies.Num() > 1 && ClosestEnemy == nullptr)
 		ClosestEnemy = Enemies[0];
 	
-	for (APawn* Pawn : Enemies)
+	for (AEnemy* Pawn : Enemies)
 	{
 		const float NewDistance = GetDistanceTo(Pawn);
 		
@@ -98,11 +101,25 @@ void APlant::SearchClosestEnemy()
 	//SetFocus(ClosestEnemy);
 }
 
+void APlant::LookAtClosestEnemy()
+{
+	if(ClosestEnemy == nullptr)
+		return;
+	
+	FRotator PlantRotation = GetActorRotation();
+	const FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ClosestEnemy->GetActorLocation());
+
+	PlantRotation.SetComponentForAxis(EAxis::Z, NewRotation.Yaw);
+	
+	SetActorRotation(PlantRotation);
+}
+
 // Called every frame
 void APlant::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	SearchClosestEnemy();
+	LookAtClosestEnemy();
 }
 
 void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -114,9 +131,9 @@ void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 		return;
 	}
 	
-	if(OtherActor->IsA(APawn::StaticClass()))
+	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
-	    Enemies.Add(Cast<APawn>(OtherActor));
+	    Enemies.Add(Cast<AEnemy>(OtherActor));
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,"Add enemy!");
 	}
 }
@@ -130,9 +147,9 @@ void APlant::OnSphereDetectionOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 		return;
 	}
 
-	if(OtherActor->IsA(APawn::StaticClass()))
+	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
-		Enemies.Remove(Cast<APawn>(OtherActor));
+		Enemies.Remove(Cast<AEnemy>(OtherActor));
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Remove enemy!");
 	}
 }

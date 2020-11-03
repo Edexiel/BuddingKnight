@@ -55,7 +55,7 @@ APlayerCharacter::APlayerCharacter()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = IsInFightingMod; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = IsInFightingMod; // The camera follows at this distance behind the character
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->bEnableCameraRotationLag = true;
 
@@ -80,7 +80,6 @@ void APlayerCharacter::BeginPlay()
 	CameraBoom->SocketOffset = DataAssetCamera->GetCameraBoomOffSetPlatform();
 
 	FollowCamera->FieldOfView = DataAssetCamera->GetCameraFOVPlatform();
-
 	FRotator NewRotation = FollowCamera->GetRelativeRotation();
 	NewRotation.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform());
 	FollowCamera->SetRelativeRotation(NewRotation);
@@ -94,8 +93,11 @@ void APlayerCharacter::BeginPlay()
 	// 	DistancePlayerLockEnemy = FMath::Abs ((Enemies[0]->GetActorLocation() - GetActorLocation()).Size());
 	// 	LockEnemy = Enemies[0];
 	// }
-
+	
 	LockEnemy = nullptr;
+	FRotator Test = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlRotation();
+	Test.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform() * -1);
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(Test);
 }
 
 //Called every frame
