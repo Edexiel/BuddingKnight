@@ -7,6 +7,7 @@
 #include "AIController.h"
 #include "PlayerCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Engine/Engine.h"
 #include "GameFramework/Character.h"
 
 EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -16,7 +17,6 @@ EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
     AActor* SelfActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("SelfActor"));
     APlayerCharacter* Player = Cast<APlayerCharacter>(MyBlackBoard->GetValueAsObject("Player"));
     AActor* Target = Cast<AActor>(MyBlackBoard->GetValueAsObject("Target"));
-    AActor* FocusActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("FocusActor"));
 
     const float Distance =  MyBlackBoard->GetValueAsFloat("DistanceToPlayer");
     const float AttackRange = MyBlackBoard->GetValueAsFloat("AttackRange");
@@ -24,24 +24,21 @@ EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
     
     AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController());
     
-    // if(Cast<ABaseCharacter>(SelfActor)->IsDead())
-    // {
-    //     MyController->ClearFocus(EAIFocusPriority::Gameplay);
-    //     MyController->ClearFocus(EAIFocusPriority::Default);
-    //     MyController->SetFocus(SelfActor,EAIFocusPriority::Default);
-    //     return EBTNodeResult::Succeeded;
-    // }
-    
     // if the player is in range of the enemy
-    if(Distance<AttackRange || Player->GetEnemyNumber() < MaxEnemiesOnPlayer )
+    
+    if(Distance<AttackRange && Player->GetEnemyNumber() < MaxEnemiesOnPlayer )
         MyBlackBoard->SetValueAsObject("FocusActor",Cast<AActor>(Player));
     else
-    {
-        MyBlackBoard->SetValueAsObject("FocusActor",Target?Target:Cast<AActor>(Player));
-        return EBTNodeResult::Succeeded;
-    }
+        MyBlackBoard->SetValueAsObject("FocusActor",Target);
+
+    AActor* FocusActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("FocusActor"));
+    
     // Set the focus towards new/old focus actor
+    MyController->ClearFocus(EAIFocusPriority::Default);
     MyController->SetFocus(FocusActor,EAIFocusPriority::Default);
+
+    GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Green,FocusActor->GetActorLabel());
+
     
     if(MyController->MoveToActor(FocusActor, MyBlackBoard->GetValueAsFloat("MarginRadius")))
         return EBTNodeResult::InProgress;
@@ -63,6 +60,7 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
     
     AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController());
 
+    MyController->ClearFocus(EAIFocusPriority::Default);
     MyController->SetFocus(Player,EAIFocusPriority::Default);
     
     switch (MyController->GetMoveStatus()) {
@@ -71,12 +69,16 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
             // Character moved successfully towards goal, switching to attack mode
             MyBlackBoard->SetValueAsBool("Walking",false);
             MyBlackBoard->SetValueAsBool("Attacking",true);
+            GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Yellow,"Idle state");
+
             return FinishLatentTask(OwnerComp,EBTNodeResult::Succeeded);
         }
     case EPathFollowingStatus::Waiting:
-        // Honestly don't know what state it is 
+        // Honestly don't know what state it is
+        GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Yellow,"Waiting State on player");
         return FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
     case EPathFollowingStatus::Paused:
+        GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Yellow,"Waiting State on player");
         // We paused the movement for whatever reason
         return FinishLatentTask(OwnerComp,EBTNodeResult::InProgress);
     case EPathFollowingStatus::Moving:
@@ -87,10 +89,10 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
             const uint32 OldID = FocusActor->GetUniqueID();
             
             // if the player is getting in range of the enemy whilst it is moving
-            if(Distance<AttackRange || Player->GetEnemyNumber() < MaxEnemiesOnPlayer )
+            if(Distance<AttackRange && Player->GetEnemyNumber() < MaxEnemiesOnPlayer )
                 MyBlackBoard->SetValueAsObject("FocusActor",Cast<AActor>(Player));
             else
-                MyBlackBoard->SetValueAsObject("FocusActor",Target?Target:Cast<AActor>(Player));
+                MyBlackBoard->SetValueAsObject("FocusActor",Target);
 
             // Set the focus towards new/old focus actor
             MyController->SetFocus(FocusActor,EAIFocusPriority::Default);
@@ -98,6 +100,7 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
             //If the focus has changed, move towards new focus
             if(OldID != FocusActor->GetUniqueID())
             {
+                MyController->StopMovement();
                 if(MyController->MoveToActor(FocusActor, MyBlackBoard->GetValueAsFloat("MarginRadius")))
                     return FinishLatentTask(OwnerComp,EBTNodeResult::InProgress);
                 return FinishLatentTask(OwnerComp,EBTNodeResult::Failed);

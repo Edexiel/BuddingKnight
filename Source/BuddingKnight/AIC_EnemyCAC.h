@@ -38,11 +38,9 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	UPROPERTY(EditAnywhere)
 	float WaitTimeBetweenAttacks;
 
-	
-	UPROPERTY(EditAnywhere)
+	UPROPERTY()
 	class AActor* Target{nullptr};
 
-	
 
 protected:
 	virtual void BeginPlay() override;

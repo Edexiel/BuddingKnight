@@ -19,21 +19,13 @@ void AAIC_EnemyCAC::BeginPlay()
     
     PlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this,0));
     
-    if (!Blackboard->GetValueAsObject("Player"))
-        Blackboard->SetValueAsObject("Player",PlayerCharacter);
 
-    if(!Blackboard->GetValueAsFloat("AttackRange"))
-        Blackboard->SetValueAsFloat("AttackRange",AttackRange);
-
-    if(!Blackboard->GetValueAsFloat("MarginRadius"))
-        Blackboard->SetValueAsFloat("MarginRadius",MarginRadius);
-
-    if(!Blackboard->GetValueAsFloat("DepopTime"))
-        Blackboard->SetValueAsFloat("DepopTime",DepopTime);
-
-    if(!Blackboard->GetValueAsFloat("MaxEnemiesOnPlayer"))
-        Blackboard->SetValueAsFloat("MaxEnemiesOnPlayer",MaxEnemiesOnPlayer);
-
+    Blackboard->SetValueAsObject("Player",PlayerCharacter);
+    Blackboard->SetValueAsFloat("AttackRange",AttackRange);
+    Blackboard->SetValueAsFloat("MarginRadius",MarginRadius);
+    Blackboard->SetValueAsFloat("DepopTime",DepopTime);
+    Blackboard->SetValueAsInt("MaxEnemiesOnPlayer",MaxEnemiesOnPlayer);
+    
     Blackboard->SetValueAsBool("Walking",true);
     Blackboard->SetValueAsBool("Attacking",false);
     Blackboard->SetValueAsBool("isAlive",true);
@@ -56,7 +48,7 @@ void AAIC_EnemyCAC::SetTarget(AActor* Actor)
     Blackboard->SetValueAsObject("Target",Target);
     Blackboard->SetValueAsObject("FocusActor",Target);
     SetFocus(Target,EAIFocusPriority::Default);
-    GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Target set");
+    GEngine->AddOnScreenDebugMessage(INDEX_NONE,2.f,FColor::Red,"Target set");
 }
 
 void AAIC_EnemyCAC::Tick(float DeltaTime)
@@ -65,7 +57,7 @@ void AAIC_EnemyCAC::Tick(float DeltaTime)
 
     if(!Init)
     {
-        UCharacterMovementComponent* MovementComponent = GetPawn()->GetController()->GetCharacter()->GetCharacterMovement();  
+        UCharacterMovementComponent* MovementComponent = GetCharacter()->GetCharacterMovement();  
         MovementComponent->MaxWalkSpeed = MaxWalkSpeed;
         MovementComponent->SetUpdateNavAgentWithOwnersCollisions(true);
         MovementComponent->SetAvoidanceEnabled(true);
@@ -74,9 +66,24 @@ void AAIC_EnemyCAC::Tick(float DeltaTime)
     }
     
     const float Distance = GetPawn()->GetDistanceTo(PlayerCharacter);
-    Blackboard->SetValueAsFloat("DistanceToPlayer",Distance);
 
-    if(Distance < AttackRange)
+    //todo :: move that into chaseTarget so that HasPartialPath can work
+    if(HasPartialPath())
+    {
+        //Player is not on navmesh
+        GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Player not on navmesh");
+
+        Blackboard->SetValueAsFloat("DistanceToPlayer",999999);
+        ClearFocus(EAIFocusPriority::Default);
+        SetFocus(Target);
+    }
+    else
+    {
+        //Player is on navmesh
+        Blackboard->SetValueAsFloat("DistanceToPlayer",Distance);
+    }
+    
+    if(Blackboard->GetValueAsFloat("DistanceToPlayer") < AttackRange)
         PlayerCharacter->RegisterEnemy(GetPawn());
     else
         PlayerCharacter->UnregisterEnemy(GetPawn());
