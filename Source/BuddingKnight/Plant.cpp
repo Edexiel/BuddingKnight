@@ -35,9 +35,10 @@ void APlant::BeginPlay()
 
 	CanUseSpecial = true;
 	IsResettingDelay = true;
-	DelayCooldown = 20.f;
-	
+	DelayCooldown = 1.f;
 	ClosestEnemy = nullptr;
+
+	RotSpeed = 2.5f;
 }
 
 void APlant::Delay()
@@ -65,10 +66,17 @@ void APlant::UseSpecial()
 
 	if(CanUseSpecial && DetectPlayer)
 	{
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Cyan,"Use special");
+		PlayAnimMontage(AttackAnimation);
+		
+		Special();
 		CanUseSpecial = false;
 		Delay();
 	}
+}
+
+void APlant::Special()
+{
+	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Cyan,"Use special");
 }
 
 void APlant::SearchClosestEnemy()
@@ -98,28 +106,31 @@ void APlant::SearchClosestEnemy()
 			UE_LOG(LogTemp, Warning, TEXT("Change closest enemy"));
 		}
 	}
-	//SetFocus(ClosestEnemy);
 }
 
-void APlant::LookAtClosestEnemy()
+void APlant::LookAtClosestEnemy(const float DeltaTime)
 {
 	if(ClosestEnemy == nullptr)
 		return;
+
 	
 	FRotator PlantRotation = GetActorRotation();
 	const FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ClosestEnemy->GetActorLocation());
 
 	PlantRotation.SetComponentForAxis(EAxis::Z, NewRotation.Yaw);
+	PlantRotation = GetActorRotation() + (PlantRotation - GetActorRotation()).GetNormalized() * DeltaTime * RotSpeed;
 	
+
 	SetActorRotation(PlantRotation);
 }
 
 // Called every frame
 void APlant::Tick(float DeltaTime)
-{
+{	
 	Super::Tick(DeltaTime);
+	
 	SearchClosestEnemy();
-	LookAtClosestEnemy();
+	LookAtClosestEnemy(DeltaTime);
 }
 
 void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

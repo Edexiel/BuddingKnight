@@ -16,3 +16,7 @@ void ATree::BeginPlay()
 {
     Super::BeginPlay();
 }
+
+void ATree::Special()
+{
+}

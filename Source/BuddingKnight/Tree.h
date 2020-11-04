@@ -18,5 +18,7 @@ public:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	class UBoxComponent* AttackBox;
+
+	virtual void Special() override;
 	
 };

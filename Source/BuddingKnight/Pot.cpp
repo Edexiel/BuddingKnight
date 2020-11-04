@@ -27,8 +27,6 @@ APot::APot()
 	
 	SpawnPlantPoint = CreateDefaultSubobject<UBillboardComponent>(TEXT("SpawnPlantPoint"));
 	SpawnPlantPoint->SetupAttachment(RootComponent);
-
-	//PlantA = CreateDefaultSubobject<UChildActorComponent>(TEXT("PlantA"));
 }
 
 // Called when the game starts or when spawned
