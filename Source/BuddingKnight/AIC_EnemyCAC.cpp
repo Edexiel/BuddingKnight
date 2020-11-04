@@ -47,8 +47,9 @@ void AAIC_EnemyCAC::SetTarget(AActor* Actor)
     
     Blackboard->SetValueAsObject("Target",Target);
     Blackboard->SetValueAsObject("FocusActor",Target);
-    SetFocus(Target,EAIFocusPriority::Default);
-    GEngine->AddOnScreenDebugMessage(INDEX_NONE,2.f,FColor::Red,"Target set");
+    ClearFocus(EAIFocusPriority::Gameplay);
+    SetFocus(Target);
+    //GEngine->AddOnScreenDebugMessage(INDEX_NONE,2.f,FColor::Red,"Target set");
 }
 
 void AAIC_EnemyCAC::Tick(float DeltaTime)
@@ -67,24 +68,11 @@ void AAIC_EnemyCAC::Tick(float DeltaTime)
     
     const float Distance = GetPawn()->GetDistanceTo(PlayerCharacter);
 
-    //todo :: move that into chaseTarget so that HasPartialPath can work
-    if(HasPartialPath())
-    {
-        //Player is not on navmesh
-        GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Player not on navmesh");
+    Blackboard->SetValueAsFloat("DistanceToPlayer",Distance);
 
-        Blackboard->SetValueAsFloat("DistanceToPlayer",999999);
-        ClearFocus(EAIFocusPriority::Default);
-        SetFocus(Target);
-    }
-    else
-    {
-        //Player is on navmesh
-        Blackboard->SetValueAsFloat("DistanceToPlayer",Distance);
-    }
     
     if(Blackboard->GetValueAsFloat("DistanceToPlayer") < AttackRange)
-        PlayerCharacter->RegisterEnemy(GetPawn());
+        PlayerCharacter->RegisterEnemy(GetPawn(),Blackboard->GetValueAsInt("MaxEnemiesOnPlayer"));
     else
         PlayerCharacter->UnregisterEnemy(GetPawn());
 }

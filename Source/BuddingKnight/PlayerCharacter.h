@@ -132,9 +132,12 @@ public:
 
 	UFUNCTION(BlueprintGetter)
 	int GetEnemyNumber() const;
+	
+	UFUNCTION(BlueprintGetter)
+	bool IsTargetingPlayer(APawn* Pawn) const;
 
 	UFUNCTION()
-	void RegisterEnemy(APawn* Pawn);
+	void RegisterEnemy(APawn* Pawn, int max);
 
 	UFUNCTION()
 	void UnregisterEnemy(APawn* Pawn);

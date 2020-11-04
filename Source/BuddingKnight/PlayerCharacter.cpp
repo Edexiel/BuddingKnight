@@ -27,7 +27,6 @@
 #include "Pot.h"
 #include "Plant.h"
 #include "CameraDataAsset.h"
-#include "Serialization/JsonTypes.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -457,7 +456,7 @@ void APlayerCharacter::Attack()
 	bCanAttack=false;
 	PlayAnimMontage(Combo[AttackCounter]);
 	AttackCounter++;
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,FString::FromInt(AttackCounter));
+	// GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,FString::FromInt(AttackCounter));
 }
 
 void APlayerCharacter::StopAttack(){}
@@ -511,12 +510,20 @@ int APlayerCharacter::GetEnemyNumber() const
 	return Enemies.Num();
 }
 
-void APlayerCharacter::RegisterEnemy(APawn* Pawn)
+bool APlayerCharacter::IsTargetingPlayer(APawn* Pawn) const
 {
+	return Enemies.Contains(Pawn);	
+}
+
+void APlayerCharacter::RegisterEnemy(APawn* Pawn,const int Max)
+{
+	if(Enemies.Num() >= Max)
+		return;
+	
 	if(!Enemies.Contains(Pawn))
 	{
 		Enemies.Add(Pawn);
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
+		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
 		
 		if(Enemies.Num() == 1)
 		{
@@ -537,7 +544,7 @@ void APlayerCharacter::UnregisterEnemy(APawn* Pawn)
 	if(Enemies.Contains(Pawn))
 	{
 		Enemies.Remove(Pawn);
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Enemy unregistered "+ FString::FromInt(Enemies.Num()));
+		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Enemy unregistered "+ FString::FromInt(Enemies.Num()));
 		
 		if(Pawn == LockEnemy)
 			LockEnemy = nullptr;
