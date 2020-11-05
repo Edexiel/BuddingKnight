@@ -33,3 +33,8 @@ void ASeed::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+
+TEnumAsByte<EPlantType> ASeed::GetType() const
+{
+	return Type;
+}

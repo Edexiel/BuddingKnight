@@ -6,6 +6,15 @@
 #include "GameFramework/Actor.h"
 #include "Seed.generated.h"
 
+UENUM(BlueprintType)
+enum EPlantType
+{
+	Tree,
+	Liana,
+	Spore,
+	NbType
+};
+
 UCLASS()
 class BUDDINGKNIGHT_API ASeed : public AActor
 {
@@ -24,7 +33,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<EPlantType> Type;
+
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
+	TEnumAsByte<EPlantType> GetType() const;
 };
