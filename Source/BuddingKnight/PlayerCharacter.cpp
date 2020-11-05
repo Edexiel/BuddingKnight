@@ -98,8 +98,6 @@ void APlayerCharacter::BeginPlay()
 	FRotator Test = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlRotation();
 	Test.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform() * -1);
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(Test);
-
-	IndexSeed = 0;
 }
 
 //Called every frame

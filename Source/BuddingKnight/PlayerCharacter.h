@@ -128,11 +128,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
 	int NbSporeSeed{0};
 
-	// Index for select the seeds
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
-	int IndexSeed{0};
 	
-	UPROPERTY(EditAnywhere, Category = "Seed")
+	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"), Category = "Seed")
 	TEnumAsByte<EPlantType> TypeOfPlant;
 
 	UPROPERTY()
