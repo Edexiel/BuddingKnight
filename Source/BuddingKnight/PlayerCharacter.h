@@ -129,7 +129,7 @@ public:
 	int NbSporeSeed{0};
 
 	
-	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"), Category = "Seed")
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"), Category = "Seed")
 	TEnumAsByte<EPlantType> TypeOfPlant;
 
 	UPROPERTY()
