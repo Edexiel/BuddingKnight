@@ -95,6 +95,8 @@ void APlayerCharacter::BeginPlay()
 	FRotator Test = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlRotation();
 	Test.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform() * -1);
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(Test);
+
+	ResetDelay = true;
 }
 
 //Called every frame
@@ -571,19 +573,21 @@ void APlayerCharacter::RegisterEnemy(APawn* Pawn,const int Max)
 	if(!Enemies.Contains(Pawn))
 	{
 		Enemies.Add(Pawn);
+
 		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
-		
+
 		if(Enemies.Num() == 1)
 		{
 			LockEnemy = Enemies[0];
 			CameraBoom->SetWorldRotation(GetControlRotation());
 			AlphaCameraBoomRot = 0;
 			OldCameraBoomRotationIsSet = false;
+			DelaySoftLock();
+			
 		}
 		
 		DetectionSphereIsColliding = true;
 		IsInFightingMod = true;
-		ChangeCameraBoomRotation = true;
 	}
 }
 
@@ -602,6 +606,7 @@ void APlayerCharacter::UnregisterEnemy(APawn* Pawn)
 			DetectionSphereIsColliding = false;
 			IsInFightingMod = false;
 			ChangeCameraBoomRotation = false;
+			ResetDelay = true;
 		}
 	}
 }
