@@ -36,7 +36,7 @@ protected:
 	UPROPERTY()
 	bool IsResettingDelay{true};
 	
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float DelayCooldown{5.f};
 
 	UPROPERTY()

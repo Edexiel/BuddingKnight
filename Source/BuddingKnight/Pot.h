@@ -20,6 +20,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class USphereComponent* CollisionSphere;
+	
+	UPROPERTY(EditAnywhere)
+	class UBoxComponent* CollisionBox;
 
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* Mesh;

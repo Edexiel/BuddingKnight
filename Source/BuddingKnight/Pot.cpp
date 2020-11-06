@@ -4,6 +4,7 @@
 #include "Pot.h"
 #include "BaseComponent.h"
 #include "Components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
 #include "Plant.h"
@@ -19,6 +20,9 @@ APot::APot()
 	CollisionSphere->InitSphereRadius(50.f);
 	RootComponent = CollisionSphere;
 	CollisionSphere->SetCanEverAffectNavigation(false);
+
+	CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+	CollisionBox->SetupAttachment(RootComponent);
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
