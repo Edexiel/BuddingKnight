@@ -360,17 +360,8 @@ void APlayerCharacter::SearchClosestEnemy()
 
 void APlayerCharacter::UseSeed()
 {
-	if(ClosestPot == nullptr)
+	if(ClosestPot == nullptr || ClosestPot->GetHaveASeed())
 		return;
-	/*
-	if(NbSeed > 0 && !ClosestPot->GetHaveASeed())
-	{
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Seed planted");
-
-		ClosestPot->SetTypeOfPlant(TypeOfPlant);
-		ClosestPot->SetCanPlant(true);
-		NbSeed--;
-	}*/
 
 	switch(TypeOfPlant)
 	{
@@ -401,11 +392,9 @@ void APlayerCharacter::UseSeed()
 		default:
 			return;
 	}
-	if(!ClosestPot->GetHaveASeed())
-	{
-		ClosestPot->SetTypeOfPlant(TypeOfPlant);
-		ClosestPot->SetCanPlant(true);
-	}
+	
+	ClosestPot->SetTypeOfPlant(TypeOfPlant);
+	ClosestPot->SetCanPlant(true);
 }
 
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -534,8 +523,6 @@ void APlayerCharacter::SelectLeft()
 		TypeOfPlant = static_cast<EPlantType>(EPlantType::NbType - 1);
 	else
 		TypeOfPlant = static_cast<EPlantType>( (TypeOfPlant - 1) % EPlantType::NbType);
-	
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Select seed "+ FString::FromInt(TypeOfPlant));
 }
 
 void APlayerCharacter::StopSelectLeft()
@@ -545,7 +532,6 @@ void APlayerCharacter::StopSelectLeft()
 void APlayerCharacter::SelectRight()
 {
 	TypeOfPlant = static_cast<EPlantType>( (TypeOfPlant + 1) % EPlantType::NbType );
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Select seed "+ FString::FromInt(TypeOfPlant));
 }
 
 void APlayerCharacter::StopSelectRight()

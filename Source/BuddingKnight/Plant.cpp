@@ -35,7 +35,6 @@ void APlant::BeginPlay()
 
 	CanUseSpecial = true;
 	IsResettingDelay = true;
-	DelayCooldown = 1.f;
 	ClosestEnemy = nullptr;
 
 	RotSpeed = 2.5f;
