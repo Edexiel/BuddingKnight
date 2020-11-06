@@ -89,7 +89,7 @@ public:
 	bool IsInFightingMod {false};
 
 	UPROPERTY()
-	bool DelayIsReset {false};
+	bool DelayIsReset {true};
 
 	UPROPERTY()
 	bool DetectionSphereIsColliding {false};
