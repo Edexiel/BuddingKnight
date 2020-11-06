@@ -41,6 +41,9 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	UPROPERTY()
 	class AActor* Target{nullptr};
 
+	UFUNCTION()
+	void Attack();
+
 
 protected:
 	virtual void BeginPlay() override;

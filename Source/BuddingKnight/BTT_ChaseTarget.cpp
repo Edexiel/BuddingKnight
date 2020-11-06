@@ -94,7 +94,7 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
                     MyController->ClearFocus(EAIFocusPriority::Gameplay);
                     MyController->SetFocus(Target);
                     
-                    GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Player out of bounds");
+                    //GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Player out of bounds");
 
                     return FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
                 }
@@ -105,7 +105,7 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
             //the player is not in reach anymore or too much enemies on player, refocus towards target
             if(!bCloseAndValid)
             {
-                GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Green,"Refocus towards : Target");
+                //GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Green,"Refocus towards : Target");
                 MyBlackBoard->SetValueAsObject("FocusActor",Target);
                     
                 MyController->ClearFocus(EAIFocusPriority::Gameplay);

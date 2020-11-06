@@ -3,19 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Seed.h"
 #include "Components/BillboardComponent.h"
 #include "Components/ChildActorComponent.h"
 #include "GameFramework/Actor.h"
 #include "Pot.generated.h"
-
-UENUM(BlueprintType)
-enum EPlantType
-{
-	Tree,
-	Liana,
-	Spore,
-	NbPlantType
-};
 
 UCLASS()
 class BUDDINGKNIGHT_API APot : public AActor
@@ -39,7 +31,13 @@ public:
 	UBillboardComponent * SpawnPlantPoint;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
-	TSubclassOf<class APlant> PlantA;
+	TSubclassOf<class APlant> Tree;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TSubclassOf<class APlant> Liana;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
+	TSubclassOf<class APlant> Spore;
 		
 protected:
 	// Called when the game starts or when spawned
@@ -50,6 +48,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool CanPlant;
+
+	UPROPERTY(EditAnywhere)
+	TEnumAsByte<EPlantType> TypeOfPlant;
 
 	// the actual plant
 	UPROPERTY(VisibleAnywhere,Category="Plant", BlueprintReadWrite)
@@ -68,6 +69,10 @@ public:
 	
 	UFUNCTION()
 	void SetCanPlant(const bool& Boolean);
+
+	UFUNCTION()
+    void SetTypeOfPlant(const TEnumAsByte<EPlantType> Type);
+	
 	UFUNCTION()
 	bool GetCanPlant() const;
 };

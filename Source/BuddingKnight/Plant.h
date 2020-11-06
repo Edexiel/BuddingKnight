@@ -8,6 +8,8 @@
 
 #include "Plant.generated.h"
 
+class AEnemy;
+
 UCLASS()
 class BUDDINGKNIGHT_API APlant : public ACharacter
 {
@@ -38,17 +40,27 @@ protected:
 	float DelayCooldown{5.f};
 
 	UPROPERTY()
-	TArray<APawn*> Enemies;
+	TArray<AEnemy*> Enemies;
 
 	UPROPERTY()
-	APawn* ClosestEnemy;
+	AEnemy* ClosestEnemy;
 
 	UPROPERTY()
 	float DistanceToClosestEnemy{0.f};
+
+	UPROPERTY()
+	float RotSpeed;
+
 	
 	UPROPERTY()
 	FTimerHandle TimeHandleDelay;
+
+	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
+	class UAnimMontage* SpawnAnimation;
 	
+	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
+	class UAnimMontage* AttackAnimation;
+
 	UFUNCTION()
 	void Delay();
 
@@ -56,11 +68,15 @@ protected:
     void ResetDelay();
 	
 	UFUNCTION(BlueprintCallable, meta=(AllowPrivateAccess = "true"))
-	virtual void UseSpecial();
+	void UseSpecial();
+
+	virtual void Special();
 
 	UFUNCTION()
     void SearchClosestEnemy();
 
+	UFUNCTION()
+    void LookAtClosestEnemy(const float DeltaTime);
 	
 public:	
 	// Called every frame

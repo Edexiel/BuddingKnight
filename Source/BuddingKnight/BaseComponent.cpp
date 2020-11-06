@@ -47,6 +47,6 @@ float UBaseComponent::GetMaxHealth() const
 
 void UBaseComponent::TakeDamage(const float Damage)
 {
-		Health - Damage <= 0.f? Health = 0.f : Health -= Damage;
+	Health - Damage <= 0.f? Health = 0.f : Health -= Damage;
 }
 

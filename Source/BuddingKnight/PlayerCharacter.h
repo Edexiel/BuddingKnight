@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Seed.h"
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
@@ -119,7 +120,17 @@ public:
 	TArray<APawn *> Enemies;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
-	int NbSeed{0};
+	int NbTreeSeed{0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
+	int NbLianaSeed{0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
+	int NbSporeSeed{0};
+
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"), Category = "Seed")
+	TEnumAsByte<EPlantType> TypeOfPlant;
 
 	UPROPERTY()
 	bool IsUsingSpecial;
@@ -239,10 +250,9 @@ protected:
 	UFUNCTION()
     void SearchClosestEnemy();
     
-
+	
 	UFUNCTION(BlueprintCallable)
     void UseSeed();
-
 	
 	UFUNCTION()
     void OnCapsuleBeginOverlap(class UPrimitiveComponent* OverlappedComp,

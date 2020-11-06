@@ -8,7 +8,6 @@
 #include <string>
 #include <xutility>
 
-
 #include "Kismet/GameplayStatics.h"
 
 #include "TimerManager.h"
@@ -23,7 +22,6 @@
 #include "Kismet/KismetMathLibrary.h"
 #include "DrawDebugHelpers.h"
 
-#include "Seed.h"
 #include "Pot.h"
 #include "Plant.h"
 #include "CameraDataAsset.h"
@@ -54,7 +52,7 @@ APlayerCharacter::APlayerCharacter()
 	// Create a camera boom (pulls in towards the player if there is a collision)
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = IsInFightingMod; // The camera follows at this distance behind the character	
+	CameraBoom->TargetArmLength = IsInFightingMod; // The camera follows at this distance behind the character
 	CameraBoom->bUsePawnControlRotation = true; // Rotate the arm based on the controller
 	CameraBoom->bEnableCameraRotationLag = true;
 
@@ -67,7 +65,7 @@ APlayerCharacter::APlayerCharacter()
 	
 	AttackCounter = 0;
 	bCanAttack = true;
-	bIsRolling = false;	
+	bIsRolling = false;
 }
 
 // Called when the game starts or when spawned
@@ -79,7 +77,6 @@ void APlayerCharacter::BeginPlay()
 	CameraBoom->SocketOffset = DataAssetCamera->GetCameraBoomOffSetPlatform();
 
 	FollowCamera->FieldOfView = DataAssetCamera->GetCameraFOVPlatform();
-
 	FRotator NewRotation = FollowCamera->GetRelativeRotation();
 	NewRotation.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform());
 	FollowCamera->SetRelativeRotation(NewRotation);
@@ -93,8 +90,11 @@ void APlayerCharacter::BeginPlay()
 	// 	DistancePlayerLockEnemy = FMath::Abs ((Enemies[0]->GetActorLocation() - GetActorLocation()).Size());
 	// 	LockEnemy = Enemies[0];
 	// }
-
+	
 	LockEnemy = nullptr;
+	FRotator Test = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlRotation();
+	Test.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform() * -1);
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(Test);
 }
 
 //Called every frame
@@ -132,12 +132,13 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &APlayerCharacter::Dodge);
 	PlayerInputComponent->BindAction("Dodge", IE_Released, this, &APlayerCharacter::StopDodge);
 
-	PlayerInputComponent->BindAction("SelectLeft", IE_Pressed ,this,&APlayerCharacter::SelectLeft);
-	PlayerInputComponent->BindAction("SelectLeft", IE_Released,this, &APlayerCharacter::StopSelectLeft);
+	PlayerInputComponent->BindAction("Select_Left", IE_Pressed ,this,&APlayerCharacter::SelectLeft);
+	PlayerInputComponent->BindAction("Select_Left", IE_Released,this, &APlayerCharacter::StopSelectLeft);
 	
-	PlayerInputComponent->BindAction("SelectRight", IE_Pressed,this, &APlayerCharacter::SelectRight);
-	PlayerInputComponent->BindAction("SelectRight", IE_Released,this, &APlayerCharacter::StopSelectRight);
+	PlayerInputComponent->BindAction("Select_Right", IE_Pressed,this, &APlayerCharacter::SelectRight);
+	PlayerInputComponent->BindAction("Select_Right", IE_Released,this, &APlayerCharacter::StopSelectRight);
 
+	
 	//PlayerInputComponent->BindAction("Special", IE_Pressed,this, &APlayerCharacter::UseSeed);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
@@ -361,13 +362,49 @@ void APlayerCharacter::UseSeed()
 {
 	if(ClosestPot == nullptr)
 		return;
-	
+	/*
 	if(NbSeed > 0 && !ClosestPot->GetHaveASeed())
 	{
 		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Seed planted");
 
+		ClosestPot->SetTypeOfPlant(TypeOfPlant);
 		ClosestPot->SetCanPlant(true);
 		NbSeed--;
+	}*/
+
+	switch(TypeOfPlant)
+	{
+		case EPlantType::Tree:
+			if(NbTreeSeed > 0)
+			{
+				NbTreeSeed--;
+				break;
+			}	
+			return;
+			
+		case EPlantType::Liana:
+			if(NbLianaSeed > 0)
+			{
+				NbLianaSeed--;
+				break;
+			}	
+			return;
+			
+		case EPlantType::Spore:
+			if(NbSporeSeed > 0)
+			{
+				NbSporeSeed--;
+				break;
+			}	
+			return;
+			
+		default:
+			return;
+	}
+	if(!ClosestPot->GetHaveASeed())
+	{
+		ClosestPot->SetTypeOfPlant(TypeOfPlant);
+		ClosestPot->SetCanPlant(true);
 	}
 }
 
@@ -376,7 +413,24 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 {
 	if (OtherActor->IsA(ASeed::StaticClass()))
 	{
-		NbSeed++;
+		ASeed* Seed = Cast<ASeed>(OtherActor);
+		switch(Seed->GetType())
+		{
+			case EPlantType::Tree:
+				NbTreeSeed++;
+				break;
+			
+			case EPlantType::Liana:
+				NbLianaSeed++;
+				break;
+			
+			case EPlantType::Spore:
+				NbSporeSeed++;
+				break;
+			
+			default:
+				break;
+		}
 		OtherActor->Destroy();
 		return;
 	}
@@ -475,7 +529,13 @@ void APlayerCharacter::StopDodge()
 }
 
 void APlayerCharacter::SelectLeft()
-{	
+{
+	if(TypeOfPlant == 0)
+		TypeOfPlant = static_cast<EPlantType>(EPlantType::NbType - 1);
+	else
+		TypeOfPlant = static_cast<EPlantType>( (TypeOfPlant - 1) % EPlantType::NbType);
+	
+	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Select seed "+ FString::FromInt(TypeOfPlant));
 }
 
 void APlayerCharacter::StopSelectLeft()
@@ -484,6 +544,8 @@ void APlayerCharacter::StopSelectLeft()
 
 void APlayerCharacter::SelectRight()
 {
+	TypeOfPlant = static_cast<EPlantType>( (TypeOfPlant + 1) % EPlantType::NbType );
+	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Select seed "+ FString::FromInt(TypeOfPlant));
 }
 
 void APlayerCharacter::StopSelectRight()

@@ -7,6 +7,7 @@
 
 #include "Kismet/GameplayStatics.h"
 
+
 void AAIC_EnemyCAC::BeginPlay()
 {
     Super::BeginPlay();
@@ -75,4 +76,8 @@ void AAIC_EnemyCAC::Tick(float DeltaTime)
         PlayerCharacter->RegisterEnemy(GetPawn(),Blackboard->GetValueAsInt("MaxEnemiesOnPlayer"));
     else
         PlayerCharacter->UnregisterEnemy(GetPawn());
+}
+
+void AAIC_EnemyCAC::Attack()
+{    
 }
