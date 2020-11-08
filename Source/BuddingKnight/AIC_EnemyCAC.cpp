@@ -1,8 +1,12 @@
 #include "AIC_EnemyCAC.h"
 
-#include "PlayerCharacter.h"
-#include "BehaviorTree/BlackboardComponent.h"
+
+
 #include "Engine/Engine.h"
+#include "Enemy.h"
+#include "PlayerCharacter.h"
+#include "TimerManager.h"
+#include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 #include "Kismet/GameplayStatics.h"
@@ -34,12 +38,18 @@ void AAIC_EnemyCAC::BeginPlay()
     Blackboard->SetValueAsFloat("WaitTimeBetweenAttacks",WaitTimeBetweenAttacks);
     // if(!Blackboard->GetValueAsFloat("DistanceToPlayer"))
     //     Blackboard->SetValueAsFloat("DistanceToPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
+
    
 }
 
 void AAIC_EnemyCAC::OnPossess(APawn* InPawn)
 {
     Super::OnPossess(InPawn);
+}
+
+void AAIC_EnemyCAC::OnUnPossess()
+{
+    Super::OnUnPossess();
 }
 
 void AAIC_EnemyCAC::SetTarget(AActor* Actor)
@@ -53,6 +63,11 @@ void AAIC_EnemyCAC::SetTarget(AActor* Actor)
     //GEngine->AddOnScreenDebugMessage(INDEX_NONE,2.f,FColor::Red,"Target set");
 }
 
+void AAIC_EnemyCAC::SetDead() const
+{
+    Blackboard->SetValueAsBool("isAlive",false);
+}
+
 void AAIC_EnemyCAC::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
@@ -63,21 +78,24 @@ void AAIC_EnemyCAC::Tick(float DeltaTime)
         MovementComponent->MaxWalkSpeed = MaxWalkSpeed;
         MovementComponent->SetUpdateNavAgentWithOwnersCollisions(true);
         MovementComponent->SetAvoidanceEnabled(true);
-
+        
         Init=true;
+    }
+    AEnemy* enemy = Cast<AEnemy>(Blackboard->GetValueAsObject("SelfActor"));
+    if(!IsValid(enemy))
+        return;
+
+    if(enemy->IsDead())
+    {
+        PlayerCharacter->UnregisterEnemy(GetPawn());
     }
     
     const float Distance = GetPawn()->GetDistanceTo(PlayerCharacter);
 
     Blackboard->SetValueAsFloat("DistanceToPlayer",Distance);
-
     
     if(Blackboard->GetValueAsFloat("DistanceToPlayer") < AttackRange)
         PlayerCharacter->RegisterEnemy(GetPawn(),Blackboard->GetValueAsInt("MaxEnemiesOnPlayer"));
     else
         PlayerCharacter->UnregisterEnemy(GetPawn());
-}
-
-void AAIC_EnemyCAC::Attack()
-{    
 }

@@ -75,7 +75,7 @@ void APlant::UseSpecial()
 
 void APlant::Special()
 {
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Cyan,"Use special");
+	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Cyan,"Use special");
 }
 
 void APlant::SearchClosestEnemy()
@@ -144,7 +144,7 @@ void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
 	    Enemies.Add(Cast<AEnemy>(OtherActor));
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,"Add enemy!");
+		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,"Add enemy!");
 	}
 }
 
@@ -160,6 +160,6 @@ void APlant::OnSphereDetectionOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
 		Enemies.Remove(Cast<AEnemy>(OtherActor));
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Remove enemy!");
+		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Remove enemy!");
 	}
 }

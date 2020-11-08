@@ -15,6 +15,9 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Audio, meta = (AllowPrivateAccess = "true"))
+	class UAudioComponent* AudioComponent;
+
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -31,17 +34,21 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	class UAnimMontage* StunAnimation;
 
-	/** Stun Animation **/
+	/** Stun sound **/
+	UPROPERTY(EditAnywhere,Category=Sound,meta=(AllowPrivateAccess="true"))
+	class USoundBase* StunSound;
+	
+	/** Stun Hit Animation **/
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	class UAnimMontage* GetHitAnimation;
+
+	/** Hit sound **/
+	UPROPERTY(EditAnywhere,Category=Sound,meta=(AllowPrivateAccess="true"))
+	class USoundBase* HitSound;
 
 	UPROPERTY(EditAnywhere, Category=Camera,meta=(AllowPrivateAccess="true"))
 	class UCameraDataAsset* DataAssetCamera;
 	
-	/**Attack Wait Time**/
-	UPROPERTY(EditAnywhere,Category=Timing,meta=(AllowPrivateAccess="true"))
-	float AttackWaitTime;
-
 	/** Reference to MovementComponent **/
 	class UPawnMovementComponent*  MovementComponent;
 
@@ -52,10 +59,14 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	int MaxHitReceived;
 
-	/** Duration of knock out **/
+	/** Duration of stun **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
-	float KnockOutTime;
+	float StunTime;
 
+	/** Duration of hit stun **/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	float HitStunTime;
+	
 	/** Duration of knock out **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	float KnockOutForce;
@@ -69,11 +80,23 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	bool bIsRolling;
 
+	UPROPERTY(EditAnywhere)
+	float BaseDamage;
+
+	UPROPERTY()
+	float BonusDamage;
+
+	FTimerHandle StunHandle;
+	FTimerHandle HitHandle;
+
+	UFUNCTION()
+	void ResetCanAttack();
 	
 public:
-	virtual void Tick(float DeltaSeconds) override;
 	APlayerCharacter();
 	
+	virtual void Tick(float DeltaSeconds) override;
+
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category=Camera)
 	float BaseTurnRate;
@@ -96,7 +119,6 @@ public:
 
 	UPROPERTY()
 	bool ResetDelay {false};
-
 	
 	UPROPERTY()
 	float AlphaCameraBoomLength {0};
@@ -111,7 +133,7 @@ public:
 	float AlphaCameraFOV {0};
 
 	UPROPERTY()
-	float AlphaCameraPitch {0};
+	float AlphaCameraPitch {0};	
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
 	APawn * LockEnemy;
@@ -127,7 +149,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Seed")
 	int NbSporeSeed{0};
-
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"), Category = "Seed")
 	TEnumAsByte<EPlantType> TypeOfPlant;
@@ -140,18 +161,29 @@ public:
 
 	UPROPERTY()
 	class APot * ClosestPot{nullptr};
-
-	UFUNCTION(BlueprintGetter)
-	int GetEnemyNumber() const;
 	
+	/* Public functions */
 	UFUNCTION(BlueprintGetter)
 	bool IsTargetingPlayer(APawn* Pawn) const;
 
 	UFUNCTION()
-	void RegisterEnemy(APawn* Pawn, int max);
+	void RegisterEnemy(APawn* Pawn, int Max);
 
 	UFUNCTION()
 	void UnregisterEnemy(APawn* Pawn);
+
+	UFUNCTION()
+	void SetBonusDamage(float Bonus);
+	
+	UFUNCTION()
+	void UnsetBonusDamage();
+	
+	UFUNCTION()
+	float GetBaseDamage() const;
+	
+	UFUNCTION()
+	float GetDamage() const;
+
 	
 protected:
 	
@@ -180,7 +212,8 @@ protected:
 	void StopDodge();
 
 	void SelectLeft();
-	void StopSelectLeft();
+	
+	void SelectRight();
 
 	UFUNCTION(BlueprintCallable)
 	void OnValidateAttack();
@@ -190,17 +223,9 @@ protected:
 
 	virtual void BeginPlay() override;
 
-
-	void SelectRight();
-	void StopSelectRight();
-	
 	void ResetCameraLock(const float);
 	
-	// APawn interface
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	// End of APawn interface
-
-
 
 	UPROPERTY()
 	FTimerHandle TimeHandleSoftLock;
@@ -222,7 +247,6 @@ protected:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
-
 
 	virtual void Jump() override;
 	
@@ -249,7 +273,6 @@ protected:
 	/** Search the closest enemy in enemies.*/
 	UFUNCTION()
     void SearchClosestEnemy();
-    
 	
 	UFUNCTION(BlueprintCallable)
     void UseSeed();

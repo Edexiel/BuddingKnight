@@ -4,20 +4,19 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-
 #include "AIC_EnemyCAC.generated.h"
 
 UCLASS()
 class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 {
 	GENERATED_BODY()
+	
 	UPROPERTY(EditAnywhere)
 	class UBehaviorTree* BTAsset;
 
 	UPROPERTY()
 	bool Init{false};
 	
-	UPROPERTY()
 	class APlayerCharacter* PlayerCharacter;
 	
 	UPROPERTY(EditAnywhere)
@@ -41,18 +40,18 @@ class BUDDINGKNIGHT_API AAIC_EnemyCAC : public AAIController
 	UPROPERTY()
 	class AActor* Target{nullptr};
 
-	UFUNCTION()
-	void Attack();
-
 
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void OnPossess(APawn* InPawn) override;
+	virtual void OnUnPossess() override;
 public:
 	
 	UFUNCTION(BlueprintCallable)
 	void SetTarget(AActor* Actor);
+
+	void SetDead() const;
 	
 	virtual void Tick(float DeltaTime) override;
 };

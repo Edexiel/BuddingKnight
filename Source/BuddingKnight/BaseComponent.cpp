@@ -9,9 +9,8 @@ UBaseComponent::UBaseComponent()
 {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 
-	// ...
 }
 
 
@@ -27,6 +26,11 @@ void UBaseComponent::BeginPlay()
     }
 }
 
+
+bool UBaseComponent::IsDead() const
+{
+	return bIsDead;
+}
 
 // Called every frame
 void UBaseComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -48,5 +52,8 @@ float UBaseComponent::GetMaxHealth() const
 void UBaseComponent::TakeDamage(const float Damage)
 {
 	Health - Damage <= 0.f? Health = 0.f : Health -= Damage;
+
+	if(Health<=0.001f)
+		bIsDead=true;
 }
 

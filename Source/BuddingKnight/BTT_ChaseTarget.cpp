@@ -20,12 +20,14 @@ EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
 
     const float Distance =  MyBlackBoard->GetValueAsFloat("DistanceToPlayer");
     const float AttackRange = MyBlackBoard->GetValueAsFloat("AttackRange");
-    const int MaxEnemiesOnPlayer = MyBlackBoard->GetValueAsInt("MaxEnemiesOnPlayer");
     
     AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController());
+
+    if(!IsValid(MyController))
+        return EBTNodeResult::Failed;
     
     // if the player is in range of the enemy 
-    if(Distance<AttackRange && Player->GetEnemyNumber() < MaxEnemiesOnPlayer )
+    if(Distance<AttackRange && Player->IsTargetingPlayer(SelfActor->GetInstigator()))
         MyBlackBoard->SetValueAsObject("FocusActor",Cast<AActor>(Player));
     else
         MyBlackBoard->SetValueAsObject("FocusActor",Target);
@@ -50,11 +52,13 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
     AActor* Target = Cast<AActor>(MyBlackBoard->GetValueAsObject("Target"));
     const AActor* FocusActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("FocusActor"));
     
-    const int MaxEnemiesOnPlayer = MyBlackBoard->GetValueAsInt("MaxEnemiesOnPlayer");
     const float Distance = MyBlackBoard->GetValueAsFloat("DistanceToPlayer");
     const float AttackRange = MyBlackBoard->GetValueAsFloat("AttackRange");
     
     AAIController* MyController = Cast<AAIController>(Cast<APawn>(SelfActor)->GetController());
+
+    if(!IsValid(MyController))
+        return FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
     
     switch (MyController->GetMoveStatus()) {
 
