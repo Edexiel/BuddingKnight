@@ -83,9 +83,9 @@ void APlayerCharacter::BeginPlay()
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
 	
 	LockEnemy = nullptr;
-	FRotator Test = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlRotation();
-	Test.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform() * -1);
-	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(Test);
+	FRotator StartOffset = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlRotation();
+	StartOffset.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform() * -1);
+	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(StartOffset);
 
 	ResetDelay = true;
 }
