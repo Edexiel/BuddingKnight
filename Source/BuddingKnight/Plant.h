@@ -82,6 +82,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(BlueprintCallable)
+	void SetDetectPlayer(const bool Boolean);
+
+	UFUNCTION(BlueprintCallable)
+    bool GetDetectPlayer() const;
+	
 	// Called to bind functionality to input
 
 	UFUNCTION()

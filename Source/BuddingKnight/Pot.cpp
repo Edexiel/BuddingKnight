@@ -7,7 +7,9 @@
 #include "Components/BoxComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/World.h"
+
 #include "Plant.h"
+#include "PlayerCharacter.h"
 
 
 // Sets default values
@@ -37,6 +39,11 @@ APot::APot()
 void APot::BeginPlay()
 {
 	Super::BeginPlay();
+	CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &APot::OnBoxBeginOverlap);
+	CollisionBox->OnComponentEndOverlap.AddDynamic(this, &APot::OnBoxEndOverlap);
+	
+	Plant = nullptr;
+	PlayerIsDetected = false;
 }
 
 // Called every frame
@@ -60,9 +67,13 @@ void APot::Tick(float DeltaTime)
 			default:
 				break;
 		}
+		
 		CanPlant = false;
 		HaveASeed = true;
+		CollisionBox->UpdateOverlaps();
 	}
+	if(Plant && Plant->GetDetectPlayer() != PlayerIsDetected)
+		Plant->SetDetectPlayer(PlayerIsDetected);
 }
 
 void APot::SetHaveASeed(const bool& Boolean)
@@ -90,3 +101,16 @@ bool APot::GetCanPlant() const
 	return CanPlant;
 }
 
+void APot::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
+		PlayerIsDetected = true;
+}
+
+void APot::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
+		PlayerIsDetected = false;
+}
