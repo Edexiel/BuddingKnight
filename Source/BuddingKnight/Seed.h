@@ -29,6 +29,16 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* Mesh;
+
+	UPROPERTY(EditAnywhere,Category="Seed", BlueprintReadWrite)
+	float DropRateTree;
+	
+	UPROPERTY(EditAnywhere,Category="Seed", BlueprintReadWrite)
+	float DropRateLiana;
+	
+	UPROPERTY(EditAnywhere,Category="Seed", BlueprintReadWrite)
+	float DropRateSpore;
+	
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -42,4 +52,7 @@ public:
 
 	UFUNCTION()
 	TEnumAsByte<EPlantType> GetType() const;
+
+	UFUNCTION(BlueprintCallable)
+    void RandomTypeOfSeed();
 };

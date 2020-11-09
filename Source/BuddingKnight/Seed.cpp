@@ -25,6 +25,7 @@ ASeed::ASeed()
 void ASeed::BeginPlay()
 {
 	Super::BeginPlay();
+	RandomTypeOfSeed();
 }
 
 // Called every frame
@@ -37,4 +38,16 @@ void ASeed::Tick(float DeltaTime)
 TEnumAsByte<EPlantType> ASeed::GetType() const
 {
 	return Type;
+}
+
+void ASeed::RandomTypeOfSeed()
+{
+	const float Rate = FMath::RandRange(0.f, DropRateTree + DropRateLiana + DropRateSpore);
+	
+	if(Rate >= 0 && Rate < DropRateTree)
+		Type = EPlantType::Tree;
+	else if(Rate >= DropRateTree && Rate < DropRateTree + DropRateLiana)
+		Type = EPlantType::Liana;
+	else if(Rate >= DropRateTree + DropRateLiana && Rate < DropRateTree + DropRateLiana + DropRateSpore)
+		Type = EPlantType::Spore;
 }

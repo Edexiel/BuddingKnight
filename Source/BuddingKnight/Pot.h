@@ -60,9 +60,7 @@ protected:
 	// the actual plant
 	UPROPERTY(VisibleAnywhere,Category="Plant", BlueprintReadWrite)
 	class APlant* Plant;
-
 	
-
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -80,6 +78,8 @@ public:
 	
 	UFUNCTION()
 	bool GetCanPlant() const;
+
+	
 
 protected:
 	

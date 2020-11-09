@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Pot.h"
 #include "BaseComponent.h"
 #include "Components/SphereComponent.h"
@@ -101,8 +100,9 @@ bool APot::GetCanPlant() const
 	return CanPlant;
 }
 
+
 void APot::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                             int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
 		PlayerIsDetected = true;
