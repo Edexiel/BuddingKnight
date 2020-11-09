@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Seed.h"
 #include "Components/BillboardComponent.h"
-#include "Components/ChildActorComponent.h"
 #include "GameFramework/Actor.h"
 #include "Pot.generated.h"
 
@@ -52,6 +51,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
 	bool CanPlant;
 
+	UPROPERTY()
+	bool PlayerIsDetected;
+
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<EPlantType> TypeOfPlant;
 
@@ -78,4 +80,20 @@ public:
 	
 	UFUNCTION()
 	bool GetCanPlant() const;
+
+protected:
+	
+	UFUNCTION()
+    void OnBoxBeginOverlap(class UPrimitiveComponent* OverlappedComp,
+                        class AActor* OtherActor,
+                        class UPrimitiveComponent* OtherComp,
+                        int32 OtherBodyIndex,
+                        bool bFromSweep,
+                        const FHitResult& SweepResult);
+
+	UFUNCTION()
+    void OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp,
+                        AActor* OtherActor,
+                        UPrimitiveComponent* OtherComp,
+                        int32 OtherBodyIndex);
 };
