@@ -15,19 +15,13 @@
 // Sets default values
 AEnemy::AEnemy()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	//PrimaryActorTick.bCanEverTick = true;
-	
 	BaseComponent = CreateDefaultSubobject<UBaseComponent>(TEXT("BaseComponent"));
 	
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnCapsuleBeginOverlap);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AEnemy::OnCapsuleEndOverlap);
-
 	RightWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightWeapon"));
 	RightWeapon->SetupAttachment(GetMesh(),TEXT("RightWeaponShield"));
-
 	RightWeapon->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnWeaponBeginOverlap);
 	RightWeapon->OnComponentEndOverlap.AddDynamic(this, &AEnemy::OnWeaponEndOverlap);
+	
 }
 
 void AEnemy::BeginPlay()
@@ -45,6 +39,49 @@ bool AEnemy::IsDead() const
 	return BaseComponent->IsDead();
 }
 
+void AEnemy::ReceiveDamage(const float Damage) 
+{
+	if(IsGettingHit || IsDead())
+		return;
+	
+	IsGettingHit = true;
+		
+	LaunchCharacter(GetActorForwardVector()*KnockBackForce*-1,true,true);
+	const float RemainingTime = PlayAnimMontage(GettingHitAnimMontage);
+	GetWorldTimerManager().SetTimer(GettingHitHandle,this,&AEnemy::ResetGettingHit,RemainingTime,false);
+
+	//todo play sound
+	BaseComponent->TakeDamage(Damage);
+
+	if(IsDead())
+	{
+		GetCapsuleComponent()->DestroyComponent();
+		RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Cast<AAIC_EnemyCAC>(GetController())->SetDead();
+		GetWorldTimerManager().SetTimer(DestroyHandle,this,&AEnemy::Delete,DepopTime,false);
+	}
+}
+
+void AEnemy::WeaponCollisionTest() const
+{
+	if(!IsValid(OverlapActor))
+	{
+		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Overlap actor is not valid");
+		return;
+	}
+		
+	if(OverlapActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Enemy touching "+OverlapActor->GetActorLabel());
+		Cast<APlayerCharacter>(OverlapActor)->ReceiveDamage();
+	}
+}
+
+void AEnemy::Attack()
+{
+	PlayAnimMontage(AttackAnimMontage);
+}
+
 void AEnemy::ResetGettingHit()
 {
 	IsGettingHit=false;
@@ -58,44 +95,6 @@ void AEnemy::Delete()
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-}
-
-void AEnemy::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	if(IsGettingHit || IsDead())
-		return;
-	
-	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
-	{
-		if(!IsValid(OtherActor))
-			return;
-		
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,2.f,FColor::Red,"Enemy : Collision of "+GetActorLabel()+" and "+OtherActor->GetActorLabel());
-
-		IsGettingHit = true;
-		
-		LaunchCharacter(GetActorForwardVector()*KnockBackForce*-1,true,true);
-		const float RemainingTime = PlayAnimMontage(GettingHitAnimMontage);
-		GetWorldTimerManager().SetTimer(GettingHitHandle,this,&AEnemy::ResetGettingHit,RemainingTime,false);
-
-		//todo play sound
-		BaseComponent->TakeDamage(Cast<APlayerCharacter>(OtherActor)->GetDamage());
-
-		if(IsDead())
-		{
-			GetCapsuleComponent()->DestroyComponent();
-			Cast<AAIC_EnemyCAC>(GetController())->SetDead();
-			// GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_WorldStatic,ECollisionResponse::ECR_Block);
-			GetWorldTimerManager().SetTimer(DestroyHandle,this,&AEnemy::Delete,DepopTime,false);
-		}
-	}
-}
-
-void AEnemy::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
-{
-	
 }
 
 void AEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

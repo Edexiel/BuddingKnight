@@ -30,6 +30,8 @@ APlayerCharacter::APlayerCharacter()
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCanEverAffectNavigation(false);
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
 
 	// set our turn rates for input
 	BaseTurnRate = 65.f;
@@ -65,10 +67,6 @@ APlayerCharacter::APlayerCharacter()
 
 	RightWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightWeapon"));
 	RightWeapon->SetupAttachment(GetMesh(),TEXT("hand_rSocket"));
-
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
-
 	RightWeapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponBeginOverlap);
 	RightWeapon->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponEndOverlap);
 	
@@ -76,7 +74,7 @@ APlayerCharacter::APlayerCharacter()
 	bCanAttack = true;
 	bIsRolling = false;
 }
-// Called when the game starts or when spawned
+
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -97,7 +95,6 @@ void APlayerCharacter::BeginPlay()
 	ResetDelay = true;
 }
 
-//Called every frame
 void APlayerCharacter::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
@@ -107,6 +104,7 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 
 	UpdateCamera(DeltaSeconds);	
 }
+
 void APlayerCharacter::SetBonusDamage(const float Bonus)
 {
 	BonusDamage=Bonus;
@@ -127,14 +125,12 @@ float APlayerCharacter::GetDamage() const
 	return BaseDamage+BonusDamage;
 }
 
-
 void APlayerCharacter::ResetCanAttack()
 {
 	bCanAttack=true;
 	AudioComponent->Stop();
 	StopAnimMontage(StunAnimation);
 }
-
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -144,10 +140,8 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
 	PlayerInputComponent->BindAction("Attack", IE_Pressed, this, &APlayerCharacter::Attack);
-	PlayerInputComponent->BindAction("Attack", IE_Released, this, &APlayerCharacter::StopAttack);
 
 	PlayerInputComponent->BindAction("Dodge", IE_Pressed, this, &APlayerCharacter::Dodge);
-	PlayerInputComponent->BindAction("Dodge", IE_Released, this, &APlayerCharacter::StopDodge);
 
 	PlayerInputComponent->BindAction("Select_Left", IE_Pressed ,this,&APlayerCharacter::SelectLeft);
 	
@@ -402,10 +396,44 @@ void APlayerCharacter::UseSeed()
 	ClosestPot->SetCanPlant(true);
 }
 
+void APlayerCharacter::ReceiveDamage()
+{
+	if (bIsRolling || !bCanAttack)
+		return;
+	GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Player receiving damage");
+	LaunchCharacter(GetActorForwardVector() * KnockOutForce * -1,true,true);
+
+	bCanAttack=false;
+	
+	if(MaxHitReceived==HitReceivedCounter)
+	{
+		PlayAnimMontage(StunAnimation);
+		
+		AudioComponent->SetSound(StunSound);
+		AudioComponent->Play();
+		
+		GetWorldTimerManager().SetTimer(StunHandle,this,&APlayerCharacter::ResetCanAttack,StunTime,false);
+
+		HitReceivedCounter=0;
+		return;
+	}
+			
+	OnResetCombo();
+
+	PlayAnimMontage(GetHitAnimation);
+	
+	AudioComponent->SetSound(StunSound);
+	AudioComponent->Play();
+	
+	GetWorldTimerManager().SetTimer(HitHandle,this,&APlayerCharacter::ResetCanAttack,HitStunTime,false);
+
+	HitReceivedCounter++;
+
+}
+
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-
 	
 	if (OtherActor->IsA(ASeed::StaticClass()))
 	{
@@ -437,47 +465,6 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 		return;
 	}
 
-	if(OtherActor->IsA(APlant::StaticClass()))
-	{
-		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("This is a plant"));
-		return;
-	}
-	
-	if(OtherActor->IsA(AEnemy::StaticClass())&& !bIsRolling && bCanAttack)
-	{
-		//GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,"Collision with enemy: "+OtherActor->GetActorLabel());
-
-		LaunchCharacter(GetActorForwardVector()*KnockOutForce*-1,true,true);
-
-		bCanAttack=false;
-		
-		if(MaxHitReceived==HitReceivedCounter)
-		{
-			//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET STUN"));
-			PlayAnimMontage(StunAnimation);
-			
-			AudioComponent->SetSound(StunSound);
-			AudioComponent->Play();
-			
-			GetWorldTimerManager().SetTimer(StunHandle,this,&APlayerCharacter::ResetCanAttack,StunTime,false);
-
-			HitReceivedCounter=0;
-			return;
-		}
-		
-		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET HIT"));
-		
-		OnResetCombo();
-
-		PlayAnimMontage(GetHitAnimation);
-		
-		AudioComponent->SetSound(StunSound);
-		AudioComponent->Play();
-		
-		GetWorldTimerManager().SetTimer(HitHandle,this,&APlayerCharacter::ResetCanAttack,HitStunTime,false);
-
-		HitReceivedCounter++;
-	}
 }
 
 void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -499,7 +486,19 @@ void APlayerCharacter::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp,
 void APlayerCharacter::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	OverlapActor==nullptr;
+	OverlapActor=nullptr;
+}
+
+void APlayerCharacter::WeaponCollisionTest() const
+{
+	if(!IsValid(OverlapActor))
+		return;
+
+	if(OverlapActor->IsA(AEnemy::StaticClass()))
+	{
+		Cast<AEnemy>(OverlapActor)->ReceiveDamage(GetDamage());	
+	}
+	
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -536,10 +535,7 @@ void APlayerCharacter::Attack()
 	bCanAttack=false;
 	PlayAnimMontage(Combo[AttackCounter]);
 	AttackCounter++;
-	// GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,FString::FromInt(AttackCounter));
 }
-
-void APlayerCharacter::StopAttack(){}
 
 void APlayerCharacter::Dodge()
 {
@@ -557,7 +553,6 @@ void APlayerCharacter::SelectLeft()
 	else
 		TypeOfPlant = static_cast<EPlantType>( (TypeOfPlant - 1) % EPlantType::NbType);
 }
-
 
 void APlayerCharacter::SelectRight()
 {
@@ -602,7 +597,6 @@ void APlayerCharacter::RegisterEnemy(APawn* Pawn,const int Max)
 			AlphaCameraBoomRot = 0;
 			OldCameraBoomRotationIsSet = false;
 			DelaySoftLock();
-			
 		}
 		
 		DetectionSphereIsColliding = true;

@@ -10,7 +10,7 @@
 #include "BaseComponent.generated.h"
 
 
-UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BUDDINGKNIGHT_API UBaseComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -37,7 +37,6 @@ protected:
 	
 	UPROPERTY(Category = "Stats", VisibleAnywhere, BlueprintReadWrite)
 		float MaxHealth;
-
 
 
 public:	

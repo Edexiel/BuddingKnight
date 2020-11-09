@@ -90,7 +90,7 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	float BonusDamage;
 
 	UPROPERTY()
-	AActor* OverlapActor;
+	AActor* OverlapActor{nullptr};
 
 	FTimerHandle StunHandle;
 	FTimerHandle HitHandle;
@@ -98,9 +98,6 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UFUNCTION()
 	void ResetCanAttack();
 
-
-	
-	
 public:
 	APlayerCharacter();
 	
@@ -188,10 +185,13 @@ public:
 	void UnsetBonusDamage();
 	
 	UFUNCTION()
-	float GetBaseDamage() const;
+    float GetBaseDamage() const;
 	
 	UFUNCTION()
-	float GetDamage() const;
+    float GetDamage() const;
+
+	UFUNCTION(BlueprintCallable)
+    void WeaponCollisionTest() const;
 
 	
 protected:
@@ -214,7 +214,6 @@ protected:
 	*/
 	void LookUpAtRate(float Rate);
 	void Attack();
-	void StopAttack();
 	void Dodge();
 	void SelectLeft();
 	void SelectRight();
@@ -246,9 +245,10 @@ protected:
 	UPROPERTY()
 	bool OldCameraBoomRotationIsSet{false};
 	
-	public:
+public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	
 	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
@@ -280,7 +280,10 @@ protected:
 	
 	UFUNCTION(BlueprintCallable)
     void UseSeed();
-	
+
+	UFUNCTION(BlueprintCallable)
+	void ReceiveDamage();
+
 	UFUNCTION()
     void OnCapsuleBeginOverlap(class UPrimitiveComponent* OverlappedComp,
     					class AActor* OtherActor,

@@ -18,6 +18,9 @@ class BUDDINGKNIGHT_API AEnemy : public ACharacter
 	UBaseComponent* BaseComponent;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* AttackAnimMontage;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	class UAnimMontage* GettingHitAnimMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -28,7 +31,6 @@ class BUDDINGKNIGHT_API AEnemy : public ACharacter
 	float DepopTime;
 	
 	void ResetGettingHit();
-
 	void Delete();
 
 
@@ -53,25 +55,24 @@ protected:
 	
 public:
 
-	// Sets default values for this character's properties
 	AEnemy();
 	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
 	bool IsDead() const;
 
+	UFUNCTION(BlueprintCallable)
+	void ReceiveDamage(const float Damage);
+
+	UFUNCTION(BlueprintCallable)
+	void WeaponCollisionTest() const;
+
+	UFUNCTION()
+	void Attack();
+
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION()
-	void OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	                           int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	                         int32 OtherBodyIndex);
 
 	UFUNCTION()
     void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,

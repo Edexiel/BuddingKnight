@@ -5,6 +5,7 @@
 
 
 #include "AIController.h"
+#include "Enemy.h"
 #include "PlayerCharacter.h"
 #include "BehaviorTree/BlackboardComponent.h"
 
@@ -15,7 +16,6 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
      UBlackboardComponent* MyBlackBoard = OwnerComp.GetBlackboardComponent();
     
     AActor* SelfActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("SelfActor"));
-    APlayerCharacter* Player = Cast<APlayerCharacter>(MyBlackBoard->GetValueAsObject("Player"));
     AActor* Target = Cast<AActor>(MyBlackBoard->GetValueAsObject("Target"));
     AActor* FocusActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("FocusActor"));
 
@@ -26,7 +26,9 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     
     const float MarginRadius = MyBlackBoard->GetValueAsFloat("MarginRadius");
     const float AttackRange = MyBlackBoard->GetValueAsFloat("AttackRange");
-    const int MaxEnemiesOnPlayer = MyBlackBoard->GetValueAsInt("MaxEnemiesOnPlayer");
+
+    //launch attack animation
+    Cast<AEnemy>(SelfActor)->Attack();
     
     if(Distance > AttackRange)
     {
@@ -39,14 +41,13 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     
     if(Distance > MarginRadius)
     {
-        //MyBlackBoard->SetValueAsObject("FocusActor",Cast<AActor>(Target?Target:Player));
         MyController->SetFocus(FocusActor);
         MyBlackBoard->SetValueAsBool("Walking",true);
         MyBlackBoard->SetValueAsBool("Attacking",false);
         return EBTNodeResult::Failed;
     }
 
-    //launch attack animation 
+
     
     return EBTNodeResult::Succeeded;
 
