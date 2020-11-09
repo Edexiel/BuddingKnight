@@ -7,7 +7,9 @@
 #include "AIC_EnemyCAC.h"
 #include "Components/CapsuleComponent.h"
 #include "PlayerCharacter.h"
+#include "Pot.h"
 #include "TimerManager.h"
+#include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
 
 // Sets default values
@@ -20,7 +22,12 @@ AEnemy::AEnemy()
 	
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnCapsuleBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &AEnemy::OnCapsuleEndOverlap);
-	
+
+	RightWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightWeapon"));
+	RightWeapon->SetupAttachment(GetMesh(),TEXT("RightWeaponShield"));
+
+	RightWeapon->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnWeaponBeginOverlap);
+	RightWeapon->OnComponentEndOverlap.AddDynamic(this, &AEnemy::OnWeaponEndOverlap);
 }
 
 void AEnemy::BeginPlay()
@@ -91,3 +98,14 @@ void AEnemy::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	
 }
 
+void AEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	OverlapActor = OtherActor;
+}
+
+void AEnemy::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	int32 OtherBodyIndex)
+{
+	OtherActor = nullptr;
+}

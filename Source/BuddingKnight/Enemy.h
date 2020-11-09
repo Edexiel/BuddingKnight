@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 
 #include "BaseComponent.h"
+#include "Engine/StaticMesh.h"
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
@@ -43,6 +44,12 @@ protected:
 	
 	UPROPERTY()
 	FTimerHandle DestroyHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UStaticMeshComponent* RightWeapon;
+
+	UPROPERTY()
+	AActor* OverlapActor{nullptr};
 	
 public:
 
@@ -65,4 +72,12 @@ public:
 	UFUNCTION()
 	void OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	                         int32 OtherBodyIndex);
+
+	UFUNCTION()
+    void OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                               int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+    void OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+                             int32 OtherBodyIndex);
 };
