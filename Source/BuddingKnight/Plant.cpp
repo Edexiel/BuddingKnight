@@ -145,12 +145,6 @@ bool APlant::GetDetectPlayer() const
 void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                            UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
-	{
-		DetectPlayer = true;
-		return;
-	}
-	
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
 	    Enemies.Add(Cast<AEnemy>(OtherActor));
@@ -161,12 +155,6 @@ void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 void APlant::OnSphereDetectionOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
-	{
-		DetectPlayer = false;
-		return;
-	}
-
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
 		Enemies.Remove(Cast<AEnemy>(OtherActor));

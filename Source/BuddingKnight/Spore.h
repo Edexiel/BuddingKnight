@@ -10,8 +10,20 @@ UCLASS()
 class BUDDINGKNIGHT_API ASpore : public APlant
 {
 	GENERATED_BODY()
+public:
+	ASpore();
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	UChildActorComponent* SpawnPointProjectile;
 	
 protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile", meta=(AllowPrivateAccess="true"))
+	TSubclassOf<class ASporeProjectile> ProjectileClass;
+	
+	UFUNCTION()
 	virtual void Special() override;
+
+	UFUNCTION(BlueprintCallable)
+	void SpawnProjectile() const;
 	
 };
