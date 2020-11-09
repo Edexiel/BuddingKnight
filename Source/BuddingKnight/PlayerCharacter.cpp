@@ -21,6 +21,7 @@
 #include "Plant.h"
 #include "CameraDataAsset.h"
 #include "Enemy.h"
+#include "Components/SkeletalMeshComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -61,6 +62,15 @@ APlayerCharacter::APlayerCharacter()
 
 	//Create Audio component
 	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+
+	RightWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightWeapon"));
+	RightWeapon->SetupAttachment(GetMesh(),TEXT("hand_rSocket"));
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
+	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
+
+	RightWeapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponBeginOverlap);
+	RightWeapon->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponEndOverlap);
 	
 	AttackCounter = 0;
 	bCanAttack = true;
@@ -79,9 +89,6 @@ void APlayerCharacter::BeginPlay()
 	NewRotation.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform());
 	FollowCamera->SetRelativeRotation(NewRotation);
 
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
-	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
-	
 	LockEnemy = nullptr;
 	FRotator Test = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlRotation();
 	Test.SetComponentForAxis(EAxis::Y, DataAssetCamera->GetCameraPitchPlatform() * -1);
@@ -436,7 +443,7 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 		return;
 	}
 	
-	if(OtherActor->IsA(AEnemy::StaticClass())&& !bIsRolling)
+	if(OtherActor->IsA(AEnemy::StaticClass())&& !bIsRolling && bCanAttack)
 	{
 		//GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,"Collision with enemy: "+OtherActor->GetActorLabel());
 
@@ -481,6 +488,18 @@ void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, 
 		ClosestPot = nullptr;
 		return;
 	}
+}
+
+void APlayerCharacter::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	OverlapActor=OtherActor;
+}
+
+void APlayerCharacter::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	OverlapActor==nullptr;
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -529,10 +548,6 @@ void APlayerCharacter::Dodge()
 	
 	bIsRolling=true;	
 	
-}
-
-void APlayerCharacter::StopDodge()
-{
 }
 
 void APlayerCharacter::SelectLeft()

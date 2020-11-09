@@ -26,6 +26,9 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class UCameraComponent* FollowCamera;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	class UStaticMeshComponent * RightWeapon;
+
 	/** Attack Animation **/
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	TArray<class UAnimMontage*> Combo;	
@@ -86,11 +89,17 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY()
 	float BonusDamage;
 
+	UPROPERTY()
+	AActor* OverlapActor;
+
 	FTimerHandle StunHandle;
 	FTimerHandle HitHandle;
 
 	UFUNCTION()
 	void ResetCanAttack();
+
+
+	
 	
 public:
 	APlayerCharacter();
@@ -204,15 +213,10 @@ protected:
 	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
 	*/
 	void LookUpAtRate(float Rate);
-
 	void Attack();
 	void StopAttack();
-
 	void Dodge();
-	void StopDodge();
-
 	void SelectLeft();
-	
 	void SelectRight();
 
 	UFUNCTION(BlueprintCallable)
@@ -290,4 +294,18 @@ protected:
          			   AActor* OtherActor,
          			   UPrimitiveComponent* OtherComp,
          			   int32 OtherBodyIndex);
+
+	UFUNCTION()
+	void OnWeaponBeginOverlap(class UPrimitiveComponent* OverlappedComp,
+	                    class AActor* OtherActor,
+	                    class UPrimitiveComponent* OtherComp,
+	                    int32 OtherBodyIndex,
+	                    bool bFromSweep,
+	                    const FHitResult& SweepResult);
+
+	UFUNCTION()
+    void OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp,
+                        AActor* OtherActor,
+                        UPrimitiveComponent* OtherComp,
+                    int32 OtherBodyIndex);
 };
