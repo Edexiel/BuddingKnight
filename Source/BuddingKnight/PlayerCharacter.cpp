@@ -3,16 +3,11 @@
 
 #include "PlayerCharacter.h"
 
-
-#include <mutex>
-#include <string>
-#include <xutility>
-
-
 #include "Kismet/GameplayStatics.h"
 
 #include "TimerManager.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AudioComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -21,13 +16,11 @@
 #include "GameFramework/Actor.h"
 #include "Engine/Engine.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "DrawDebugHelpers.h"
 
 #include "Pot.h"
 #include "Plant.h"
 #include "CameraDataAsset.h"
-#include "Kismet/KismetSystemLibrary.h"
-#include "Serialization/JsonTypes.h"
+#include "Enemy.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -65,12 +58,14 @@ APlayerCharacter::APlayerCharacter()
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
 	MovementComponent = ACharacter::GetMovementComponent();
+
+	//Create Audio component
+	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	
 	AttackCounter = 0;
 	bCanAttack = true;
 	bIsRolling = false;
 }
-
 // Called when the game starts or when spawned
 void APlayerCharacter::BeginPlay()
 {
@@ -86,13 +81,6 @@ void APlayerCharacter::BeginPlay()
 
 	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleBeginOverlap);
 	GetCapsuleComponent()->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnCapsuleEndOverlap);
-
-	//todo refactor
-	// if(Enemies.Num() > 0)
-	// {
-	// 	DistancePlayerLockEnemy = FMath::Abs ((Enemies[0]->GetActorLocation() - GetActorLocation()).Size());
-	// 	LockEnemy = Enemies[0];
-	// }
 	
 	LockEnemy = nullptr;
 	FRotator Test = UGameplayStatics::GetPlayerController(GetWorld(), 0)->GetControlRotation();
@@ -110,19 +98,36 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 	if(bIsRolling)
 		AddMovementInput(GetActorForwardVector(),1);
 
-	UpdateCamera(DeltaSeconds);
-	/*
-	UE_LOG(LogTemp, Warning, TEXT("DetectionSphereIsColliding = %d"), DetectionSphereIsColliding);
-	UE_LOG(LogTemp, Warning, TEXT("Enemies.Num() = %d"), Enemies.Num());
-
-	if(LockEnemy == nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("LockEnemy = nullptr"));
-	}
-	else
-		UE_LOG(LogTemp, Warning, TEXT("LockEnemy != nullptr"));*/
-	
+	UpdateCamera(DeltaSeconds);	
 }
+void APlayerCharacter::SetBonusDamage(const float Bonus)
+{
+	BonusDamage=Bonus;
+}
+
+void APlayerCharacter::UnsetBonusDamage()
+{
+	BonusDamage=0;
+}
+
+float APlayerCharacter::GetBaseDamage() const
+{
+	return BaseDamage;
+}
+
+float APlayerCharacter::GetDamage() const
+{
+	return BaseDamage+BonusDamage;
+}
+
+
+void APlayerCharacter::ResetCanAttack()
+{
+	bCanAttack=true;
+	AudioComponent->Stop();
+	StopAnimMontage(StunAnimation);
+}
+
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
@@ -138,20 +143,12 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	PlayerInputComponent->BindAction("Dodge", IE_Released, this, &APlayerCharacter::StopDodge);
 
 	PlayerInputComponent->BindAction("Select_Left", IE_Pressed ,this,&APlayerCharacter::SelectLeft);
-	PlayerInputComponent->BindAction("Select_Left", IE_Released,this, &APlayerCharacter::StopSelectLeft);
 	
 	PlayerInputComponent->BindAction("Select_Right", IE_Pressed,this, &APlayerCharacter::SelectRight);
-	PlayerInputComponent->BindAction("Select_Right", IE_Released,this, &APlayerCharacter::StopSelectRight);
-
-	
-	//PlayerInputComponent->BindAction("Special", IE_Pressed,this, &APlayerCharacter::UseSeed);
 	
 	PlayerInputComponent->BindAxis("MoveForward", this, &APlayerCharacter::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &APlayerCharacter::MoveRight);
-
-
 	
-	// We have 2 versions of the rotation bindings to handle different kinds of devices differently
 	// "turn" handles devices that provide an absolute delta, such as a mouse.
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
@@ -340,10 +337,6 @@ void APlayerCharacter::SearchClosestEnemy()
 	{
 		const float NewDistance = GetDistanceTo(Pawn);
 		
-		//UE_LOG(LogTemp, Warning, TEXT("DistancePlayerLockEnemy = %f"), DistancePlayerLockEnemy);
-		//UE_LOG(LogTemp, Warning, TEXT("NewDistance = %f"), NewDistance);
-		
-		
 		if (LockEnemy == Pawn)
 			DistancePlayerLockEnemy = NewDistance;
 		
@@ -370,7 +363,7 @@ void APlayerCharacter::UseSeed()
 
 	switch(TypeOfPlant)
 	{
-		case EPlantType::Tree:
+		case Tree:
 			if(NbTreeSeed > 0)
 			{
 				NbTreeSeed--;
@@ -378,7 +371,7 @@ void APlayerCharacter::UseSeed()
 			}	
 			return;
 			
-		case EPlantType::Liana:
+		case Liana:
 			if(NbLianaSeed > 0)
 			{
 				NbLianaSeed--;
@@ -386,7 +379,7 @@ void APlayerCharacter::UseSeed()
 			}	
 			return;
 			
-		case EPlantType::Spore:
+		case Spore:
 			if(NbSporeSeed > 0)
 			{
 				NbSporeSeed--;
@@ -405,20 +398,22 @@ void APlayerCharacter::UseSeed()
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+
+	
 	if (OtherActor->IsA(ASeed::StaticClass()))
 	{
 		ASeed* Seed = Cast<ASeed>(OtherActor);
 		switch(Seed->GetType())
 		{
-			case EPlantType::Tree:
+			case Tree:
 				NbTreeSeed++;
 				break;
 			
-			case EPlantType::Liana:
+			case Liana:
 				NbLianaSeed++;
 				break;
 			
-			case EPlantType::Spore:
+			case Spore:
 				NbSporeSeed++;
 				break;
 			
@@ -437,27 +432,45 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 
 	if(OtherActor->IsA(APlant::StaticClass()))
 	{
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("This is a plant"));
-		return;
-	}
-	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,OtherActor->GetActorLabel());
-
-	LaunchCharacter(GetActorForwardVector()*KnockOutForce*-1,true,true);
-
-	if(MaxHitReceived==HitReceivedCounter)
-	{
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET STUN"));
-
-		PlayAnimMontage(StunAnimation);
-		HitReceivedCounter=0;
+		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("This is a plant"));
 		return;
 	}
 	
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET HIT"));
+	if(OtherActor->IsA(AEnemy::StaticClass())&& !bIsRolling)
+	{
+		//GEngine->AddOnScreenDebugMessage(-1,5.f,FColor::Red,"Collision with enemy: "+OtherActor->GetActorLabel());
 
-	OnResetCombo();
-	PlayAnimMontage(GetHitAnimation);
-	HitReceivedCounter++;
+		LaunchCharacter(GetActorForwardVector()*KnockOutForce*-1,true,true);
+
+		bCanAttack=false;
+		
+		if(MaxHitReceived==HitReceivedCounter)
+		{
+			//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET STUN"));
+			PlayAnimMontage(StunAnimation);
+			
+			AudioComponent->SetSound(StunSound);
+			AudioComponent->Play();
+			
+			GetWorldTimerManager().SetTimer(StunHandle,this,&APlayerCharacter::ResetCanAttack,StunTime,false);
+
+			HitReceivedCounter=0;
+			return;
+		}
+		
+		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET HIT"));
+		
+		OnResetCombo();
+
+		PlayAnimMontage(GetHitAnimation);
+		
+		AudioComponent->SetSound(StunSound);
+		AudioComponent->Play();
+		
+		GetWorldTimerManager().SetTimer(HitHandle,this,&APlayerCharacter::ResetCanAttack,HitStunTime,false);
+
+		HitReceivedCounter++;
+	}
 }
 
 void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
@@ -504,7 +517,7 @@ void APlayerCharacter::Attack()
 	bCanAttack=false;
 	PlayAnimMontage(Combo[AttackCounter]);
 	AttackCounter++;
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,FString::FromInt(AttackCounter));
+	// GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,FString::FromInt(AttackCounter));
 }
 
 void APlayerCharacter::StopAttack(){}
@@ -530,17 +543,10 @@ void APlayerCharacter::SelectLeft()
 		TypeOfPlant = static_cast<EPlantType>( (TypeOfPlant - 1) % EPlantType::NbType);
 }
 
-void APlayerCharacter::StopSelectLeft()
-{
-}
 
 void APlayerCharacter::SelectRight()
 {
 	TypeOfPlant = static_cast<EPlantType>( (TypeOfPlant + 1) % EPlantType::NbType );
-}
-
-void APlayerCharacter::StopSelectRight()
-{
 }
 
 void APlayerCharacter::ResetCameraLock(const float Value)
@@ -558,17 +564,21 @@ void APlayerCharacter::ResetCameraLock(const float Value)
 	}
 }
 
-int APlayerCharacter::GetEnemyNumber() const
+bool APlayerCharacter::IsTargetingPlayer(APawn* Pawn) const
 {
-	return Enemies.Num();
+	return Enemies.Contains(Pawn);	
 }
 
-void APlayerCharacter::RegisterEnemy(APawn* Pawn)
+void APlayerCharacter::RegisterEnemy(APawn* Pawn,const int Max)
 {
+	if(Enemies.Num() >= Max)
+		return;
+	
 	if(!Enemies.Contains(Pawn))
 	{
 		Enemies.Add(Pawn);
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
+
+		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
 
 		if(Enemies.Num() == 1)
 		{
@@ -590,7 +600,7 @@ void APlayerCharacter::UnregisterEnemy(APawn* Pawn)
 	if(Enemies.Contains(Pawn))
 	{
 		Enemies.Remove(Pawn);
-		GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Enemy unregistered "+ FString::FromInt(Enemies.Num()));
+		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Enemy unregistered "+ FString::FromInt(Enemies.Num()));
 		
 		if(Pawn == LockEnemy)
 			LockEnemy = nullptr;
@@ -607,6 +617,9 @@ void APlayerCharacter::UnregisterEnemy(APawn* Pawn)
 
 void APlayerCharacter::MoveForward(const float Value)
 {
+	if(!bCanAttack)
+		return;
+	
 	if (Controller && Value != 0.0f)
 	{
 		// find out which way is forward
@@ -621,6 +634,9 @@ void APlayerCharacter::MoveForward(const float Value)
 
 void APlayerCharacter::MoveRight(const float Value)
 {
+	if(!bCanAttack)
+		return;
+	
 	if ( Controller && Value != 0.0f )
 	{
 		// find out which way is right

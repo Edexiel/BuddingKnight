@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+
+#include "BaseComponentDataAsset.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/ActorComponent.h"
 #include "BaseComponent.generated.h"
@@ -13,15 +15,18 @@ class BUDDINGKNIGHT_API UBaseComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
+	
+	bool bIsDead{false};
 public:	
 	// Sets default values for this component's properties
 	UBaseComponent();
 
 	UPROPERTY(EditAnywhere, Category="BaseComponent", meta=(AllowPrivateAccess="true"))
-		class UBaseComponentDataAsset* BaseComponentDataAsset{nullptr};
+		UBaseComponentDataAsset* BaseComponentDataAsset{nullptr};
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="BaseComponent", meta=(BindWidget))
 		UUserWidget * Widget;
+
 
 protected:
 	// Called when the game starts
@@ -34,16 +39,20 @@ protected:
 		float MaxHealth;
 
 
+
 public:	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION(BlueprintCallable)
-		float GetHealth() const;
+	float GetHealth() const;
 	
 	UFUNCTION(BlueprintCallable)
-		float GetMaxHealth() const;
+	float GetMaxHealth() const;
 
 	UFUNCTION(BlueprintCallable)
-        void TakeDamage(const float Damage);
+    void TakeDamage(const float Damage);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsDead() const;
 };
