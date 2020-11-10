@@ -55,4 +55,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
     void RandomTypeOfSeed();
+
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnAfterBeginPlay();
 };

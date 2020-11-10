@@ -1,5 +1,7 @@
 #include "SporeProjectile.h"
 
+
+#include "Enemy.h"
 #include "Components/SphereComponent.h"
 #include "Engine/Engine.h"
 
@@ -30,6 +32,8 @@ void ASporeProjectile::OnSphereBeginOverlap(class UPrimitiveComponent* Overlappe
 											const FHitResult& SweepResult)
 {
 	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("COOOOLLLLIIIISSSSIIIONN"));
+	if(OtherActor->IsA(AEnemy::StaticClass()))
+		Cast<AEnemy>(OtherActor)->OnDamageReceiveByTick(Damage, NbTick); 
 	Destroy();
 }
 

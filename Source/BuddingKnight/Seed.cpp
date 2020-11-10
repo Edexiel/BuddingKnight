@@ -26,6 +26,7 @@ void ASeed::BeginPlay()
 {
 	Super::BeginPlay();
 	RandomTypeOfSeed();
+	OnAfterBeginPlay();
 }
 
 // Called every frame

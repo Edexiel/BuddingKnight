@@ -15,6 +15,8 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	UChildActorComponent* SpawnPointProjectile;
+
+	virtual void Passive(APlayerCharacter* Player) override;
 	
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Projectile", meta=(AllowPrivateAccess="true"))

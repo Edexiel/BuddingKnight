@@ -8,6 +8,7 @@
 
 #include "Plant.generated.h"
 
+class APlayerCharacter;
 class AEnemy;
 
 UCLASS()
@@ -17,8 +18,7 @@ class BUDDINGKNIGHT_API APlant : public ACharacter
 
 public:
 	// Sets default values for this character's properties
-	APlant();
-	
+	APlant();	
 	
 protected:
 	// Called when the game starts or when spawned
@@ -90,6 +90,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
     bool GetDetectPlayer() const;
+
+	UFUNCTION(BlueprintCallable)
+	virtual void Passive(APlayerCharacter* Player);
 	
 	// Called to bind functionality to input
 

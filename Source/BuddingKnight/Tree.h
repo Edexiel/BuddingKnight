@@ -15,10 +15,16 @@ public:
 	ATree();
 
 	virtual void BeginPlay() override;
+
+    virtual void Passive(APlayerCharacter* Player) override;
+	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
 	class UBoxComponent* AttackBox;
 
+	UPROPERTY(EditAnywhere, Category="Bonus")
+	float DamageBonus{0};
+	
 	virtual void Special() override;
 
     UFUNCTION()

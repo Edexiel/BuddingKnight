@@ -83,7 +83,7 @@ void APlant::SearchClosestEnemy()
 	if(Enemies.Num() == 0)
 		return;
 	
-	else if (Enemies.Num() > 1 && ClosestEnemy == nullptr)
+	else if (Enemies.Num() >= 1 && ClosestEnemy == nullptr)
 		ClosestEnemy = Enemies[0];
 	
 	for (AEnemy* Pawn : Enemies)
@@ -140,6 +140,10 @@ void APlant::SetDetectPlayer(const bool Boolean)
 bool APlant::GetDetectPlayer() const
 {
 	return DetectPlayer;
+}
+
+void APlant::Passive(APlayerCharacter* Player)
+{
 }
 
 void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

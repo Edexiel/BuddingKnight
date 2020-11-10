@@ -61,6 +61,9 @@ protected:
 	UPROPERTY(VisibleAnywhere,Category="Plant", BlueprintReadWrite)
 	class APlant* Plant;
 	
+	UPROPERTY()
+	class APlayerCharacter* Player;
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;

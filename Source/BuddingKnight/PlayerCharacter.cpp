@@ -21,6 +21,7 @@
 #include "CameraDataAsset.h"
 #include "Enemy.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SphereComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -488,7 +489,7 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 		return;
 	}
 
-	if (OtherActor->IsA(APot::StaticClass()))
+	if (OtherActor->IsA(APot::StaticClass()) && OtherComp->IsA(USphereComponent::StaticClass()))
 	{
 		ClosestPot = Cast<APot>(OtherActor);
 		return;

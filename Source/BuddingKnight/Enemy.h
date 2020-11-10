@@ -58,6 +58,15 @@ protected:
 
 	UPROPERTY()
 	bool bTouchedPot{false};
+
+	UPROPERTY()
+	float OnDamageReceiveByTickCooldown{0.1f};
+	
+	UPROPERTY()
+	float DamageReceive{0};
+
+	UPROPERTY()
+	int NbTick{0};
 	
 public:
 
@@ -80,9 +89,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
     void OnDeath(FVector Position);
 
-	/*
+	
 	UFUNCTION(BlueprintCallable)
-    void ReceiveDamageByTick(const float Damage);*/
+    void OnDamageReceiveByTick(const float Value, int NbOfTick = 3);
 
 	UFUNCTION(BlueprintCallable)
 	void WeaponCollisionTest() const;
@@ -103,4 +112,18 @@ public:
 	UFUNCTION()
     void OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                              int32 OtherBodyIndex);
+
+	private:
+	
+	UPROPERTY()
+	FTimerHandle TickDamageTimeHandle;
+	
+	UPROPERTY()
+	bool IsResettingTickDamageDelay {false};
+
+	UFUNCTION()
+    void TickDamageDelay();
+
+	UFUNCTION()
+    void ResetTickDamageDelay();
 };

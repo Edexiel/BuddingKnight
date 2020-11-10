@@ -13,6 +13,13 @@ ASpore::ASpore()
    SpawnPointProjectile->SetupAttachment(RootComponent);
 }
 
+void ASpore::Passive(APlayerCharacter* Player)
+{
+   if(Player)
+      return;
+   // To do: PlayerChangeSword
+}
+
 void ASpore::Special()
 {
    SpawnProjectile();

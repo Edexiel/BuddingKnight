@@ -3,6 +3,9 @@
 
 #include "Enemy.h"
 
+#include <string>
+
+
 
 #include "AIC_EnemyCAC.h"
 #include "Components/CapsuleComponent.h"
@@ -29,6 +32,9 @@ void AEnemy::BeginPlay()
 	Super::BeginPlay();
 	IsAlreadyTakeDamage = false;
 	RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	IsResettingTickDamageDelay = true;
+	OnDamageReceiveByTickCooldown = 1.f;
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -65,11 +71,32 @@ void AEnemy::ReceiveDamage(const float Value)
 		GetWorldTimerManager().SetTimer(DestroyHandle,this,&AEnemy::Delete,DepopTime,false);
 	}
 }
-/*
-void AEnemy::ReceiveDamageByTick(const float Damage)
+
+
+void AEnemy::OnDamageReceiveByTick(const float Value, int NbOfTick)
 {
+	if(IsDead() || NbOfTick < 1)
+		return;
+
+	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("Tick = " + FString::FromInt( NbOfTick)));
+	DamageReceive = Value;
+	NbTick = NbOfTick;
+
 	
-}*/
+	
+	BaseComponent->TakeDamage(DamageReceive);
+	
+	TickDamageDelay();
+	
+	if(IsDead())
+	{
+		OnDeath(GetActorLocation());
+		GetCapsuleComponent()->DestroyComponent();
+		RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+		Cast<AAIC_EnemyCAC>(GetController())->SetDead();
+		GetWorldTimerManager().SetTimer(DestroyHandle,this,&AEnemy::Delete,DepopTime,false);
+	}
+}
 
 void AEnemy::WeaponCollisionTest() const
 {
@@ -125,4 +152,21 @@ void AEnemy::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* Oth
 {
 	bTouchedPlayer=false;
 	bTouchedPot=false;
+}
+
+void AEnemy::TickDamageDelay()
+{
+	if(IsResettingTickDamageDelay)
+	{
+		GetWorldTimerManager().ClearTimer(TickDamageTimeHandle);
+		GetWorldTimerManager().SetTimer(TickDamageTimeHandle, this, &AEnemy::ResetTickDamageDelay, OnDamageReceiveByTickCooldown, false);
+		IsResettingTickDamageDelay = false;
+	}
+}
+
+void AEnemy::ResetTickDamageDelay()
+{
+	IsResettingTickDamageDelay = true;
+	NbTick--;
+	OnDamageReceiveByTick(DamageReceive, NbTick);
 }
