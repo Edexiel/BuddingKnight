@@ -91,6 +91,8 @@ void APlayerCharacter::BeginPlay()
 
 	// clamp the value of SlowDownRate between 0 and 1
 	SlowDownRate = SlowDownRate>1?1:SlowDownRate<0?0:SlowDownRate;
+
+	RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
