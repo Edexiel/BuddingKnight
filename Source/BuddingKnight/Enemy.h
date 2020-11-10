@@ -80,8 +80,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
     void OnDeath(FVector Position);
 
+	/*
 	UFUNCTION(BlueprintCallable)
-    void ReceiveDamageByTick(const float Damage);
+    void ReceiveDamageByTick(const float Damage);*/
 
 	UFUNCTION(BlueprintCallable)
 	void WeaponCollisionTest() const;

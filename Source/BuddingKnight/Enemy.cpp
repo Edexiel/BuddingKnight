@@ -65,11 +65,11 @@ void AEnemy::ReceiveDamage(const float Value)
 		GetWorldTimerManager().SetTimer(DestroyHandle,this,&AEnemy::Delete,DepopTime,false);
 	}
 }
-
+/*
 void AEnemy::ReceiveDamageByTick(const float Damage)
 {
 	
-}
+}*/
 
 void AEnemy::WeaponCollisionTest() const
 {
