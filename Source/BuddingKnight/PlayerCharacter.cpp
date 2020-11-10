@@ -133,11 +133,13 @@ void APlayerCharacter::ResetCanAttack()
 
 void APlayerCharacter::ResetSlowDown()
 {
+	OnRecoverSpeed();
 	SlowDownAccumulator=0;
 }
 
 void APlayerCharacter::ResetStun()
 {
+	OnRecoverStun();
 	bIsStun=false;
 	SlowDownAccumulator=0;
 }
@@ -443,8 +445,13 @@ void APlayerCharacter::ReceiveDamage()
 
 }
 
+bool APlayerCharacter::IsStun() const
+{
+	return bIsStun;
+}
+
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+                                             UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	
 	if (OtherActor->IsA(ASeed::StaticClass()))

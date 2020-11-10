@@ -67,9 +67,6 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	float SlowDownTime;
 	
-	/** Duration of knock out **/
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
-	float KnockOutForce;
 	
 	int HitReceivedCounter{0};
 	
@@ -253,6 +250,15 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnCombo(int Value);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnRecoverSpeed();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnRecoverStun();
+
+	UFUNCTION(BlueprintCallable)
+	bool IsStun() const;
+	
 	UFUNCTION()
     void OnCapsuleBeginOverlap(class UPrimitiveComponent* OverlappedComp,
     					class AActor* OtherActor,
