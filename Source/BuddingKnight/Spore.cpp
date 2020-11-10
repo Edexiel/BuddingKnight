@@ -28,6 +28,5 @@ void ASpore::Special()
 void ASpore::SpawnProjectile() const
 {
    ASporeProjectile* Projectile = GetWorld()->SpawnActor<ASporeProjectile>(ProjectileClass, SpawnPointProjectile->GetComponentTransform());
-
    Projectile->SetTarget(ClosestEnemy);
 }
