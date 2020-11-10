@@ -42,6 +42,7 @@ void APot::BeginPlay()
 	CollisionBox->OnComponentEndOverlap.AddDynamic(this, &APot::OnBoxEndOverlap);
 	
 	Plant = nullptr;
+	Player = nullptr;
 	PlayerIsDetected = false;
 }
 
@@ -72,7 +73,10 @@ void APot::Tick(float DeltaTime)
 		CollisionBox->UpdateOverlaps();
 	}
 	if(Plant && Plant->GetDetectPlayer() != PlayerIsDetected)
+	{
 		Plant->SetDetectPlayer(PlayerIsDetected);
+		Plant->Passive(Player);
+	}
 }
 
 void APot::SetHaveASeed(const bool& Boolean)
@@ -115,12 +119,20 @@ void APot::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
                              int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
 		PlayerIsDetected = true;
+		Player = Cast<APlayerCharacter>(OtherActor);
+	}
 }
 
 void APot::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
+	if (OtherActor->IsA(APlayerCharacter::StaticClass()) && Player == OtherActor)
+	{
 		PlayerIsDetected = false;
+		Player->UnsetBonusDamage();
+		//To do: void ChangeSword(ESwords::E_Basic);
+		Player = nullptr;
+	}
 }

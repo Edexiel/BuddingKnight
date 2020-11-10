@@ -20,6 +20,12 @@ protected:
 	UPROPERTY()
 	AActor* Target;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float Damage{0};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int NbTick{0};
+
 	UPROPERTY(EditAnywhere)
 	float Speed;
 	// Called when the game starts or when spawned

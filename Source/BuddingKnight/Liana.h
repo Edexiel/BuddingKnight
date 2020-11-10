@@ -16,4 +16,5 @@ class BUDDINGKNIGHT_API ALiana : public APlant
 	
 protected:
 	virtual void Special() override;
+	virtual void Passive(APlayerCharacter* Player) override;
 };

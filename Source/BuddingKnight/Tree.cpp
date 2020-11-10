@@ -4,6 +4,7 @@
 #include "Tree.h"
 
 #include "Enemy.h"
+#include "PlayerCharacter.h"
 #include "TimerManager.h"
 #include "Components/BoxComponent.h"
 #include "Engine/Engine.h"
@@ -27,6 +28,15 @@ void ATree::BeginPlay()
     AttackBox->OnComponentEndOverlap.AddDynamic(this, &ATree::OnAttackBoxEndOverlap);
 
     IsResettingEndAttackDelay = true;
+}
+
+void ATree::Passive(APlayerCharacter* Player)
+{
+    if(!Player)
+        return;
+
+    Player->SetBonusDamage(DamageBonus);
+    //To do: void ChangeSword(ESwords::E_Tree);
 }
 
 void ATree::Special()
