@@ -8,7 +8,13 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-class UTimelineComponent;
+UENUM()
+enum ESwords
+{
+	E_Basic,
+	E_Plant,
+	E_Tree
+};
 
 UCLASS()
 class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
@@ -24,8 +30,11 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	class UCameraComponent* FollowCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
-	class UStaticMeshComponent * RightWeapon;
-
+	class UStaticMeshComponent* RightWeapon;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	TMap<TEnumAsByte<ESwords>,UStaticMesh*> Swords;
+	
 	/** Attack Animation **/
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	TArray<class UAnimMontage*> Combo;	
@@ -34,17 +43,10 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	class UAnimMontage* StunAnimation;
 
-	/** Stun sound **/
-	UPROPERTY(EditAnywhere,Category=Sound,meta=(AllowPrivateAccess="true"))
-	class USoundBase* StunSound;
-	
 	/** Stun Hit Animation **/
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	class UAnimMontage* GetHitAnimation;
 
-	/** Hit sound **/
-	UPROPERTY(EditAnywhere,Category=Sound,meta=(AllowPrivateAccess="true"))
-	class USoundBase* HitSound;
 
 	UPROPERTY(EditAnywhere, Category=Camera,meta=(AllowPrivateAccess="true"))
 	class UCameraDataAsset* DataAssetCamera;
@@ -66,7 +68,6 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	/** Time without hit when the player recovers his speed **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	float SlowDownTime;
-	
 	
 	int HitReceivedCounter{0};
 	
@@ -101,6 +102,7 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 
 	UFUNCTION()
 	void ResetStun();
+
 
 public:
 	APlayerCharacter();
@@ -224,11 +226,11 @@ public:
 	UFUNCTION()
 	void UpdateCamera(const float DeltaTime);
 	
-	/** Rotate the CameraBoom in the direction of LockEnemy.*/
+	//Rotate the CameraBoom in the direction of LockEnemy.
 	UFUNCTION()
     void CameraLock(const float DeltaTime);
 
-	/** Search the closest enemy in enemies.*/
+	//Search the closest enemy in enemies.
 	UFUNCTION()
     void SearchClosestEnemy();
 	
@@ -238,6 +240,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage();
 
+	UFUNCTION(BlueprintCallable)
+	void ChangeSword(ESwords Sword);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsStun() const;
+	
+	/* Events */
+	
 	UFUNCTION(BlueprintImplementableEvent)
     void OnDamageReceive();
 
@@ -252,13 +262,19 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnRecoverSpeed();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDamageBonus();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnRecoverStun();
 
-	UFUNCTION(BlueprintCallable)
-	bool IsStun() const;
-	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnChangeSword(ESwords SwordType);
+
+	/* End events */
+
+	/* Collisions */
 	UFUNCTION()
     void OnCapsuleBeginOverlap(class UPrimitiveComponent* OverlappedComp,
     					class AActor* OtherActor,
@@ -286,6 +302,8 @@ public:
                         AActor* OtherActor,
                         UPrimitiveComponent* OtherComp,
                     int32 OtherBodyIndex);
+
+	/* End Collisions */
 	
 protected:
 	

@@ -7,7 +7,6 @@
 
 #include "TimerManager.h"
 #include "Camera/CameraComponent.h"
-#include "Components/AudioComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -66,6 +65,7 @@ APlayerCharacter::APlayerCharacter()
 	RightWeapon->SetupAttachment(GetMesh(),TEXT("hand_rSocket"));
 	RightWeapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponBeginOverlap);
 	RightWeapon->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponEndOverlap);
+
 	
 	AttackCounter = 0;
 }
@@ -92,7 +92,9 @@ void APlayerCharacter::BeginPlay()
 	// clamp the value of SlowDownRate between 0 and 1
 	SlowDownRate = SlowDownRate>1?1:SlowDownRate<0?0:SlowDownRate;
 
+	RightWeapon->SetStaticMesh(Swords[E_Basic]);
 	RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -108,6 +110,7 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 void APlayerCharacter::SetBonusDamage(const float Bonus)
 {
 	BonusDamage=Bonus;
+	OnDamageBonus();
 }
 
 void APlayerCharacter::UnsetBonusDamage()
@@ -443,6 +446,13 @@ void APlayerCharacter::ReceiveDamage()
 	
 	HitReceivedCounter++;
 
+}
+
+void APlayerCharacter::ChangeSword(ESwords Sword)
+{
+	RightWeapon->SetStaticMesh(Swords[Sword]);
+	
+	OnChangeSword(Sword);
 }
 
 bool APlayerCharacter::IsStun() const
