@@ -20,5 +20,32 @@ protected:
 	class UBoxComponent* AttackBox;
 
 	virtual void Special() override;
+
+    UFUNCTION()
+    	void OnAttackBoxBeginOverlap(class UPrimitiveComponent* OverlappedComp,
+    	                    class AActor* OtherActor,
+    	                    class UPrimitiveComponent* OtherComp,
+    	                    int32 OtherBodyIndex,
+    	                    bool bFromSweep,
+    	                    const FHitResult& SweepResult);
+
+	UFUNCTION()
+    void OnAttackBoxEndOverlap(UPrimitiveComponent* OverlappedComp,
+                        AActor* OtherActor,
+                        UPrimitiveComponent* OtherComp,
+                        int32 OtherBodyIndex);
 	
+private:
+
+	UPROPERTY()
+	bool IsResettingEndAttackDelay;
+	
+	UPROPERTY()
+	FTimerHandle TimeHandleEndAttackDelay;
+
+	UFUNCTION()
+    void EndAttackDelay();
+
+	UFUNCTION()
+    void ResetEndAttackDelay();
 };

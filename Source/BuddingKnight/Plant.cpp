@@ -65,7 +65,7 @@ void APlant::UseSpecial()
 
 	if(CanUseSpecial && DetectPlayer)
 	{
-		PlayAnimMontage(AttackAnimation);
+		AnimationCooldown = PlayAnimMontage(AttackAnimation);
 		
 		Special();
 		CanUseSpecial = false;

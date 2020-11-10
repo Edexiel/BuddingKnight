@@ -57,6 +57,9 @@ public:
 
 	AEnemy();
 	
+	UPROPERTY()
+	bool IsAlreadyTakeDamage;
+	
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -64,6 +67,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage(const float Damage);
+
+	UFUNCTION(BlueprintCallable)
+    void ReceiveDamageByTick(const float Damage);
 
 	UFUNCTION(BlueprintCallable)
 	void WeaponCollisionTest() const;

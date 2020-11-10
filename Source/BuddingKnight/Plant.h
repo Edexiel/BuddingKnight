@@ -40,6 +40,9 @@ protected:
 	float DelayCooldown{5.f};
 
 	UPROPERTY()
+	float AnimationCooldown;
+
+	UPROPERTY()
 	TArray<AEnemy*> Enemies;
 
 	UPROPERTY()

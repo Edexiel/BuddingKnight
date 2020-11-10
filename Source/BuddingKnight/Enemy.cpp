@@ -9,6 +9,7 @@
 #include "PlayerCharacter.h"
 #include "Pot.h"
 #include "TimerManager.h"
+#include "Tree.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"
 
@@ -21,12 +22,12 @@ AEnemy::AEnemy()
 	RightWeapon->SetupAttachment(GetMesh(),TEXT("RightWeaponShield"));
 	RightWeapon->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnWeaponBeginOverlap);
 	RightWeapon->OnComponentEndOverlap.AddDynamic(this, &AEnemy::OnWeaponEndOverlap);
-	
 }
 
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	IsAlreadyTakeDamage = false;
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -60,6 +61,11 @@ void AEnemy::ReceiveDamage(const float Damage)
 		Cast<AAIC_EnemyCAC>(GetController())->SetDead();
 		GetWorldTimerManager().SetTimer(DestroyHandle,this,&AEnemy::Delete,DepopTime,false);
 	}
+}
+
+void AEnemy::ReceiveDamageByTick(const float Damage)
+{
+	
 }
 
 void AEnemy::WeaponCollisionTest() const
