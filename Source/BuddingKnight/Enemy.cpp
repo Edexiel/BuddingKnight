@@ -28,6 +28,7 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	IsAlreadyTakeDamage = false;
+	RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void AEnemy::Tick(float DeltaTime)
@@ -53,8 +54,7 @@ void AEnemy::ReceiveDamage(const float Value)
 	const float RemainingTime = PlayAnimMontage(GettingHitAnimMontage);
 	GetWorldTimerManager().SetTimer(GettingHitHandle,this,&AEnemy::ResetGettingHit,RemainingTime,false);
 
-	//todo play sound
-	BaseComponent->TakeDamage(Damage);
+	BaseComponent->TakeDamage(Value);
 
 	if(IsDead())
 	{
