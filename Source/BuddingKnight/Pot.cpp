@@ -132,7 +132,7 @@ void APot::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 	{
 		PlayerIsDetected = false;
 		Player->UnsetBonusDamage();
-		//To do: void ChangeSword(ESwords::E_Basic);
+		Player->ChangeSword(ESwords::E_Basic);
 		Player = nullptr;
 	}
 }

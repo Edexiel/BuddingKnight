@@ -36,7 +36,7 @@ void ATree::Passive(APlayerCharacter* Player)
         return;
 
     Player->SetBonusDamage(DamageBonus);
-    //To do: void ChangeSword(ESwords::E_Tree);
+    Player->ChangeSword(ESwords::E_Tree);
 }
 
 void ATree::Special()
