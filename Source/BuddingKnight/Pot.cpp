@@ -100,6 +100,16 @@ bool APot::GetCanPlant() const
 	return CanPlant;
 }
 
+void APot::ReceiveDamage(const float Value) 
+{
+	BaseComponent->TakeDamage(Value);
+	OnReceiveDamage(BaseComponent->GetHealth());
+
+	if(BaseComponent->GetHealth()==0)
+		OnPotDestroy();
+	
+}
+
 
 void APot::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                              int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
