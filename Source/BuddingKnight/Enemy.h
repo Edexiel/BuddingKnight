@@ -24,6 +24,9 @@ class BUDDINGKNIGHT_API AEnemy : public ACharacter
 	class UAnimMontage* GettingHitAnimMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
+	float Damage{0};
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 	float KnockBackForce;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
@@ -51,7 +54,10 @@ protected:
 	UStaticMeshComponent* RightWeapon;
 
 	UPROPERTY()
-	AActor* OverlapActor{nullptr};
+	bool bTouchedPlayer{false};
+
+	UPROPERTY()
+	bool bTouchedPot{false};
 	
 public:
 
@@ -63,10 +69,19 @@ public:
 	bool IsDead() const;
 
 	UFUNCTION(BlueprintCallable)
-	void ReceiveDamage(const float Damage);
+	void ReceiveDamage(const float Value);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnDamageReceive();
+
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnDeath(FVector Position);
 
 	UFUNCTION(BlueprintCallable)
 	void WeaponCollisionTest() const;
+
+	UFUNCTION(BlueprintCallable)
+	void WeaponCollisionTestEnd();
 
 	UFUNCTION()
 	void Attack();

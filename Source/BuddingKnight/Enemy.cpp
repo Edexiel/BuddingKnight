@@ -39,14 +39,16 @@ bool AEnemy::IsDead() const
 	return BaseComponent->IsDead();
 }
 
-void AEnemy::ReceiveDamage(const float Damage) 
+void AEnemy::ReceiveDamage(const float Value) 
 {
 	if(IsGettingHit || IsDead())
 		return;
+
+	OnDamageReceive();
 	
 	IsGettingHit = true;
 		
-	LaunchCharacter(GetActorForwardVector()*KnockBackForce*-1,true,true);
+	LaunchCharacter(GetActorForwardVector() * KnockBackForce * -1,true,true);
 	const float RemainingTime = PlayAnimMontage(GettingHitAnimMontage);
 	GetWorldTimerManager().SetTimer(GettingHitHandle,this,&AEnemy::ResetGettingHit,RemainingTime,false);
 
@@ -55,6 +57,7 @@ void AEnemy::ReceiveDamage(const float Damage)
 
 	if(IsDead())
 	{
+		OnDeath(GetActorLocation());
 		GetCapsuleComponent()->DestroyComponent();
 		RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 		Cast<AAIC_EnemyCAC>(GetController())->SetDead();
@@ -64,17 +67,13 @@ void AEnemy::ReceiveDamage(const float Damage)
 
 void AEnemy::WeaponCollisionTest() const
 {
-	if(!IsValid(OverlapActor))
-	{
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Overlap actor is not valid");
-		return;
-	}
-		
-	if(OverlapActor->IsA(APlayerCharacter::StaticClass()))
-	{
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Enemy touching "+OverlapActor->GetActorLabel());
-		Cast<APlayerCharacter>(OverlapActor)->ReceiveDamage();
-	}
+	RightWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void AEnemy::WeaponCollisionTestEnd()
+{
+	RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	bTouchedPlayer=false;
 }
 
 void AEnemy::Attack()
@@ -100,11 +99,24 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	OverlapActor = OtherActor;
+	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Enemy touching "+OtherActor->GetActorLabel());
+		Cast<APlayerCharacter>(OtherActor)->ReceiveDamage();
+		bTouchedPlayer=true;
+	}
+
+	if(OtherActor->IsA(APot::StaticClass()))
+	{
+		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Enemy touching "+OtherActor->GetActorLabel());
+		Cast<APot>(OtherActor)->ReceiveDamage(Damage);
+	}
+	
 }
 
 void AEnemy::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	int32 OtherBodyIndex)
 {
-	OtherActor = nullptr;
+	bTouchedPlayer=false;
+	bTouchedPot=false;
 }

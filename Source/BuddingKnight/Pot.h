@@ -79,7 +79,14 @@ public:
 	UFUNCTION()
 	bool GetCanPlant() const;
 
-	
+	UFUNCTION()
+	void ReceiveDamage(const float Value);
+
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnReceiveDamage(const float RemainingLife);
+
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnPotDestroy();
 
 protected:
 	

@@ -62,17 +62,12 @@ APlayerCharacter::APlayerCharacter()
 
 	MovementComponent = ACharacter::GetMovementComponent();
 
-	//Create Audio component
-	AudioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
-
 	RightWeapon = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("RightWeapon"));
 	RightWeapon->SetupAttachment(GetMesh(),TEXT("hand_rSocket"));
 	RightWeapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponBeginOverlap);
 	RightWeapon->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponEndOverlap);
 	
 	AttackCounter = 0;
-	bCanAttack = true;
-	bIsRolling = false;
 }
 
 void APlayerCharacter::BeginPlay()
@@ -93,6 +88,9 @@ void APlayerCharacter::BeginPlay()
 	UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetControlRotation(StartOffset);
 
 	ResetDelay = true;
+
+	// clamp the value of SlowDownRate between 0 and 1
+	SlowDownRate = SlowDownRate>1?1:SlowDownRate<0?0:SlowDownRate;
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -128,8 +126,18 @@ float APlayerCharacter::GetDamage() const
 void APlayerCharacter::ResetCanAttack()
 {
 	bCanAttack=true;
-	AudioComponent->Stop();
 	StopAnimMontage(StunAnimation);
+}
+
+void APlayerCharacter::ResetSlowDown()
+{
+	SlowDownAccumulator=0;
+}
+
+void APlayerCharacter::ResetStun()
+{
+	bIsStun=false;
+	SlowDownAccumulator=0;
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -161,7 +169,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 
 void APlayerCharacter::Jump()
 {
-	if(bIsRolling || !bCanAttack)
+	if(bIsRolling || !bCanAttack || bIsStun)
 		return;
 		
 	bPressedJump = true;
@@ -398,35 +406,37 @@ void APlayerCharacter::UseSeed()
 
 void APlayerCharacter::ReceiveDamage()
 {
-	if (bIsRolling || !bCanAttack)
+	if (bIsRolling || !bCanAttack || bIsStun)
 		return;
-	GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Player receiving damage");
-	LaunchCharacter(GetActorForwardVector() * KnockOutForce * -1,true,true);
 
-	bCanAttack=false;
-	
-	if(MaxHitReceived==HitReceivedCounter)
+	OnDamageReceive();
+
+	//Is Stun : Mouvement 0
+	if(SlowDownAccumulator>=1)
 	{
-		PlayAnimMontage(StunAnimation);
-		
-		AudioComponent->SetSound(StunSound);
-		AudioComponent->Play();
-		
-		GetWorldTimerManager().SetTimer(StunHandle,this,&APlayerCharacter::ResetCanAttack,StunTime,false);
+		bIsStun=true;
+		OnStun();
+		PlayAnimMontage(StunAnimation);		
+		GetWorldTimerManager().SetTimer(StunHandle,this,&APlayerCharacter::ResetStun,StunTime,false);
 
-		HitReceivedCounter=0;
+		SlowDownAccumulator=0;
 		return;
 	}
-			
-	OnResetCombo();
-
-	PlayAnimMontage(GetHitAnimation);
 	
-	AudioComponent->SetSound(StunSound);
-	AudioComponent->Play();
-	
-	GetWorldTimerManager().SetTimer(HitHandle,this,&APlayerCharacter::ResetCanAttack,HitStunTime,false);
+	/**Slow down due to hit**/
 
+	ResetCombo();
+	
+	SlowDownAccumulator+=SlowDownRate;
+	
+	//Clamp SlowDownAccumulator
+	SlowDownAccumulator = SlowDownAccumulator>1?1:SlowDownAccumulator<0?0:SlowDownAccumulator;
+	
+	GetWorldTimerManager().SetTimer(SlowDownHandle,this,&APlayerCharacter::ResetSlowDown,SlowDownTime,false);
+	
+	if(GetHitAnimation)
+		PlayAnimMontage(GetHitAnimation);
+	
 	HitReceivedCounter++;
 
 }
@@ -480,25 +490,28 @@ void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, 
 void APlayerCharacter::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	OverlapActor=OtherActor;
+	if(OtherActor->IsA(AEnemy::StaticClass()))
+	{
+		Cast<AEnemy>(OtherActor)->ReceiveDamage(GetDamage());
+		bTouchedEnemy=true;
+	}
 }
 
 void APlayerCharacter::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	OverlapActor=nullptr;
+	bTouchedEnemy=false;
 }
 
 void APlayerCharacter::WeaponCollisionTest() const
 {
-	if(!IsValid(OverlapActor))
-		return;
+	RightWeapon->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
 
-	if(OverlapActor->IsA(AEnemy::StaticClass()))
-	{
-		Cast<AEnemy>(OverlapActor)->ReceiveDamage(GetDamage());	
-	}
-	
+void APlayerCharacter::WeaponCollisionTestEnd()
+{
+	RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	bTouchedEnemy=false;
 }
 
 void APlayerCharacter::TurnAtRate(const float Rate)
@@ -518,28 +531,27 @@ void APlayerCharacter::OnValidateAttack()
 	bCanAttack = true;
 }
 
-void APlayerCharacter::OnResetCombo()
+void APlayerCharacter::ResetCombo()
 {
+	OnResetCombo();
 	AttackCounter=0;
 	bCanAttack = true;
 }
 
 void APlayerCharacter::Attack()
 {
-	if(!bCanAttack || bIsRolling)
+	if(!bCanAttack || bIsRolling || bIsStun)
 		return;
-
-	// if(AttackCounter>Combo.Num())
-	// 	OnResetCombo();
 	
 	bCanAttack=false;
 	PlayAnimMontage(Combo[AttackCounter]);
 	AttackCounter++;
+	OnCombo(AttackCounter);
 }
 
 void APlayerCharacter::Dodge()
 {
-	if(!bCanAttack || bIsRolling || MovementComponent->IsFalling() )
+	if(!bCanAttack|| bIsStun || bIsRolling || MovementComponent->IsFalling() )
 		return;
 	
 	bIsRolling=true;	
@@ -626,7 +638,7 @@ void APlayerCharacter::UnregisterEnemy(APawn* Pawn)
 
 void APlayerCharacter::MoveForward(const float Value)
 {
-	if(!bCanAttack)
+	if(bIsStun)
 		return;
 	
 	if (Controller && Value != 0.0f)
@@ -637,13 +649,13 @@ void APlayerCharacter::MoveForward(const float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value);
+		AddMovementInput(Direction, Value*(1-SlowDownAccumulator));
 	}
 }
 
 void APlayerCharacter::MoveRight(const float Value)
 {
-	if(!bCanAttack)
+	if(bIsStun)
 		return;
 	
 	if ( Controller && Value != 0.0f )
@@ -655,6 +667,6 @@ void APlayerCharacter::MoveRight(const float Value)
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		// add movement in that direction
-		AddMovementInput(Direction, Value);
+		AddMovementInput(Direction, Value*(1-SlowDownAccumulator));
 	}
 }

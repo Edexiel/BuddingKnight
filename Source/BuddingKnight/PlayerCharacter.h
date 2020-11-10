@@ -15,9 +15,6 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Audio, meta = (AllowPrivateAccess = "true"))
-	class UAudioComponent* AudioComponent;
-
 	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	class USpringArmComponent* CameraBoom;
@@ -58,17 +55,17 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	/**	Attack counter for combo **/
 	uint32 AttackCounter{0};
 
-	/** Max hit before being totally KO **/
-	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
-	int MaxHitReceived;
-
 	/** Duration of stun **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	float StunTime;
 
-	/** Duration of hit stun **/
+	/** Slow down rate [0-1] **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
-	float HitStunTime;
+	float SlowDownRate;
+
+	/** Time without hit when the player recovers his speed **/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	float SlowDownTime;
 	
 	/** Duration of knock out **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
@@ -77,11 +74,14 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	int HitReceivedCounter{0};
 	
 	//BPStates
+	//CanAttack, used for combo
 	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
-	bool bCanAttack;
+	bool bCanAttack{true};
 	
 	UPROPERTY(BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
-	bool bIsRolling;
+	bool bIsRolling{false};
+
+	bool bIsStun{false};
 
 	UPROPERTY(EditAnywhere)
 	float BaseDamage;
@@ -89,14 +89,21 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY()
 	float BonusDamage;
 
-	UPROPERTY()
-	AActor* OverlapActor{nullptr};
-
 	FTimerHandle StunHandle;
-	FTimerHandle HitHandle;
+	FTimerHandle SlowDownHandle;
+	
+	bool bTouchedEnemy;
+	
+	float SlowDownAccumulator{0};
 
 	UFUNCTION()
 	void ResetCanAttack();
+
+	UFUNCTION()
+	void ResetSlowDown();
+
+	UFUNCTION()
+	void ResetStun();
 
 public:
 	APlayerCharacter();
@@ -192,61 +199,11 @@ public:
 
 	UFUNCTION(BlueprintCallable)
     void WeaponCollisionTest() const;
-
-	
-protected:
-	
-	/** Called for forwards/backward input */
-	void MoveForward(float Value);
-
-	/** Called for side to side input */
-	void MoveRight(float Value);
-
-	/** 
-	* Called via input to turn at a given rate. 
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	void TurnAtRate(float Rate);
-
-	/**
-	* Called via input to turn look up/down at a given rate. 
-	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
-	*/
-	void LookUpAtRate(float Rate);
-	void Attack();
-	void Dodge();
-	void SelectLeft();
-	void SelectRight();
-
-	UFUNCTION(BlueprintCallable)
-	void OnValidateAttack();
 	
 	UFUNCTION(BlueprintCallable)
-	void OnResetCombo();
+	void WeaponCollisionTestEnd();
 
-	virtual void BeginPlay() override;
-
-	void ResetCameraLock(const float);
-	
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UPROPERTY()
-	FTimerHandle TimeHandleSoftLock;
-
-	UFUNCTION()
-	void DelaySoftLock();
-
-	UFUNCTION()
-	void ResetSoftLock();
-	
-	UPROPERTY()
-	FRotator OldCameraBoomRotation;
-
-	UPROPERTY()
-	bool OldCameraBoomRotationIsSet{false};
-	
-public:
-	/** Returns CameraBoom subobject **/
+		/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	
 	/** Returns FollowCamera subobject **/
@@ -284,6 +241,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage();
 
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnDamageReceive();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnStun();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnResetCombo();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnCombo(int Value);
+
 	UFUNCTION()
     void OnCapsuleBeginOverlap(class UPrimitiveComponent* OverlappedComp,
     					class AActor* OtherActor,
@@ -311,4 +280,56 @@ public:
                         AActor* OtherActor,
                         UPrimitiveComponent* OtherComp,
                     int32 OtherBodyIndex);
+	
+protected:
+	
+	/** Called for forwards/backward input */
+	void MoveForward(float Value);
+
+	/** Called for side to side input */
+	void MoveRight(float Value);
+
+	/** 
+	* Called via input to turn at a given rate. 
+	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+	*/
+	void TurnAtRate(float Rate);
+
+	/**
+	* Called via input to turn look up/down at a given rate. 
+	* @param Rate	This is a normalized rate, i.e. 1.0 means 100% of desired turn rate
+	*/
+	void LookUpAtRate(float Rate);
+	void Attack();
+	void Dodge();
+	void SelectLeft();
+	void SelectRight();
+
+	UFUNCTION(BlueprintCallable)
+	void OnValidateAttack();
+	
+	UFUNCTION(BlueprintCallable)
+	void ResetCombo();
+
+	virtual void BeginPlay() override;
+
+	void ResetCameraLock(const float);
+	
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY()
+	FTimerHandle TimeHandleSoftLock;
+
+	UFUNCTION()
+	void DelaySoftLock();
+
+	UFUNCTION()
+	void ResetSoftLock();
+	
+	UPROPERTY()
+	FRotator OldCameraBoomRotation;
+
+	UPROPERTY()
+	bool OldCameraBoomRotationIsSet{false};
+
 };
