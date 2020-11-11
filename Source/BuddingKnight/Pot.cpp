@@ -9,6 +9,8 @@
 
 #include "Plant.h"
 #include "PlayerCharacter.h"
+#include "Spore.h"
+#include "Engine/Engine.h"
 
 
 // Sets default values
@@ -44,6 +46,7 @@ void APot::BeginPlay()
 	Plant = nullptr;
 	Player = nullptr;
 	PlayerIsDetected = false;
+	PassiveIsActive = false;
 }
 
 // Called every frame
@@ -75,7 +78,11 @@ void APot::Tick(float DeltaTime)
 	if(Plant && Plant->GetDetectPlayer() != PlayerIsDetected)
 	{
 		Plant->SetDetectPlayer(PlayerIsDetected);
-		Plant->Passive(Player);
+		if(!PassiveIsActive)
+		{
+			Plant->Passive(Player);
+			PassiveIsActive = true;
+		}
 	}
 }
 
@@ -121,6 +128,7 @@ void APot::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
 		PlayerIsDetected = true;
+		PassiveIsActive = false;
 		Player = Cast<APlayerCharacter>(OtherActor);
 	}
 }
@@ -130,7 +138,11 @@ void APot::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 {
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()) && Player == OtherActor)
 	{
+		if(Plant->IsA(ASpore::StaticClass()))
+			Cast<ASpore>(Plant)->DestroyPassiveSpore();
+		
 		PlayerIsDetected = false;
+		PassiveIsActive = false;
 		Player->UnsetBonusDamage();
 		Player->ChangeSword(ESwords::E_Basic);
 		Player = nullptr;

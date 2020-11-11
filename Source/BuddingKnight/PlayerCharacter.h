@@ -56,7 +56,7 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 
 	/**	Attack counter for combo **/
 	uint32 AttackCounter{0};
-
+	
 	/** Duration of stun **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	float StunTime;

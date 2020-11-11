@@ -53,6 +53,9 @@ protected:
 
 	UPROPERTY()
 	bool PlayerIsDetected;
+	
+	UPROPERTY()
+	bool PassiveIsActive;
 
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<EPlantType> TypeOfPlant;

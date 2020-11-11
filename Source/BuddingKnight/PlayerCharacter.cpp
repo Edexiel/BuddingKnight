@@ -66,8 +66,7 @@ APlayerCharacter::APlayerCharacter()
 	RightWeapon->SetupAttachment(GetMesh(),TEXT("hand_rSocket"));
 	RightWeapon->OnComponentBeginOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponBeginOverlap);
 	RightWeapon->OnComponentEndOverlap.AddDynamic(this, &APlayerCharacter::OnWeaponEndOverlap);
-
-	
+		
 	AttackCounter = 0;
 }
 
@@ -95,7 +94,6 @@ void APlayerCharacter::BeginPlay()
 
 	RightWeapon->SetStaticMesh(Swords[E_Basic]);
 	RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 }
 
 void APlayerCharacter::Tick(float DeltaSeconds)
@@ -517,6 +515,7 @@ void APlayerCharacter::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, A
 {
 	bTouchedEnemy=false;
 }
+
 
 void APlayerCharacter::WeaponCollisionTest() const
 {

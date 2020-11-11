@@ -2,7 +2,8 @@
 
 
 #include "Spore.h"
-
+#include "PassiveSpore.h"
+#include "PlayerCharacter.h"
 #include "Enemy.h"
 #include "SporeProjectile.h"
 #include "Engine/World.h"
@@ -15,8 +16,16 @@ ASpore::ASpore()
 
 void ASpore::Passive(APlayerCharacter* Player)
 {
-   if(Player)
+   if(!Player)
       return;
+
+   PassiveSpore = GetWorld()->SpawnActor<APassiveSpore>(PassiveSporeClass, SpawnPointProjectile->GetComponentTransform());
+}
+
+void ASpore::DestroyPassiveSpore()
+{
+   if(PassiveSpore)
+      PassiveSpore->Destroy();
 }
 
 void ASpore::Special()
