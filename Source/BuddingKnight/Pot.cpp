@@ -138,8 +138,9 @@ void APot::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 {
 	if (OtherActor->IsA(APlayerCharacter::StaticClass()) && Player == OtherActor)
 	{
-		if(Plant->IsA(ASpore::StaticClass()))
-			Cast<ASpore>(Plant)->DestroyPassiveSpore();
+		if(Plant)
+			if(Plant->IsA(ASpore::StaticClass()))
+				Cast<ASpore>(Plant)->DestroyPassiveSpore();
 		
 		PlayerIsDetected = false;
 		PassiveIsActive = false;
