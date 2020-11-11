@@ -56,7 +56,7 @@ void ATree::OnAttackBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor*
         if(!Enemy->IsAlreadyTakeDamage)
         {
             GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET HIT"));
-            Enemy->ReceiveDamage(1.f);
+            Enemy->ReceiveDamage(Damage);
             Enemy->IsAlreadyTakeDamage = true;
         }
     }

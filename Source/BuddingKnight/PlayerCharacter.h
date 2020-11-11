@@ -233,6 +233,9 @@ public:
 	//Search the closest enemy in enemies.
 	UFUNCTION()
     void SearchClosestEnemy();
+
+	UFUNCTION(BlueprintCallable)
+    void TakeSeed(ASeed* Seed);
 	
 	UFUNCTION(BlueprintCallable)
     void UseSeed();

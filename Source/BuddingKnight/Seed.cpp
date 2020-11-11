@@ -2,8 +2,11 @@
 
 
 #include "Seed.h"
+
+#include "PlayerCharacter.h"
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/Engine.h"
 
 // Sets default values
 ASeed::ASeed()
@@ -25,7 +28,9 @@ ASeed::ASeed()
 void ASeed::BeginPlay()
 {
 	Super::BeginPlay();
+
 	RandomTypeOfSeed();
+	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASeed::OnCollisionSphereBeginOverlap);
 	OnAfterBeginPlay();
 }
 
@@ -51,4 +56,14 @@ void ASeed::RandomTypeOfSeed()
 		Type = EPlantType::Liana;
 	else if(Rate >= DropRateTree + DropRateLiana && Rate < DropRateTree + DropRateLiana + DropRateSpore)
 		Type = EPlantType::Spore;
+}
+
+void ASeed::OnCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+                                          UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
+	{
+		Cast<APlayerCharacter>(OtherActor)->TakeSeed(this);
+		Destroy();
+	}
 }

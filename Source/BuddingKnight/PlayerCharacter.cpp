@@ -373,6 +373,27 @@ void APlayerCharacter::SearchClosestEnemy()
 	}
 }
 
+void APlayerCharacter::TakeSeed(ASeed* Seed)
+{
+	switch(Seed->GetType())
+	{
+	case Tree:
+		NbTreeSeed++;
+		break;
+			
+	case Liana:
+		NbLianaSeed++;
+		break;
+			
+	case Spore:
+		NbSporeSeed++;
+		break;
+			
+	default:
+		break;
+	}
+}
+
 void APlayerCharacter::UseSeed()
 {
 	if(ClosestPot == nullptr || ClosestPot->GetHaveASeed())
@@ -464,37 +485,11 @@ bool APlayerCharacter::IsStun() const
 void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
                                              UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	
-	if (OtherActor->IsA(ASeed::StaticClass()))
-	{
-		ASeed* Seed = Cast<ASeed>(OtherActor);
-		switch(Seed->GetType())
-		{
-			case Tree:
-				NbTreeSeed++;
-				break;
-			
-			case Liana:
-				NbLianaSeed++;
-				break;
-			
-			case Spore:
-				NbSporeSeed++;
-				break;
-			
-			default:
-				break;
-		}
-		OtherActor->Destroy();
-		return;
-	}
-
 	if (OtherActor->IsA(APot::StaticClass()) && OtherComp->IsA(USphereComponent::StaticClass()))
 	{
 		ClosestPot = Cast<APot>(OtherActor);
 		return;
 	}
-
 }
 
 void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

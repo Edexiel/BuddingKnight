@@ -25,11 +25,7 @@ void ASpore::Special()
 }
 
 void ASpore::SpawnProjectile() const
-{
-   /*FActorSpawnParameters Param;
-   Param.bAllowDuringConstructionScript = false;
-   Param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;*/
-   
+{  
    ASporeProjectile* Projectile = GetWorld()->SpawnActor<ASporeProjectile>(ProjectileClass, SpawnPointProjectile->GetComponentTransform());
 
    if(Projectile)

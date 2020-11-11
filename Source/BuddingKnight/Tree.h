@@ -24,6 +24,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category="Bonus")
 	float DamageBonus{0};
+
+	UPROPERTY(EditAnywhere, Category="Attack")
+	float Damage{0};
 	
 	virtual void Special() override;
 
