@@ -8,6 +8,7 @@
 
 
 #include "AIC_EnemyCAC.h"
+#include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "PlayerCharacter.h"
 #include "Pot.h"
@@ -111,7 +112,28 @@ void AEnemy::WeaponCollisionTestEnd()
 
 void AEnemy::Attack()
 {
-	PlayAnimMontage(AttackAnimMontage);
+	if(!IsDead())
+		PlayAnimMontage(AttackAnimMontage);
+}
+
+void AEnemy::Freeze()
+{
+	if(!IsValid(GetController()))
+		return;
+	
+	OnLianaFreeze();
+	GetController()->StopMovement(); 
+	Cast<AAIC_EnemyCAC>(GetController())->GetBrainComponent()->PauseLogic("Freezed");
+}
+
+void AEnemy::UnFreeze()
+{
+	if(!IsValid(GetController()))
+		return;
+	
+	OnLianaUnFreeze();
+	
+	Cast<AAIC_EnemyCAC>(GetController())->GetBrainComponent()->ResumeLogic("UnFreeze");
 }
 
 void AEnemy::ResetGettingHit()

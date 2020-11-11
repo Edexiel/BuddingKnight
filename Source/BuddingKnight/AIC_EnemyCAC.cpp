@@ -66,6 +66,7 @@ void AAIC_EnemyCAC::SetTarget(AActor* Actor)
 void AAIC_EnemyCAC::SetDead() const
 {
     Blackboard->SetValueAsBool("isAlive",false);
+    PlayerCharacter->UnregisterEnemy(GetPawn());
 }
 
 void AAIC_EnemyCAC::Tick(float DeltaTime)
@@ -85,10 +86,10 @@ void AAIC_EnemyCAC::Tick(float DeltaTime)
     if(!IsValid(enemy))
         return;
 
-    if(enemy->IsDead())
-    {
-        PlayerCharacter->UnregisterEnemy(GetPawn());
-    }
+    // if(enemy->IsDead())
+    // {
+    //     PlayerCharacter->UnregisterEnemy(GetPawn());
+    // }
     
     const float Distance = GetPawn()->GetDistanceTo(PlayerCharacter);
 

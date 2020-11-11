@@ -54,7 +54,6 @@ protected:
 	UPROPERTY()
 	float RotSpeed;
 
-	
 	UPROPERTY()
 	FTimerHandle TimeHandleDelay;
 
