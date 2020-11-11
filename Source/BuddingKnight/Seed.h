@@ -38,6 +38,9 @@ public:
 	
 	UPROPERTY(EditAnywhere,Category="Seed", BlueprintReadWrite)
 	float DropRateSpore;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPickedByPlayer();
 	
 protected:
 	// Called when the game starts or when spawned

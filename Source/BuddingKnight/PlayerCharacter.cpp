@@ -376,6 +376,8 @@ void APlayerCharacter::SearchClosestEnemy()
 
 void APlayerCharacter::TakeSeed(ASeed* Seed)
 {
+	OnSeedPick(Seed->GetType());
+	
 	switch(Seed->GetType())
 	{
 	case Tree:
@@ -508,6 +510,7 @@ void APlayerCharacter::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp,
 {
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
+		OnEnemyHit();
 		Cast<AEnemy>(OtherActor)->ReceiveDamage(GetDamage());
 		bTouchedEnemy=true;
 	}

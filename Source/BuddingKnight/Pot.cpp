@@ -91,6 +91,7 @@ bool APot::GetHaveASeed() const
 
 void APot::SetCanPlant(const bool& Boolean)
 {
+	OnSeedPlanted(TypeOfPlant);
 	CanPlant = Boolean;
 }
 
@@ -109,9 +110,8 @@ void APot::ReceiveDamage(const float Value)
 	BaseComponent->TakeDamage(Value);
 	OnReceiveDamage(BaseComponent->GetHealth());
 
-	if(BaseComponent->GetHealth()==0)
+	if(BaseComponent->GetHealth()<=0.1f)
 		OnPotDestroy();
-	
 }
 
 

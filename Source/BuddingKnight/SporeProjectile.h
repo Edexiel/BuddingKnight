@@ -12,6 +12,9 @@ class BUDDINGKNIGHT_API ASporeProjectile : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ASporeProjectile();
+	
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnImpact();
 
 protected:
 	UPROPERTY(EditAnywhere)

@@ -156,15 +156,15 @@ void AEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 {
 	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Enemy touching "+OtherActor->GetActorLabel());
+		OnPlayerHit();
 		Cast<APlayerCharacter>(OtherActor)->ReceiveDamage();
 		bTouchedPlayer=true;
 	}
 
 	if(OtherActor->IsA(APot::StaticClass()))
 	{
-		//GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Enemy touching "+OtherActor->GetActorLabel());
 		Cast<APot>(OtherActor)->ReceiveDamage(Damage);
+		OnPotHit();
 	}
 	
 }
