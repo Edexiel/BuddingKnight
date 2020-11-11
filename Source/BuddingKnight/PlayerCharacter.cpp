@@ -91,6 +91,7 @@ void APlayerCharacter::BeginPlay()
 
 	// clamp the value of SlowDownRate between 0 and 1
 	SlowDownRate = SlowDownRate>1?1:SlowDownRate<0?0:SlowDownRate;
+	InFightSpeedRate = InFightSpeedRate>1?1:InFightSpeedRate<0?0:InFightSpeedRate;
 
 	RightWeapon->SetStaticMesh(Swords[E_Basic]);
 	RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
@@ -663,7 +664,12 @@ void APlayerCharacter::MoveForward(const float Value)
 
 		// get forward vector
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-		AddMovementInput(Direction, Value*(1-SlowDownAccumulator));
+
+		float ScaleValue = Value*(1-SlowDownAccumulator);
+		if(!bCanAttack)
+			ScaleValue *= (1-InFightSpeedRate);
+		
+		AddMovementInput(Direction, ScaleValue);
 	}
 }
 
@@ -680,7 +686,13 @@ void APlayerCharacter::MoveRight(const float Value)
 	
 		// get right vector 
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		
+		float ScaleValue = Value*(1-SlowDownAccumulator);
+		
+		if(!bCanAttack)
+			ScaleValue *= (1-InFightSpeedRate);
+			
 		// add movement in that direction
-		AddMovementInput(Direction, Value*(1-SlowDownAccumulator));
+		AddMovementInput(Direction, ScaleValue);
 	}
 }

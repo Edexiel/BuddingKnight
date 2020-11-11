@@ -67,6 +67,7 @@ protected:
 
 	UPROPERTY()
 	int NbTick{0};
+
 	
 public:
 
@@ -87,8 +88,13 @@ public:
 	void OnDamageReceive();
 
 	UFUNCTION(BlueprintImplementableEvent)
-    void OnDeath(FVector Position);
+	void OnLianaFreeze();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnLianaUnFreeze();
+
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnDeath(FVector Position);
 	
 	UFUNCTION(BlueprintCallable)
     void OnDamageReceiveByTick(const float Value, int NbOfTick = 3);
@@ -101,6 +107,13 @@ public:
 
 	UFUNCTION()
 	void Attack();
+
+	UFUNCTION()
+	void Freeze();
+
+	UFUNCTION()
+	void UnFreeze();
+
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;

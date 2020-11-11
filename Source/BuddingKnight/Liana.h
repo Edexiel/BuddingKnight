@@ -16,9 +16,15 @@ class BUDDINGKNIGHT_API ALiana : public APlant
 	
 protected:
 
+	UPROPERTY()
+	FTimerHandle FreezeHandle;
+	
 	UPROPERTY(EditAnywhere)
-	float Timer{5.f};
+	float UnFreezeTimer{5.f};
+
+	void UnFreeze();
 	
 	virtual void Special() override;
 	virtual void Passive(APlayerCharacter* Player) override;
+	
 };
