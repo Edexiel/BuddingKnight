@@ -84,6 +84,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void ReceiveDamage(const float Value);
 
+	/* Events */
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDamageReceive();
 
@@ -98,6 +99,14 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
     void OnDamageReceiveByTick(const float Value, int NbOfTick = 3);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPotHit();
+
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnPlayerHit();
+	
+	/*End Events*/
 
 	UFUNCTION(BlueprintCallable)
 	void WeaponCollisionTest() const;

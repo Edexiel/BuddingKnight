@@ -17,6 +17,9 @@ public:
 	virtual void BeginPlay() override;
 
     virtual void Passive(APlayerCharacter* Player) override;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEnemyHit();
 	
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
@@ -31,12 +34,12 @@ protected:
 	virtual void Special() override;
 
     UFUNCTION()
-    	void OnAttackBoxBeginOverlap(class UPrimitiveComponent* OverlappedComp,
-    	                    class AActor* OtherActor,
-    	                    class UPrimitiveComponent* OtherComp,
-    	                    int32 OtherBodyIndex,
-    	                    bool bFromSweep,
-    	                    const FHitResult& SweepResult);
+    void OnAttackBoxBeginOverlap(class UPrimitiveComponent* OverlappedComp,
+                        class AActor* OtherActor,
+                        class UPrimitiveComponent* OtherComp,
+                        int32 OtherBodyIndex,
+                        bool bFromSweep,
+                        const FHitResult& SweepResult);
 
 	UFUNCTION()
     void OnAttackBoxEndOverlap(UPrimitiveComponent* OverlappedComp,

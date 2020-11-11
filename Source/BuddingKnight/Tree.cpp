@@ -51,11 +51,10 @@ void ATree::OnAttackBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor*
     
     if(OtherActor->IsA(AEnemy::StaticClass()))
     {
-        GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("ATTACK"));
         AEnemy* Enemy = Cast<AEnemy>(OtherActor);
         if(!Enemy->IsAlreadyTakeDamage)
         {
-            GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("GET HIT"));
+            OnEnemyHit();       
             Enemy->ReceiveDamage(Damage);
             Enemy->IsAlreadyTakeDamage = true;
         }

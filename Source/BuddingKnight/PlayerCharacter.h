@@ -279,6 +279,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnChangeSword(ESwords SwordType);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnEnemyHit();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSeedPick(EPlantType Type);
+
 	/* End events */
 
 	/* Collisions */

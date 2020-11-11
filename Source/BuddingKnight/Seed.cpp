@@ -63,6 +63,7 @@ void ASeed::OnCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, A
 {
 	if(OtherActor->IsA(APlayerCharacter::StaticClass()))
 	{
+		OnPickedByPlayer();
 		Cast<APlayerCharacter>(OtherActor)->TakeSeed(this);
 		Destroy();
 	}

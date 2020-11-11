@@ -94,6 +94,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
     void OnPotDestroy();
 
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnSeedPlanted(EPlantType Type);
+
 protected:
 	
 	UFUNCTION()
