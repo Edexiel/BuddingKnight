@@ -68,6 +68,10 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	/** Time without hit when the player recovers his speed **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	float SlowDownTime;
+
+	/** Fighting Slow down rate [0-1] **/
+	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
+	float InFightSpeedRate;
 	
 	int HitReceivedCounter{0};
 	
