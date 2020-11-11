@@ -17,7 +17,6 @@ void ASpore::Passive(APlayerCharacter* Player)
 {
    if(Player)
       return;
-   // To do: PlayerChangeSword
 }
 
 void ASpore::Special()
@@ -27,6 +26,12 @@ void ASpore::Special()
 
 void ASpore::SpawnProjectile() const
 {
+   /*FActorSpawnParameters Param;
+   Param.bAllowDuringConstructionScript = false;
+   Param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::DontSpawnIfColliding;*/
+   
    ASporeProjectile* Projectile = GetWorld()->SpawnActor<ASporeProjectile>(ProjectileClass, SpawnPointProjectile->GetComponentTransform());
-   Projectile->SetTarget(ClosestEnemy);
+
+   if(Projectile)
+      Projectile->SetTarget(ClosestEnemy);
 }

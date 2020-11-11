@@ -13,8 +13,8 @@ void ALiana::Special()
 
 void ALiana::Passive(APlayerCharacter* Player)
 {
-    if(Player)
+    if(!Player)
         return;
-     
+    
    Player->ChangeSword(ESwords::E_Plant);
 }

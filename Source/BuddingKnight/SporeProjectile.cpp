@@ -31,7 +31,6 @@ void ASporeProjectile::OnSphereBeginOverlap(class UPrimitiveComponent* Overlappe
 											int32 OtherBodyIndex, bool bFromSweep,
 											const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("COOOOLLLLIIIISSSSIIIONN"));
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 		Cast<AEnemy>(OtherActor)->OnDamageReceiveByTick(Damage, NbTick); 
 	Destroy();
