@@ -79,11 +79,16 @@ void APlant::Special()
 }
 
 void APlant::SearchClosestEnemy()
-{
+{	
 	if(Enemies.Num() == 0)
 		return;
-	
-	else if (Enemies.Num() >= 1 && ClosestEnemy == nullptr)
+		
+	else if (Enemies.Num() == 1 && ClosestEnemy == nullptr)
+	{
+		ClosestEnemy = Enemies[0];
+		return;
+	}
+	else if (Enemies.Num() > 1 && ClosestEnemy == nullptr)
 		ClosestEnemy = Enemies[0];
 	
 	for (AEnemy* Pawn : Enemies)
@@ -98,7 +103,7 @@ void APlant::SearchClosestEnemy()
 			DistanceToClosestEnemy = NewDistance;
 		}
 		
-		if(NewDistance < DistanceToClosestEnemy)
+		else if(NewDistance < DistanceToClosestEnemy)
 		{
 			ClosestEnemy = Pawn;
 			DistanceToClosestEnemy = NewDistance;
@@ -162,6 +167,9 @@ void APlant::OnSphereDetectionOverlapEnd(UPrimitiveComponent* OverlappedComp, AA
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
 		Enemies.Remove(Cast<AEnemy>(OtherActor));
-		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Remove enemy!");
+		if(OtherActor == ClosestEnemy)
+		{
+			ClosestEnemy = nullptr;
+		}
 	}
 }

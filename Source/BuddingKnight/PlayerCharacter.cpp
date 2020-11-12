@@ -639,7 +639,6 @@ void APlayerCharacter::UnregisterEnemy(APawn* Pawn)
 	if(Enemies.Contains(Pawn))
 	{
 		Enemies.Remove(Pawn);
-		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,"Enemy unregistered "+ FString::FromInt(Enemies.Num()));
 		
 		if(Pawn == LockEnemy)
 			LockEnemy = nullptr;
