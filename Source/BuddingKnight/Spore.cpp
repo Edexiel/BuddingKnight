@@ -19,6 +19,7 @@ void ASpore::Passive(APlayerCharacter* Player)
    if(!Player)
       return;
 
+   Player->ChangeSword(ESwords::E_Spore);
    PassiveSpore = GetWorld()->SpawnActor<APassiveSpore>(PassiveSporeClass, SpawnPointProjectile->GetComponentTransform());
 }
 

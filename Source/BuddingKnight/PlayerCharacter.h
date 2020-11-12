@@ -13,7 +13,8 @@ enum ESwords
 {
 	E_Basic,
 	E_Plant,
-	E_Tree
+	E_Tree,
+	E_Spore
 };
 
 UCLASS()
