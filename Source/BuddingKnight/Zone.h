@@ -15,13 +15,13 @@ public:
 	// Sets default values for this actor's properties
 	AZone();
 
-	UPROPERTY(EditAnywhere, Category=Pot)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Pot)
 	class APot * Pot1;
 	
-	UPROPERTY(EditAnywhere, Category=Pot)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Pot)
 	class APot * Pot2;
 	
-	UPROPERTY(EditAnywhere, Category=Pot)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Pot)
 	class APot * Pot3;
 	
 protected:
