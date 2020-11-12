@@ -60,16 +60,14 @@ void APlant::UseSpecial()
 {
 	if(!DetectPlayer)
 		return;
-	
-	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerPawn(this,0));
 
 	if(CanUseSpecial && DetectPlayer)
 	{
 		AnimationCooldown = PlayAnimMontage(AttackAnimation);
-		
 		Special();
 		CanUseSpecial = false;
 		Delay();
+		OnSpecial(TimeHandleDelay);
 	}
 }
 

@@ -3,7 +3,6 @@
 #pragma once
 
 #include "CoreMinimal.h"
-//#include "GameFramework/Pawn.h"
 #include "GameFramework/Character.h"
 
 #include "Plant.generated.h"
@@ -54,8 +53,6 @@ protected:
 	UPROPERTY()
 	float RotSpeed;
 
-	UPROPERTY()
-	FTimerHandle TimeHandleDelay;
 
 	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
 	class UAnimMontage* SpawnAnimation;
@@ -79,6 +76,10 @@ protected:
 
 	UFUNCTION()
     void LookAtClosestEnemy(const float DeltaTime);
+
+private:
+	UPROPERTY()
+	FTimerHandle TimeHandleDelay;
 	
 public:	
 	// Called every frame
@@ -107,4 +108,7 @@ public:
                         AActor* OtherActor,
                         UPrimitiveComponent* OtherComp,
                         int32 OtherBodyIndex);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnSpecial(FTimerHandle &TimeHandle);
 };
