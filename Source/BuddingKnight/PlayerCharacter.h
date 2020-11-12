@@ -111,6 +111,9 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 public:
 	APlayerCharacter();
 	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category=Zone)
+	class AZone* Zone;
+	
 	virtual void Tick(float DeltaSeconds) override;
 
 	/** Base turn rate, in deg/sec. Other scaling may affect final turn rate. */
