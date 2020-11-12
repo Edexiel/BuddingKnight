@@ -40,6 +40,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	TSubclassOf<class APlant> Spore;
+
+	UFUNCTION(BlueprintImplementableEvent)
+    void OnPlayerEnter();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnPlayerLeave();
 		
 protected:
 	// Called when the game starts or when spawned

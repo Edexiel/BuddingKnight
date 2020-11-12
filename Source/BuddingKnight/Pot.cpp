@@ -130,6 +130,8 @@ void APot::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherA
 		PlayerIsDetected = true;
 		PassiveIsActive = false;
 		Player = Cast<APlayerCharacter>(OtherActor);
+		
+		OnPlayerEnter();
 	}
 }
 
@@ -149,5 +151,7 @@ void APot::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 		Player->UnsetBonusDamage();
 		Player->ChangeSword(ESwords::E_Basic);
 		Player = nullptr;
+
+		OnPlayerLeave();
 	}
 }
