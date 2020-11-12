@@ -15,6 +15,7 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 {
      UBlackboardComponent* MyBlackBoard = OwnerComp.GetBlackboardComponent();
     
+    APlayerCharacter* Player = Cast<APlayerCharacter>(MyBlackBoard->GetValueAsObject("Player"));
     AActor* SelfActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("SelfActor"));
     AActor* Target = Cast<AActor>(MyBlackBoard->GetValueAsObject("Target"));
     AActor* FocusActor = Cast<AActor>(MyBlackBoard->GetValueAsObject("FocusActor"));
@@ -30,7 +31,7 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     //launch attack animation
     Cast<AEnemy>(SelfActor)->Attack();
     
-    if(Distance > AttackRange)
+    if(Distance > AttackRange && !Player->IsStun())
     {
         MyBlackBoard->SetValueAsObject("FocusActor",Target?Target:MyBlackBoard->GetValueAsObject("Player"));
         MyController->SetFocus(FocusActor);
