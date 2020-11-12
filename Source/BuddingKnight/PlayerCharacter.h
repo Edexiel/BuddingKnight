@@ -8,7 +8,7 @@
 #include "GameFramework/Character.h"
 #include "PlayerCharacter.generated.h"
 
-UENUM()
+UENUM(Blueprintable)
 enum ESwords
 {
 	E_Basic,

@@ -27,7 +27,7 @@ EBTNodeResult::Type UBTT_ChaseTarget::ExecuteTask(UBehaviorTreeComponent& OwnerC
         return EBTNodeResult::Failed;
     
     // if the player is in range of the enemy 
-    if(Distance<AttackRange && Player->IsTargetingPlayer(SelfActor->GetInstigator()))
+    if(Distance<AttackRange && Player->IsTargetingPlayer(SelfActor->GetInstigator()) && !Player->IsStun())
         MyBlackBoard->SetValueAsObject("FocusActor",Cast<AActor>(Player));
     else
         MyBlackBoard->SetValueAsObject("FocusActor",Target);
@@ -78,7 +78,7 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
     case EPathFollowingStatus::Moving:
         {
 
-            const bool bCloseAndValid = Distance < AttackRange && Player->IsTargetingPlayer(SelfActor->GetInstigator()) ;
+            const bool bCloseAndValid = Distance < AttackRange && Player->IsTargetingPlayer(SelfActor->GetInstigator()) && !Player->IsStun();
             // The enemy is moving towards it's target
             if(FocusActor==Target)
             {
