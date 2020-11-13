@@ -78,7 +78,7 @@ protected:
     void LookAtClosestEnemy(const float DeltaTime);
 
 private:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite, meta=(AllowPrivateAccess="true"))
 	FTimerHandle TimeHandleDelay;
 	
 public:	
@@ -108,7 +108,4 @@ public:
                         AActor* OtherActor,
                         UPrimitiveComponent* OtherComp,
                         int32 OtherBodyIndex);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void OnSpecial(FTimerHandle &TimeHandle);
 };

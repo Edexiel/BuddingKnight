@@ -67,7 +67,6 @@ void APlant::UseSpecial()
 		Special();
 		CanUseSpecial = false;
 		Delay();
-		OnSpecial(TimeHandleDelay);
 	}
 }
 
