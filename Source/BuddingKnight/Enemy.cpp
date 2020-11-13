@@ -15,6 +15,7 @@
 #include "TimerManager.h"
 #include "Tree.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "Components/SphereComponent.h"
 #include "Engine/Engine.h"
 
 // Sets default values
@@ -169,7 +170,7 @@ void AEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 		bTouchedPlayer=true;
 	}
 
-	if(OtherActor->IsA(APot::StaticClass()))
+	if(OtherActor->IsA(APot::StaticClass()) && OtherComp->IsA(USphereComponent::StaticClass()))
 	{
 		Cast<APot>(OtherActor)->ReceiveDamage(Damage);
 		OnPotHit();
