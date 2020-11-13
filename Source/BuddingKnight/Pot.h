@@ -23,7 +23,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* CollisionBox;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
 	class UStaticMeshComponent* Mesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
