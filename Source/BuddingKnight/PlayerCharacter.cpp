@@ -397,7 +397,7 @@ void APlayerCharacter::TakeSeed(ASeed* Seed)
 
 void APlayerCharacter::UseSeed()
 {
-	if(ClosestPot == nullptr || ClosestPot->GetHaveASeed())
+	if(ClosestPot == nullptr || ClosestPot->GetHaveASeed() || ClosestPot->GetIsDead())
 		return;
 
 	switch(TypeOfPlant)

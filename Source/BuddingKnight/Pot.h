@@ -95,6 +95,9 @@ public:
 	bool GetCanPlant() const;
 
 	UFUNCTION()
+    float GetIsDead() const;
+	
+	UFUNCTION()
 	void ReceiveDamage(const float Value);
 
 	UFUNCTION(BlueprintImplementableEvent)

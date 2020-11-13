@@ -54,10 +54,10 @@ protected:
 	float RotSpeed;
 
 
-	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
-	class UAnimMontage* SpawnAnimation;
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category=Animation,meta=(AllowPrivateAccess="true"))
+	class UAnimMontage* DieAnimation;
 	
-	UPROPERTY(EditAnywhere,Category=Animation,meta=(AllowPrivateAccess="true"))
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category=Animation,meta=(AllowPrivateAccess="true"))
 	class UAnimMontage* AttackAnimation;
 
 	UFUNCTION()

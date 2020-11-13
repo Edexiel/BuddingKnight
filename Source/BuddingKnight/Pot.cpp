@@ -47,12 +47,29 @@ void APot::BeginPlay()
 	Player = nullptr;
 	PlayerIsDetected = false;
 	PassiveIsActive = false;
+	IsDead = false;
 }
 
 // Called every frame
 void APot::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	if(IsDead)
+	{
+		if(PassiveIsActive)
+		{
+			if(IsValid(Plant))
+			{
+				if(Plant->IsA(ASpore::StaticClass()))
+					Cast<ASpore>(Plant)->DestroyPassiveSpore();
+
+				PassiveIsActive = false;
+				Player->UnsetBonusDamage();
+				Player->ChangeSword(ESwords::E_Basic);
+			}
+		}
+		return;
+	}
 	if(CanPlant && !HaveASeed)
 	{
 		switch(TypeOfPlant)
@@ -112,8 +129,16 @@ bool APot::GetCanPlant() const
 	return CanPlant;
 }
 
+float APot::GetIsDead() const
+{
+	return IsDead;
+}
+
 void APot::ReceiveDamage(const float Value) 
 {
+	if(IsDead)
+		return;
+	
 	BaseComponent->TakeDamage(Value);
 	OnReceiveDamage(BaseComponent->GetHealth());
 
