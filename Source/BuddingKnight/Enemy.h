@@ -32,6 +32,8 @@ class BUDDINGKNIGHT_API AEnemy : public ACharacter
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (AllowPrivateAccess = "true"))
 
 	float DepopTime;
+
+	bool bIsFrozen{false};
 	
 	void ResetGettingHit();
 	void Delete();
