@@ -169,7 +169,7 @@ void APlayerCharacter::SetupPlayerInputComponent(class UInputComponent* PlayerIn
 	// "turnrate" is for devices that we choose to treat as a rate of change, such as an analog joystick
 	PlayerInputComponent->BindAxis("Turn", this, &APawn::AddControllerYawInput);
 	PlayerInputComponent->BindAxis("TurnRate", this, &APlayerCharacter::TurnAtRate);
-	PlayerInputComponent->BindAxis("LookUp", this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis("LookUp", this, &APlayerCharacter::AddControllerPitchInput);
 	PlayerInputComponent->BindAxis("LookUpRate", this, &APlayerCharacter::LookUpAtRate);
 	PlayerInputComponent->BindAxis("ResetCameraLock", this, &APlayerCharacter::ResetCameraLock);
 }
@@ -398,6 +398,7 @@ void APlayerCharacter::TakeSeed(ASeed* Seed)
 void APlayerCharacter::UseSeed()
 {
 	if(ClosestPot == nullptr || ClosestPot->GetHaveASeed() || ClosestPot->GetIsDead())
+	if(ClosestPot == nullptr || ClosestPot->GetHaveASeed() || ClosestPot->GetIsDead())
 		return;
 
 	switch(TypeOfPlant)
@@ -518,6 +519,18 @@ void APlayerCharacter::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, A
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	bTouchedEnemy=false;
+}
+
+void APlayerCharacter::AddControllerPitchInput(float Val)
+{
+	if (Val != 0.f && Controller && Controller->IsLocalPlayerController())
+	{
+		if(IsInvertPitchAxis)
+			Val *= -1.f;
+		
+		APlayerController* const PC = CastChecked<APlayerController>(Controller);
+		PC->AddPitchInput(Val);
+	}
 }
 
 

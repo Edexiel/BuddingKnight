@@ -175,6 +175,9 @@ public:
 
 	UPROPERTY()
 	bool IsUsingSpecial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="InvertControl")
+	bool IsInvertPitchAxis{false};
 	
 	UPROPERTY()
 	float DistancePlayerLockEnemy;
@@ -321,6 +324,8 @@ public:
                     int32 OtherBodyIndex);
 
 	/* End Collisions */
+
+	virtual void AddControllerPitchInput(float Val) override;
 	
 protected:
 	
