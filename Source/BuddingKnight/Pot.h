@@ -63,6 +63,9 @@ protected:
 	UPROPERTY()
 	bool PassiveIsActive;
 
+	UPROPERTY(BlueprintReadWrite)
+	bool IsDead;
+	
 	UPROPERTY(EditAnywhere)
 	TEnumAsByte<EPlantType> TypeOfPlant;
 
