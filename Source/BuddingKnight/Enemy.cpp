@@ -56,8 +56,12 @@ void AEnemy::ReceiveDamage(const float Value)
 	OnDamageReceive();
 	
 	IsGettingHit = true;
-		
-	LaunchCharacter(GetActorForwardVector() * KnockBackForce * -1,true,true);
+
+	if(!bIsFrozen)
+	{
+		LaunchCharacter(GetActorForwardVector() * KnockBackForce * -1,true,true);
+	}
+	
 	const float RemainingTime = PlayAnimMontage(GettingHitAnimMontage);
 	GetWorldTimerManager().SetTimer(GettingHitHandle,this,&AEnemy::ResetGettingHit,RemainingTime,false);
 
@@ -79,7 +83,7 @@ void AEnemy::OnDamageReceiveByTick(const float Value, int NbOfTick)
 	if(IsDead() || NbOfTick < 1)
 		return;
 
-	GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("Tick = " + FString::FromInt( NbOfTick)));
+	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("Tick = " + FString::FromInt( NbOfTick)));
 	DamageReceive = Value;
 	NbTick = NbOfTick;
 
@@ -121,6 +125,8 @@ void AEnemy::Freeze()
 	if(!IsValid(GetController()))
 		return;
 	
+	bIsFrozen=true;
+	
 	OnLianaFreeze();
 	GetController()->StopMovement(); 
 	Cast<AAIC_EnemyCAC>(GetController())->GetBrainComponent()->PauseLogic("Freezed");
@@ -130,6 +136,8 @@ void AEnemy::UnFreeze()
 {
 	if(!IsValid(GetController()))
 		return;
+
+	bIsFrozen=false;
 	
 	OnLianaUnFreeze();
 	
