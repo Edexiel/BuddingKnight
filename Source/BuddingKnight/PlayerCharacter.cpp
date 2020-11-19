@@ -395,17 +395,24 @@ void APlayerCharacter::TakeSeed(ASeed* Seed)
 	switch(Seed->GetType())
 	{
 	case Tree:
-		NbTreeSeed++;
-		break;
+		{
+			TypeOfPlant = EPlantType::Tree;
+			NbTreeSeed++;
+			break;
+		}
 			
 	case Liana:
-		NbLianaSeed++;
-		break;
-			
+		{
+			TypeOfPlant = EPlantType::Liana;
+			NbLianaSeed++;
+			break;
+		}	
 	case Spore:
-		NbSporeSeed++;
-		break;
-			
+		{
+			TypeOfPlant = EPlantType::Spore;
+			NbSporeSeed++;
+			break;
+		}	
 	default:
 		break;
 	}
@@ -440,7 +447,7 @@ void APlayerCharacter::UseSeed()
 			{
 				NbSporeSeed--;
 				break;
-			}	
+			}
 			return;
 			
 		default:
