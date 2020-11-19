@@ -102,7 +102,23 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	if(bIsRolling)
+	{
 		AddMovementInput(GetActorForwardVector(),1);
+		if(!bRollOnce)
+		{
+			StopAnimMontage(GetCurrentMontage());
+			ResetCombo();
+			GetCharacterMovement()->MaxWalkSpeed = RollSpeed;
+			bRollOnce = true;
+		}
+		GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * RollSpeed;
+	}
+	else if(!bIsRolling && bRollOnce)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		bRollOnce = false;
+	}
+		
 
 	UpdateCamera(DeltaSeconds);	
 }
@@ -582,11 +598,10 @@ void APlayerCharacter::Attack()
 
 void APlayerCharacter::Dodge()
 {
-	if(!bCanAttack|| bIsStun || bIsRolling || MovementComponent->IsFalling() )
+	if(!bCanAttack|| bIsStun || bIsRolling || MovementComponent->IsFalling())
 		return;
 	
-	bIsRolling=true;	
-	
+	bIsRolling=true;
 }
 
 void APlayerCharacter::SelectLeft()
