@@ -209,3 +209,12 @@ void AEnemy::ResetTickDamageDelay()
 	NbTick--;
 	OnDamageReceiveByTick(DamageReceive, NbTick);
 }
+
+void AEnemy::KnockBack(const float& _KnockBackForce)
+{
+	if(!bIsFrozen)
+	{
+		OnKnockBack();
+		LaunchCharacter(GetActorForwardVector() * _KnockBackForce * -1,true,true);
+	}
+}

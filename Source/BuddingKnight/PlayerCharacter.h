@@ -101,6 +101,9 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	UPROPERTY()
 	float BonusDamage;
 
+	UPROPERTY(EditAnywhere, Category=KnockBack)
+	float KnockBackForce{1000.f};
+
 	FTimerHandle StunHandle;
 	FTimerHandle SlowDownHandle;
 	

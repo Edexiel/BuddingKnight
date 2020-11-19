@@ -515,6 +515,12 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 		ClosestPot = Cast<APot>(OtherActor);
 		return;
 	}
+
+	if(bIsRolling && OtherActor->IsA(AEnemy::StaticClass()))
+	{
+		AEnemy* Enemy = Cast<AEnemy>(OtherActor);
+		Enemy->KnockBack(KnockBackForce);
+	}
 }
 
 void APlayerCharacter::OnCapsuleEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,

@@ -137,6 +137,11 @@ public:
     void OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                              int32 OtherBodyIndex);
 
+	UFUNCTION()
+    void KnockBack(const float& _KnockBackForce);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnKnockBack();
 	private:
 	
 	UPROPERTY()
