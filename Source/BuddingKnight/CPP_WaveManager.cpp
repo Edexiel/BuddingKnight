@@ -53,10 +53,10 @@ void ACPP_WaveManager::WaveStart()
 			const float Time = (Scenario->Time - LightBeforeSpawn)<=0?0.1f:Scenario->Time - LightBeforeSpawn;
 			GetWorldTimerManager().SetTimer(Td,WaveInfos.Spawner.Get(),&AASpawner_CPP::LightBeacon,Time,false);
 
+			ShouldSpawn+=Scenario->Number;
+			
 			for (int i = 0; i < Scenario->Number; ++i)
 			{
-				ShouldSpawn+=Scenario->Number;
-				
 				FTimerHandle Timer;// = Timers.Emplace_GetRef();
 				FTimerDelegate TimerDelegate;
 				
