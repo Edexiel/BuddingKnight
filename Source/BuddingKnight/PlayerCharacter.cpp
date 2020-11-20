@@ -102,7 +102,23 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	if(bIsRolling)
+	{
 		AddMovementInput(GetActorForwardVector(),1);
+		if(!bRollOnce)
+		{
+			StopAnimMontage(GetCurrentMontage());
+			ResetCombo();
+			GetCharacterMovement()->MaxWalkSpeed = RollSpeed;
+			bRollOnce = true;
+		}
+		GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * RollSpeed;
+	}
+	else if(!bIsRolling && bRollOnce)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
+		bRollOnce = false;
+	}
+		
 
 	UpdateCamera(DeltaSeconds);	
 }
@@ -379,17 +395,24 @@ void APlayerCharacter::TakeSeed(ASeed* Seed)
 	switch(Seed->GetType())
 	{
 	case Tree:
-		NbTreeSeed++;
-		break;
+		{
+			TypeOfPlant = EPlantType::Tree;
+			NbTreeSeed++;
+			break;
+		}
 			
 	case Liana:
-		NbLianaSeed++;
-		break;
-			
+		{
+			TypeOfPlant = EPlantType::Liana;
+			NbLianaSeed++;
+			break;
+		}	
 	case Spore:
-		NbSporeSeed++;
-		break;
-			
+		{
+			TypeOfPlant = EPlantType::Spore;
+			NbSporeSeed++;
+			break;
+		}	
 	default:
 		break;
 	}
@@ -424,7 +447,7 @@ void APlayerCharacter::UseSeed()
 			{
 				NbSporeSeed--;
 				break;
-			}	
+			}
 			return;
 			
 		default:
@@ -491,6 +514,12 @@ void APlayerCharacter::OnCapsuleBeginOverlap(UPrimitiveComponent* OverlappedComp
 	{
 		ClosestPot = Cast<APot>(OtherActor);
 		return;
+	}
+
+	if(bIsRolling && OtherActor->IsA(AEnemy::StaticClass()))
+	{
+		AEnemy* Enemy = Cast<AEnemy>(OtherActor);
+		Enemy->KnockBack(KnockBackForce);
 	}
 }
 
@@ -582,11 +611,10 @@ void APlayerCharacter::Attack()
 
 void APlayerCharacter::Dodge()
 {
-	if(!bCanAttack|| bIsStun || bIsRolling || MovementComponent->IsFalling() )
+	if(!bCanAttack|| bIsStun || bIsRolling || MovementComponent->IsFalling())
 		return;
 	
-	bIsRolling=true;	
-	
+	bIsRolling=true;
 }
 
 void APlayerCharacter::SelectLeft()

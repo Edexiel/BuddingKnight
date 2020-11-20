@@ -73,6 +73,15 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	/** Fighting Slow down rate [0-1] **/
 	UPROPERTY(EditAnywhere,BlueprintReadWrite,meta=(AllowPrivateAccess="true"))
 	float InFightSpeedRate;
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="MovementSpeed",meta=(AllowPrivateAccess="true"))
+	float WalkSpeed{600};
+	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="MovementSpeed",meta=(AllowPrivateAccess="true"))
+	float RollSpeed{10000};
+
+	UPROPERTY()
+	bool bRollOnce{false};
 	
 	int HitReceivedCounter{0};
 	
@@ -91,6 +100,9 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 
 	UPROPERTY()
 	float BonusDamage;
+
+	UPROPERTY(EditAnywhere, Category=KnockBack)
+	float KnockBackForce{1000.f};
 
 	FTimerHandle StunHandle;
 	FTimerHandle SlowDownHandle;

@@ -4,6 +4,7 @@
 #include "Enemy.h"
 #include "Components/SphereComponent.h"
 #include "Engine/Engine.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ASporeProjectile::ASporeProjectile()
@@ -43,6 +44,7 @@ void ASporeProjectile::OnSphereBeginOverlap(class UPrimitiveComponent* Overlappe
 void ASporeProjectile::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 	ChaseTarget(DeltaTime);
 }
 
@@ -50,7 +52,7 @@ void ASporeProjectile::ChaseTarget(float DeltaTime)
 {
 	const FVector ProjectileLocation = GetActorLocation();
 	
-	if(Target == nullptr)
+	if(!Target)
 	{
 		SetActorLocation(ProjectileLocation + GetActorForwardVector() * DeltaTime * Speed);
 		return;

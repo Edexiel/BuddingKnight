@@ -169,8 +169,16 @@ void AEnemy::OnWeaponBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 	{
 		Cast<APot>(OtherActor)->ReceiveDamage(Damage);
 		OnPotHit();
-	}
-	
+
+		if(Cast<APot>(OtherActor)->GetIsDead())
+		{
+			OnDeath(GetActorLocation());
+			GetCapsuleComponent()->DestroyComponent();
+			RightWeapon->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+			Cast<AAIC_EnemyCAC>(GetController())->SetDead();
+			GetWorldTimerManager().SetTimer(DestroyHandle,this,&AEnemy::Delete,DepopTime,false);
+		}
+	}	
 }
 
 void AEnemy::OnWeaponEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -195,4 +203,13 @@ void AEnemy::ResetTickDamageDelay()
 	IsResettingTickDamageDelay = true;
 	NbTick--;
 	OnDamageReceiveByTick(DamageReceive, NbTick);
+}
+
+void AEnemy::KnockBack(const float& _KnockBackForce)
+{
+	if(!bIsFrozen)
+	{
+		OnKnockBack();
+		LaunchCharacter(GetActorForwardVector() * _KnockBackForce * -1,true,true);
+	}
 }

@@ -23,6 +23,15 @@ class BUDDINGKNIGHT_API ASeed : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ASeed();
+
+	UPROPERTY(EditAnywhere, Category=Material)
+	class UMaterialInstance* TreeMaterial;
+
+	UPROPERTY(EditAnywhere, Category=Material)
+	class UMaterialInstance* LianaMaterial;
+
+	UPROPERTY(EditAnywhere, Category=Material)
+	class UMaterialInstance* SporeMaterial;
 	
 	UPROPERTY(EditAnywhere)
 	class USphereComponent* CollisionSphere;

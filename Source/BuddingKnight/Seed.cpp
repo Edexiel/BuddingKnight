@@ -7,6 +7,8 @@
 #include "Components/SphereComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "Engine/Engine.h"
+#include "Materials/Material.h"
+#include "Materials/MaterialInstance.h"
 
 // Sets default values
 ASeed::ASeed()
@@ -21,6 +23,14 @@ ASeed::ASeed()
 
 	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	Mesh->SetupAttachment(RootComponent);
+	
+	TreeMaterial = CreateDefaultSubobject<UMaterialInstance>(TEXT("TreeMaterial"));
+	LianaMaterial = CreateDefaultSubobject<UMaterialInstance>(TEXT("LianaMaterial"));
+	SporeMaterial = CreateDefaultSubobject<UMaterialInstance>(TEXT("SporeMaterial"));
+
+	//UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), TreeMaterial);
+	//UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), LianaMaterial);
+	//UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), SporeMaterial);
 	
 }
 
@@ -51,11 +61,23 @@ void ASeed::RandomTypeOfSeed()
 	const float Rate = FMath::RandRange(0.f, DropRateTree + DropRateLiana + DropRateSpore);
 	
 	if(Rate >= 0 && Rate < DropRateTree)
+	{
 		Type = EPlantType::Tree;
+		if(TreeMaterial)
+			Mesh->SetMaterial(0, TreeMaterial);
+	}
 	else if(Rate >= DropRateTree && Rate < DropRateTree + DropRateLiana)
+	{
 		Type = EPlantType::Liana;
+		if(LianaMaterial)
+			Mesh->SetMaterial(0, LianaMaterial);
+	}
 	else if(Rate >= DropRateTree + DropRateLiana && Rate < DropRateTree + DropRateLiana + DropRateSpore)
+	{
 		Type = EPlantType::Spore;
+		if(SporeMaterial)
+			Mesh->SetMaterial(0, SporeMaterial);
+	}
 }
 
 void ASeed::OnCollisionSphereBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
