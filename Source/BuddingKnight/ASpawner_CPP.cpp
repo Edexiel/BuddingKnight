@@ -20,7 +20,7 @@ AEnemy* AASpawner_CPP::SpawnEnemy(const TSubclassOf<AEnemy> Type)
 	// Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(Type,GetTransform());
-	
+
 	AAIC_EnemyCAC* Aic = Cast<AAIC_EnemyCAC>(Enemy->GetController());
 	Aic->SetTarget(Cast<AActor>(Target));
 	
