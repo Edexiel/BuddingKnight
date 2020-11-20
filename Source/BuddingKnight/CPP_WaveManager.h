@@ -71,13 +71,16 @@ public:
 	void OnGameEnd();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnGameStart(FTimerHandle& Handle);
+	void OnWaveInit(FTimerHandle& Handle);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWaveStart(int WaveNumber);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWaveFinish(int NewWaveNumber);
+
+	UFUNCTION(BlueprintCallable)
+	int MaxWaves() const;
 
 
 protected:

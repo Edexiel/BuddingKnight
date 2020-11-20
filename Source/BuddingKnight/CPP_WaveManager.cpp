@@ -7,8 +7,11 @@
 
 
 // Sets default values
-ACPP_WaveManager::ACPP_WaveManager()
+ACPP_WaveManager::ACPP_WaveManager(){}
+
+int ACPP_WaveManager::MaxWaves() const
 {
+	return MaxWave;
 }
 
 // Called when the game starts or when spawned
@@ -24,7 +27,7 @@ void ACPP_WaveManager::BeginPlay()
 
 	FTimerHandle DelayStart;
 	GetWorldTimerManager().SetTimer(DelayStart,this,&ACPP_WaveManager::WaveStart,StartDelay,false);
-	OnGameStart(DelayStart);
+	OnWaveInit(DelayStart);
 }
 
 void ACPP_WaveManager::WaveStart()
