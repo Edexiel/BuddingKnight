@@ -16,10 +16,12 @@ void AASpawner_CPP::BeginPlay()
 
 AEnemy* AASpawner_CPP::SpawnEnemy(const TSubclassOf<AEnemy> Type)
 {
-	// FActorSpawnParameters Params;
-	// Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	FActorSpawnParameters Params;
+	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-	AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(Type,GetTransform());
+	AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(Type,GetTransform(),Params);
+	if(!Enemy)
+		return nullptr;
 	
 	AAIC_EnemyCAC* Aic = Cast<AAIC_EnemyCAC>(Enemy->GetController());
 	Aic->SetTarget(Cast<AActor>(Target));
