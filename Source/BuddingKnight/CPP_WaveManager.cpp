@@ -37,6 +37,9 @@ void ACPP_WaveManager::WaveStart()
 	{
 		return;
 	}
+	ShouldSpawn=0;
+	HaveSpawned=0;
+	
 	OnWaveStart(Wave);
 
 	for (FWaveInfos& WaveInfos : WaveAsset->Wave[Wave].WaveInfos)
@@ -52,6 +55,7 @@ void ACPP_WaveManager::WaveStart()
 
 			for (int i = 0; i < Scenario->Number; ++i)
 			{
+				ShouldSpawn+=Scenario->Number;
 				
 				FTimerHandle Timer;// = Timers.Emplace_GetRef();
 				FTimerDelegate TimerDelegate;
@@ -69,6 +73,7 @@ void ACPP_WaveManager::WaveStart()
 
 void ACPP_WaveManager::SpawnEnemy(AASpawner_CPP* Spawner, const TSubclassOf<AEnemy> Type)
 {
+	HaveSpawned++;
 	
 	AEnemy* Enemy = Spawner->SpawnEnemy(Type);
 
@@ -84,7 +89,7 @@ void ACPP_WaveManager::OnEnemyDestroy(AActor* Enemy)
 {
 	Enemies.Remove(Cast<AEnemy>(Enemy));
 
-	if(Enemies.Num()==0)
+	if(Enemies.Num()==0 && ShouldSpawn==HaveSpawned)
 	{
 		Wave++;
 		bIsFinished=Wave==MaxWave;
