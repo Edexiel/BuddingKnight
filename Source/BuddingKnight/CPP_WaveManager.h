@@ -30,6 +30,9 @@ class BUDDINGKNIGHT_API ACPP_WaveManager : public AActor
 	
 	UPROPERTY()
 	float LightBeforeSpawn;
+
+	UPROPERTY()
+	float StartDelay;
 	
 	UPROPERTY()
 	float Buffer{0};
@@ -63,6 +66,18 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	UCPP_WaveData* WaveAsset;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGameEnd();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnGameStart(FTimerHandle& Handle);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnWaveStart(int WaveNumber);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnWaveFinish(int NewWaveNumber);
 
 
 protected:

@@ -55,10 +55,15 @@ class BUDDINGKNIGHT_API UCPP_WaveData : public UDataAsset
 	
 	UPROPERTY(EditAnywhere)
 	float DelayBetweenSpawn;
+
 	UPROPERTY(EditAnywhere)
 	float DelayBetweenWaves;
+
 	UPROPERTY(EditAnywhere)
 	float LightBeforeSpawn;
+
+	UPROPERTY(EditAnywhere)
+	float StartDelay;
 
 	UPROPERTY(EditAnywhere)
 	TArray<FWave> Wave;

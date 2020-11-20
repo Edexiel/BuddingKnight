@@ -17,22 +17,23 @@ void ACPP_WaveManager::BeginPlay()
 	Super::BeginPlay();
 	DelayBetweenSpawn = WaveAsset->DelayBetweenSpawn ;
 	DelayBetweenWaves = WaveAsset->DelayBetweenWaves;
-	LightBeforeSpawn= WaveAsset->LightBeforeSpawn;
+	LightBeforeSpawn = WaveAsset->LightBeforeSpawn;
+	StartDelay = WaveAsset->StartDelay;
 
 	MaxWave= WaveAsset->Wave.Num();
 
 	FTimerHandle DelayStart;
-	GetWorldTimerManager().SetTimer(DelayStart,this,&ACPP_WaveManager::WaveStart,1,false);
+	GetWorldTimerManager().SetTimer(DelayStart,this,&ACPP_WaveManager::WaveStart,StartDelay,false);
+	OnGameStart(DelayStart);
 }
+
 void ACPP_WaveManager::WaveStart()
 {
 	if(bIsFinished)
 	{
-		//todo 
-		//launch end game
 		return;
 	}
-		
+	OnWaveStart(Wave);
 
 	for (FWaveInfos& WaveInfos : WaveAsset->Wave[Wave].WaveInfos)
 	{
@@ -81,9 +82,17 @@ void ACPP_WaveManager::OnEnemyDestroy(AActor* Enemy)
 
 	if(Enemies.Num()==0)
 	{
-		GetWorldTimerManager().SetTimer(StartWaveHandle,this,&ACPP_WaveManager::WaveStart,DelayBetweenWaves,false);
 		Wave++;
-		
 		bIsFinished=Wave==MaxWave;
+
+		if(bIsFinished)
+		{
+			OnGameEnd();
+		}
+		else
+		{
+			GetWorldTimerManager().SetTimer(StartWaveHandle,this,&ACPP_WaveManager::WaveStart,DelayBetweenWaves,false);
+			OnWaveFinish(Wave);
+		}	
 	}
 }
