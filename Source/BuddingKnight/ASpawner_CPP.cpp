@@ -20,6 +20,7 @@ AEnemy* AASpawner_CPP::SpawnEnemy(const TSubclassOf<AEnemy> Type)
 	Params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
 	AEnemy* Enemy = GetWorld()->SpawnActor<AEnemy>(Type,GetTransform(),Params);
+	
 	if(!Enemy)
 		return nullptr;
 	

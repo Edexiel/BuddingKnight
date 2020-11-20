@@ -78,10 +78,16 @@ class BUDDINGKNIGHT_API APlayerCharacter : public ACharacter
 	float WalkSpeed{600};
 	
 	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="MovementSpeed",meta=(AllowPrivateAccess="true"))
-	float RollSpeed{10000};
+	float RollSpeed{1000};
+
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category="MovementSpeed",meta=(AllowPrivateAccess="true"))
+	UCurveFloat* SpeedCurve;
 
 	UPROPERTY()
 	bool bRollOnce{false};
+
+	UPROPERTY()
+	float Timer{0};
 	
 	int HitReceivedCounter{0};
 	
@@ -377,6 +383,7 @@ protected:
 
 	UPROPERTY()
 	FTimerHandle TimeHandleSoftLock;
+
 
 	UFUNCTION()
 	void DelaySoftLock();

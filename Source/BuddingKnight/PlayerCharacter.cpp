@@ -111,12 +111,15 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 			GetCharacterMovement()->MaxWalkSpeed = RollSpeed;
 			bRollOnce = true;
 		}
-		GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * RollSpeed;
+		Timer += DeltaSeconds;
+		if(SpeedCurve)
+			GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * SpeedCurve->GetFloatValue(Timer);
 	}
 	else if(!bIsRolling && bRollOnce)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		bRollOnce = false;
+		Timer = 0;
 	}
 		
 
