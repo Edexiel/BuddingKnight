@@ -71,7 +71,7 @@ public:
 	void OnGameEnd();
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void OnWaveInit(FTimerHandle& Handle);
+	void OnWaveInit(FTimerHandle Handle);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnWaveStart(int WaveNumber);
@@ -82,6 +82,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	int MaxWaves() const;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void OnAfterBeginPlay();
 
 protected:
 	// Called when the game starts or when spawned

@@ -27,6 +27,7 @@ void ACPP_WaveManager::BeginPlay()
 
 	FTimerHandle DelayStart;
 	GetWorldTimerManager().SetTimer(DelayStart,this,&ACPP_WaveManager::WaveStart,StartDelay,false);
+	OnAfterBeginPlay();
 	OnWaveInit(DelayStart);
 }
 
