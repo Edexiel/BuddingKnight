@@ -3,17 +3,12 @@
 
 #include "Enemy.h"
 
-#include <string>
-
-
-
 #include "AIC_EnemyCAC.h"
 #include "BrainComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "PlayerCharacter.h"
 #include "Pot.h"
 #include "TimerManager.h"
-#include "Tree.h"
 #include "Components/BoxComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Engine/Engine.h"

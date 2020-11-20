@@ -23,7 +23,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category=Pot)
 	class APot * Pot3;
-	
+
 protected:
 	// Called when the game starts or when spawned
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
