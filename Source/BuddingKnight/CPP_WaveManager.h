@@ -70,7 +70,7 @@ class BUDDINGKNIGHT_API ACPP_WaveManager : public AActor
 public:	
 	ACPP_WaveManager();
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UCPP_WaveData* WaveAsset;
 
 	UFUNCTION(BlueprintImplementableEvent)

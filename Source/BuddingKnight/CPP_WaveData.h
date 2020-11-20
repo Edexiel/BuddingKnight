@@ -46,7 +46,7 @@ struct FWave
 	TArray<FWaveInfos> WaveInfos;  
 };
 
-UCLASS()
+UCLASS(BlueprintType)
 class BUDDINGKNIGHT_API UCPP_WaveData : public UDataAsset
 {
 	GENERATED_BODY()
