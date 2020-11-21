@@ -18,6 +18,9 @@ int ACPP_WaveManager::MaxWaves() const
 void ACPP_WaveManager::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	OnBeforeBeginPlay();
+	
 	DelayBetweenSpawn = WaveAsset->DelayBetweenSpawn ;
 	DelayBetweenWaves = WaveAsset->DelayBetweenWaves;
 	LightBeforeSpawn = WaveAsset->LightBeforeSpawn;
@@ -37,6 +40,7 @@ void ACPP_WaveManager::WaveStart()
 	{
 		return;
 	}
+	
 	ShouldSpawn=0;
 	HaveSpawned=0;
 	
