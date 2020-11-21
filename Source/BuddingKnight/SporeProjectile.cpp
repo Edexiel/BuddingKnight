@@ -24,6 +24,9 @@ void ASporeProjectile::BeginPlay()
 	Super::BeginPlay();
 	
 	CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ASporeProjectile::OnSphereBeginOverlap);
+	CollisionSphere->SetSimulatePhysics(true);
+	CollisionSphere->SetEnableGravity(false);
+	CollisionSphere->SetNotifyRigidBodyCollision(true);
 }
 
 void ASporeProjectile::OnSphereBeginOverlap(class UPrimitiveComponent* OverlappedComp,
@@ -62,6 +65,8 @@ void ASporeProjectile::ChaseTarget(float DeltaTime)
 	
 	const FVector Dir = (TargetLocation - ProjectileLocation).GetSafeNormal();
 	SetActorLocation(ProjectileLocation + Dir * DeltaTime * Speed);
+	//CollisionSphere->ComponentVelocity = Dir * Speed;
+	
 }
 
 void ASporeProjectile::SetTarget(AActor* NewTarget)
