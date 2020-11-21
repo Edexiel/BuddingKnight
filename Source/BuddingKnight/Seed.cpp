@@ -27,11 +27,6 @@ ASeed::ASeed()
 	TreeMaterial = CreateDefaultSubobject<UMaterialInstance>(TEXT("TreeMaterial"));
 	LianaMaterial = CreateDefaultSubobject<UMaterialInstance>(TEXT("LianaMaterial"));
 	SporeMaterial = CreateDefaultSubobject<UMaterialInstance>(TEXT("SporeMaterial"));
-
-	//UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), TreeMaterial);
-	//UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), LianaMaterial);
-	//UMaterialInstanceDynamic::Create(Mesh->GetMaterial(0), SporeMaterial);
-	
 }
 
 // Called when the game starts or when spawned

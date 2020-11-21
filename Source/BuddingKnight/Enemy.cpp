@@ -74,11 +74,12 @@ void AEnemy::ReceiveDamage(const float Value)
 }
 
 
-void AEnemy::OnDamageReceiveByTick(const float Value, int NbOfTick)
+void AEnemy::DamageReceiveByTick(const float Value, int NbOfTick)
 {
 	if(IsDead() || NbOfTick < 1)
 		return;
 
+	OnDamageReceiveByTick(NbOfTick);
 	DamageReceive = Value;
 	NbTick = NbOfTick;
 

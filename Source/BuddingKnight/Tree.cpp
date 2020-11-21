@@ -85,7 +85,6 @@ void ATree::EndAttackDelay()
 
 void ATree::ResetEndAttackDelay()
 {
-    UE_LOG(LogTemp, Warning, TEXT("BONSOIR"));
     IsResettingEndAttackDelay = true;
     AttackBox->SetCollisionEnabled( ECollisionEnabled::Type::NoCollision);
 }
