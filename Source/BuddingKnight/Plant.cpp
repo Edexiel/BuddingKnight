@@ -11,10 +11,8 @@
 
 #include "PlayerCharacter.h"
 #include "Enemy.h"
-#include "Kismet/KismetSystemLibrary.h"
 
 
-// Sets default values
 APlant::APlant()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -26,7 +24,6 @@ APlant::APlant()
 	SphereDetection->SetCanEverAffectNavigation(false);
 }
 
-// Called when the game starts or when spawned
 void APlant::BeginPlay()
 {
 	Super::BeginPlay();
@@ -72,7 +69,6 @@ void APlant::UseSpecial()
 
 void APlant::Special()
 {
-	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Cyan,"Use special");
 }
 
 void APlant::SearchClosestEnemy()
@@ -80,20 +76,17 @@ void APlant::SearchClosestEnemy()
 	if(Enemies.Num() == 0)
 		return;
 		
-	else if (Enemies.Num() == 1 && ClosestEnemy == nullptr)
+	if (Enemies.Num() == 1 && ClosestEnemy == nullptr)
 	{
 		ClosestEnemy = Enemies[0];
 		return;
 	}
-	else if (Enemies.Num() > 1 && ClosestEnemy == nullptr)
+	if (Enemies.Num() > 1 && ClosestEnemy == nullptr)
 		ClosestEnemy = Enemies[0];
 	
 	for (AEnemy* Pawn : Enemies)
 	{
 		const float NewDistance = GetDistanceTo(Pawn);
-		
-		//UE_LOG(LogTemp, Warning, TEXT("DistanceToClosestEnemy = %f"), DistanceToClosestEnemy);
-		//UE_LOG(LogTemp, Warning, TEXT("NewDistance = %f"), NewDistance);
 		
 		if (ClosestEnemy == Pawn)
 		{
@@ -113,19 +106,16 @@ void APlant::LookAtClosestEnemy(const float DeltaTime)
 {
 	if(ClosestEnemy == nullptr)
 		return;
-
 	
 	FRotator PlantRotation = GetActorRotation();
 	const FRotator NewRotation =  UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), ClosestEnemy->GetActorLocation());
 
 	PlantRotation.SetComponentForAxis(EAxis::Z, NewRotation.Yaw);
 	PlantRotation = GetActorRotation() + (PlantRotation - GetActorRotation()).GetNormalized() * DeltaTime * RotSpeed;
-	
 
 	SetActorRotation(PlantRotation);
 }
 
-// Called every frame
 void APlant::Tick(float DeltaTime)
 {	
 	Super::Tick(DeltaTime);
@@ -154,7 +144,6 @@ void APlant::OnSphereDetectionOverlapBegin(UPrimitiveComponent* OverlappedComp, 
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
 	    Enemies.Add(Cast<AEnemy>(OtherActor));
-		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,"Add enemy!");
 	}
 }
 

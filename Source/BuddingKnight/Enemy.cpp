@@ -79,12 +79,9 @@ void AEnemy::OnDamageReceiveByTick(const float Value, int NbOfTick)
 	if(IsDead() || NbOfTick < 1)
 		return;
 
-	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("Tick = " + FString::FromInt( NbOfTick)));
 	DamageReceive = Value;
 	NbTick = NbOfTick;
 
-	
-	
 	BaseComponent->TakeDamage(DamageReceive);
 	
 	TickDamageDelay();

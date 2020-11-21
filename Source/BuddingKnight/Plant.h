@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -16,11 +14,9 @@ class BUDDINGKNIGHT_API APlant : public ACharacter
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	APlant();	
+	APlant();
 	
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, meta=(AllowPrivateAccess = "true"))
@@ -82,7 +78,6 @@ private:
 	FTimerHandle TimeHandleDelay;
 	
 public:	
-	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION(BlueprintCallable)
@@ -94,8 +89,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void Passive(APlayerCharacter* Player);
 	
-	// Called to bind functionality to input
-
 	UFUNCTION()
     void OnSphereDetectionOverlapBegin(class UPrimitiveComponent* OverlappedComp,
                         class AActor* OtherActor,

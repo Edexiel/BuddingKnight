@@ -62,7 +62,6 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
     
     switch (MyController->GetMoveStatus()) {
 
-    //todo check in idle if the target is the player, if is the player and not close = unreachable -> focus target
     case EPathFollowingStatus::Idle:
         //Player is maybe not on navmesh
         // Character moved successfully towards goal, switching to attack mode
@@ -98,8 +97,6 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
                     MyController->ClearFocus(EAIFocusPriority::Gameplay);
                     MyController->SetFocus(Target);
                     
-                    //GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Red,"Player out of bounds");
-
                     return FinishLatentTask(OwnerComp,EBTNodeResult::Failed);
                 }
             return FinishLatentTask(OwnerComp,EBTNodeResult::InProgress);                
@@ -109,7 +106,6 @@ void UBTT_ChaseTarget::TickTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMe
             //the player is not in reach anymore or too much enemies on player, refocus towards target
             if(!bCloseAndValid)
             {
-                //GEngine->AddOnScreenDebugMessage(INDEX_NONE,5.f,FColor::Green,"Refocus towards : Target");
                 MyBlackBoard->SetValueAsObject("FocusActor",Target);
                     
                 MyController->ClearFocus(EAIFocusPriority::Gameplay);

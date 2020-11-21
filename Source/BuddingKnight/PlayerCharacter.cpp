@@ -24,9 +24,7 @@
 #include "Components/SphereComponent.h"
 
 APlayerCharacter::APlayerCharacter()
-{
-	// PrimaryActorTick.bCanEverTick = true;
-	
+{	
 	// Set size for collision capsule
 	GetCapsuleComponent()->InitCapsuleSize(42.f, 96.0f);
 	GetCapsuleComponent()->SetCanEverAffectNavigation(false);
@@ -360,7 +358,7 @@ void APlayerCharacter::SearchClosestEnemy()
 	if(Enemies.Num() == 0)
 		return;
 	
-	else if (Enemies.Num() > 1 && LockEnemy == nullptr)
+	if (Enemies.Num() > 1 && LockEnemy == nullptr)
 	{
 		LockEnemy = Enemies[0];
 		CameraBoom->SetWorldRotation(GetControlRotation());
@@ -423,7 +421,6 @@ void APlayerCharacter::TakeSeed(ASeed* Seed)
 
 void APlayerCharacter::UseSeed()
 {
-	if(ClosestPot == nullptr || ClosestPot->GetHaveASeed() || ClosestPot->GetIsDead())
 	if(ClosestPot == nullptr || ClosestPot->GetHaveASeed() || ClosestPot->GetIsDead())
 		return;
 
@@ -661,8 +658,6 @@ void APlayerCharacter::RegisterEnemy(APawn* Pawn,const int Max)
 	if(!Enemies.Contains(Pawn))
 	{
 		Enemies.Add(Pawn);
-
-		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
 
 		if(Enemies.Num() == 1)
 		{

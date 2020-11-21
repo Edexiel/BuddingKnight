@@ -5,7 +5,6 @@
 #include "Engine/Engine.h"
 #include "Enemy.h"
 #include "PlayerCharacter.h"
-#include "TimerManager.h"
 #include "BehaviorTree/BlackboardComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -35,11 +34,7 @@ void AAIC_EnemyCAC::BeginPlay()
     Blackboard->SetValueAsBool("Attacking",false);
     Blackboard->SetValueAsBool("isAlive",true);
     
-    Blackboard->SetValueAsFloat("WaitTimeBetweenAttacks",WaitTimeBetweenAttacks);
-    // if(!Blackboard->GetValueAsFloat("DistanceToPlayer"))
-    //     Blackboard->SetValueAsFloat("DistanceToPlayer",GetPawn()->GetDistanceTo(PlayerCharacter));
-
-   
+    Blackboard->SetValueAsFloat("WaitTimeBetweenAttacks",WaitTimeBetweenAttacks);  
 }
 
 void AAIC_EnemyCAC::OnPossess(APawn* InPawn)
@@ -60,7 +55,6 @@ void AAIC_EnemyCAC::SetTarget(AActor* Actor)
     Blackboard->SetValueAsObject("FocusActor",Target);
     ClearFocus(EAIFocusPriority::Gameplay);
     SetFocus(Target);
-    //GEngine->AddOnScreenDebugMessage(INDEX_NONE,2.f,FColor::Red,"Target set");
 }
 
 void AAIC_EnemyCAC::SetDead() const
@@ -86,11 +80,6 @@ void AAIC_EnemyCAC::Tick(float DeltaTime)
     if(!IsValid(enemy))
         return;
 
-    // if(enemy->IsDead())
-    // {
-    //     PlayerCharacter->UnregisterEnemy(GetPawn());
-    // }
-    
     const float Distance = GetPawn()->GetDistanceTo(PlayerCharacter);
 
     Blackboard->SetValueAsFloat("DistanceToPlayer",Distance);

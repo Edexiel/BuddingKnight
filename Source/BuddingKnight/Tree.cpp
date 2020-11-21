@@ -66,7 +66,6 @@ void ATree::OnAttackBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 {
     if(OtherActor->IsA(AEnemy::StaticClass()))
     {
-        GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("ENEMY NOT IN THE BOX"));
         AEnemy* Enemy = Cast<AEnemy>(OtherActor);
         
         if(Enemy->IsAlreadyTakeDamage)
