@@ -28,7 +28,7 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Passive", meta=(AllowPrivateAccess="true"))
 	TSubclassOf<class APassiveSpore> PassiveSporeClass;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadWrite)
 	class APassiveSpore* PassiveSpore;
 
 	

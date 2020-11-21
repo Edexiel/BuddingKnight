@@ -112,8 +112,9 @@ void APlayerCharacter::Tick(float DeltaSeconds)
 			bRollOnce = true;
 		}
 		Timer += DeltaSeconds;
+		const FVector ConstantVelocity = (GetCharacterMovement()->Velocity.GetSafeNormal() * SpeedCurve->GetFloatValue(Timer));
 		if(SpeedCurve)
-			GetCharacterMovement()->Velocity = GetCharacterMovement()->Velocity.GetSafeNormal() * SpeedCurve->GetFloatValue(Timer);
+			GetCharacterMovement()->Velocity = FVector(ConstantVelocity.X, ConstantVelocity.Y, GetCharacterMovement()->Velocity.Z);
 	}
 	else if(!bIsRolling && bRollOnce)
 	{

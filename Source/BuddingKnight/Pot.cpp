@@ -90,7 +90,7 @@ void APot::Tick(float DeltaTime)
 		
 		CanPlant = false;
 		HaveASeed = true;
-		CollisionBox->UpdateOverlaps();
+		//CollisionBox->UpdateOverlaps();
 	}
 	if(Plant && Plant->GetDetectPlayer() != PlayerIsDetected)
 	{
