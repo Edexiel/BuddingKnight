@@ -200,7 +200,7 @@ void AEnemy::ResetTickDamageDelay()
 {
 	IsResettingTickDamageDelay = true;
 	NbTick--;
-	OnDamageReceiveByTick(DamageReceive, NbTick);
+	DamageReceiveByTick(DamageReceive, NbTick);
 }
 
 void AEnemy::KnockBack(const float& _KnockBackForce)
