@@ -91,6 +91,9 @@ public:
 	void OnDamageReceive();
 
 	UFUNCTION(BlueprintImplementableEvent)
+    void OnDamageReceiveByTick(int NbOfTick);
+
+	UFUNCTION(BlueprintImplementableEvent)
 	void OnLianaFreeze();
 
 	UFUNCTION(BlueprintImplementableEvent)
@@ -100,7 +103,7 @@ public:
     void OnDeath(FVector Position);
 	
 	UFUNCTION(BlueprintCallable)
-    void OnDamageReceiveByTick(const float Value, int NbOfTick = 3);
+    void DamageReceiveByTick(const float Value, int NbOfTick = 3);
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnPotHit();

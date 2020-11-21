@@ -35,7 +35,7 @@ void ASporeProjectile::OnSphereBeginOverlap(class UPrimitiveComponent* Overlappe
 	if(OtherActor->IsA(AEnemy::StaticClass()))
 	{
 		OnImpact();
-		Cast<AEnemy>(OtherActor)->OnDamageReceiveByTick(Damage, NbTick);
+		Cast<AEnemy>(OtherActor)->DamageReceiveByTick(Damage, NbTick);
 	}
 	Destroy();
 }

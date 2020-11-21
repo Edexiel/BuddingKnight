@@ -74,12 +74,12 @@ void AEnemy::ReceiveDamage(const float Value)
 }
 
 
-void AEnemy::OnDamageReceiveByTick(const float Value, int NbOfTick)
+void AEnemy::DamageReceiveByTick(const float Value, int NbOfTick)
 {
 	if(IsDead() || NbOfTick < 1)
 		return;
 
-	//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Green,TEXT("Tick = " + FString::FromInt( NbOfTick)));
+	OnDamageReceiveByTick(NbOfTick);
 	DamageReceive = Value;
 	NbTick = NbOfTick;
 
@@ -202,7 +202,7 @@ void AEnemy::ResetTickDamageDelay()
 {
 	IsResettingTickDamageDelay = true;
 	NbTick--;
-	OnDamageReceiveByTick(DamageReceive, NbTick);
+	DamageReceiveByTick(DamageReceive, NbTick);
 }
 
 void AEnemy::KnockBack(const float& _KnockBackForce)
