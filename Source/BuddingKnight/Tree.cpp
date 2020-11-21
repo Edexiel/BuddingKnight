@@ -66,7 +66,6 @@ void ATree::OnAttackBoxEndOverlap(UPrimitiveComponent* OverlappedComp, AActor* O
 {
     if(OtherActor->IsA(AEnemy::StaticClass()))
     {
-        GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("ENEMY NOT IN THE BOX"));
         AEnemy* Enemy = Cast<AEnemy>(OtherActor);
         
         if(Enemy->IsAlreadyTakeDamage)
@@ -86,7 +85,6 @@ void ATree::EndAttackDelay()
 
 void ATree::ResetEndAttackDelay()
 {
-    UE_LOG(LogTemp, Warning, TEXT("BONSOIR"));
     IsResettingEndAttackDelay = true;
     AttackBox->SetCollisionEnabled( ECollisionEnabled::Type::NoCollision);
 }

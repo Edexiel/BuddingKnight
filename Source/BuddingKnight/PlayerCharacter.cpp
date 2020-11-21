@@ -663,8 +663,6 @@ void APlayerCharacter::RegisterEnemy(APawn* Pawn,const int Max)
 	{
 		Enemies.Add(Pawn);
 
-		//GEngine->AddOnScreenDebugMessage(NULL,2.f,FColor::Red,TEXT("Enemy registered " +  FString::FromInt(Enemies.Num())));
-
 		if(Enemies.Num() == 1)
 		{
 			LockEnemy = Enemies[0];
