@@ -46,8 +46,8 @@ class BUDDINGKNIGHT_API ACPP_WaveManager : public AActor
 	UPROPERTY()
 	float HaveSpawned{0};
 
-	UPROPERTY()
-	TArray<FTimerHandle> Timers;
+	// UPROPERTY()
+	// TArray<FTimerHandle> Timers;
 
 	// UPROPERTY()
 	// TArray<FTimerDelegate> TimerDelegates;
