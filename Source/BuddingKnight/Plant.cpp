@@ -97,7 +97,6 @@ void APlant::SearchClosestEnemy()
 		{
 			ClosestEnemy = Pawn;
 			DistanceToClosestEnemy = NewDistance;
-			UE_LOG(LogTemp, Warning, TEXT("Change closest enemy"));
 		}
 	}
 }

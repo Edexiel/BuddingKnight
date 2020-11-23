@@ -65,8 +65,6 @@ void ASporeProjectile::ChaseTarget(float DeltaTime)
 	
 	const FVector Dir = (TargetLocation - ProjectileLocation).GetSafeNormal();
 	SetActorLocation(ProjectileLocation + Dir * DeltaTime * Speed);
-	//CollisionSphere->ComponentVelocity = Dir * Speed;
-	
 }
 
 void ASporeProjectile::SetTarget(AActor* NewTarget)
